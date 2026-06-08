@@ -4,10 +4,13 @@ module.exports = async function handler(req, res) {
   const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
 
   try {
-    const { default: fetch } = await import('node-fetch');
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 5000); // 5s timeout
     const r = await fetch(`${ollamaUrl}/api/tags`, {
-      signal: AbortSignal.timeout(3000)
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SeleniumTraining/1.0)' }
     });
+    clearTimeout(tid);
     const data = await r.json();
     return res.json({
       server: 'ok',
