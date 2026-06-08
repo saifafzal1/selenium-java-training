@@ -157,6 +157,9 @@ function showLesson(lesson, module) {
   // Render exercise
   renderExercise(lesson);
 
+  // Render affiliate resources panel
+  renderAffiliatePanel(lesson, module);
+
   // Load notes
   const noteArea = document.getElementById('notes-area');
   noteArea.value = state.progress.notes[lesson.id] || '';
@@ -203,6 +206,58 @@ function renderExercise(lesson) {
     <p style="font-size:13px;color:var(--text3);margin-top:12px">
       💡 Paste your code or errors into the AI chat for help →
     </p>`;
+}
+
+// ── Affiliate Resources Panel ──────────────────────────────────
+function renderAffiliatePanel(lesson, module) {
+  // Remove existing panel if any
+  const existing = document.getElementById('affiliate-panel');
+  if (existing) existing.remove();
+
+  const panel = document.createElement('div');
+  panel.id = 'affiliate-panel';
+  panel.innerHTML = `
+    <div class="affiliate-header">
+      <span class="affiliate-title">📚 Recommended Resources</span>
+      <span class="affiliate-sub">Curated tools &amp; courses to accelerate your learning</span>
+    </div>
+    <div class="affiliate-grid">
+      <a class="affiliate-card" href="https://www.udemy.com/course/selenium-webdriver-with-java-testng-and-log4j/?couponCode=LEARNNOWPLANS" target="_blank" rel="noopener">
+        <div class="aff-icon">🎓</div>
+        <div class="aff-body">
+          <div class="aff-name">Selenium WebDriver + Java</div>
+          <div class="aff-desc">Most popular Selenium course on Udemy — 50,000+ students</div>
+          <div class="aff-cta">View on Udemy →</div>
+        </div>
+      </a>
+      <a class="affiliate-card" href="https://www.lambdatest.com/?utm_source=selenium-training&utm_medium=affiliate" target="_blank" rel="noopener">
+        <div class="aff-icon">☁️</div>
+        <div class="aff-body">
+          <div class="aff-name">LambdaTest — Cloud Testing</div>
+          <div class="aff-desc">Run Selenium tests on 3000+ browsers &amp; OS combinations</div>
+          <div class="aff-cta">Try Free →</div>
+        </div>
+      </a>
+      <a class="affiliate-card" href="https://www.browserstack.com/automate?utm_source=selenium-training&utm_medium=affiliate" target="_blank" rel="noopener">
+        <div class="aff-icon">🌐</div>
+        <div class="aff-body">
+          <div class="aff-name">BrowserStack Automate</div>
+          <div class="aff-desc">Real devices, instant access — industry standard for QA</div>
+          <div class="aff-cta">Start Free Trial →</div>
+        </div>
+      </a>
+      <a class="affiliate-card" href="https://www.jetbrains.com/idea/?fromMenu" target="_blank" rel="noopener">
+        <div class="aff-icon">💡</div>
+        <div class="aff-body">
+          <div class="aff-name">IntelliJ IDEA</div>
+          <div class="aff-desc">Best IDE for Java &amp; Selenium — Community edition is free</div>
+          <div class="aff-cta">Download Free →</div>
+        </div>
+      </a>
+    </div>`;
+
+  // Append after the lesson tab content
+  document.getElementById('tab-lesson').appendChild(panel);
 }
 
 // ── Tabs ───────────────────────────────────────────────────────
