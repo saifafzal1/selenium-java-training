@@ -1,35 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ── SauceLabs-inspired theme ─────────────────────────────────
-   Deep forest green + bright lime accent + Space Mono headings
+/* ── 3Pillar-inspired theme ────────────────────────────────────
+   Deep blue-black + vibrant orange accent + clean Inter font
    ─────────────────────────────────────────────────────────── */
 :root {
-  /* Backgrounds — deep forest green palette */
-  --bg:      #0b1a12;
-  --bg2:     #0f2218;
-  --bg3:     #152d1f;
-  --bg4:     #1a3626;
-  --bg5:     #1f4030;
+  /* Backgrounds — deep blue-black palette */
+  --bg:      #07090E;
+  --bg2:     #0C1018;
+  --bg3:     #111827;
+  --bg4:     #1A2235;
+  --bg5:     #1F2C42;
 
   /* Borders */
-  --border:  #1e3d28;
-  --border2: #254d34;
+  --border:  #1C2A3A;
+  --border2: #253347;
 
-  /* Accent — SauceLabs lime green */
-  --lime:    #3cff8f;
-  --lime2:   #2de87a;
-  --lime-dim: rgba(60,255,143,.12);
-  --lime-glow: 0 0 20px rgba(60,255,143,.25);
+  /* Accent — 3Pillar orange */
+  --lime:     #FF6B2B;
+  --lime2:    #E85D20;
+  --lime-dim: rgba(255,107,43,.12);
+  --lime-glow: 0 0 20px rgba(255,107,43,.28);
 
   /* Status colors */
   --red:    #ff4d6d;
-  --orange: #ffb347;
+  --orange: #FF8C42;
   --blue:   #38bdf8;
 
   /* Text */
-  --text:   #e8f5ec;
-  --text2:  #8fb89a;
-  --text3:  #4f7a5c;
+  --text:   #E8EDF5;
+  --text2:  #7B8FA6;
+  --text3:  #3D5166;
   --white:  #ffffff;
 
   /* Layout */
@@ -40,15 +40,15 @@
   --radius-sm: 8px;
   --radius-pill: 100px;
 
-  /* Fonts */
+  /* Fonts — Inter everywhere, JetBrains Mono for code */
   --font:      'Inter', -apple-system, sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-mono: 'Inter', -apple-system, sans-serif;
   --code-font: 'JetBrains Mono', monospace;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0,0,0,.4);
-  --shadow-md: 0 4px 20px rgba(0,0,0,.5);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,.6);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.5);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.6);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.7);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -78,15 +78,15 @@ html, body {
 
 .logo {
   display: flex; align-items: center; gap: 10px;
-  font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+  font-family: var(--font); font-size: 15px; font-weight: 800;
   color: var(--white); white-space: nowrap; text-decoration: none;
-  letter-spacing: -.3px;
+  letter-spacing: -.5px; text-transform: uppercase;
 }
 .logo-icon {
-  width: 32px; height: 32px; border-radius: 8px;
+  width: 30px; height: 30px; border-radius: 6px;
   background: var(--lime); display: flex; align-items: center;
-  justify-content: center; font-size: 17px;
-  flex-shrink: 0;
+  justify-content: center; font-size: 13px; font-weight: 900;
+  flex-shrink: 0; color: #07090E;
 }
 .logo span { color: var(--lime); }
 
@@ -100,7 +100,7 @@ html, body {
   height: 100%; border-radius: var(--radius-pill);
   background: var(--lime);
   transition: width .5s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 0 8px rgba(60,255,143,.4);
+  box-shadow: 0 0 8px rgba(255,107,43,.4);
 }
 #header .progress-text {
   font-size: 12px; font-weight: 500; color: var(--text2);
@@ -124,8 +124,8 @@ html, body {
   background: var(--lime-dim);
 }
 .btn-primary {
-  background: var(--lime); color: #0b1a12;
-  box-shadow: 0 0 12px rgba(60,255,143,.3);
+  background: var(--lime); color: #07090E;
+  box-shadow: 0 0 12px rgba(255,107,43,.3);
 }
 .btn-primary:hover {
   background: var(--lime2);
@@ -174,7 +174,7 @@ html, body {
 }
 .module-header.open .mod-icon {
   background: var(--lime-dim);
-  border-color: rgba(60,255,143,.3);
+  border-color: rgba(255,107,43,.3);
 }
 .module-header .mod-title { flex: 1; }
 .module-header .chevron {
@@ -214,11 +214,11 @@ html, body {
 }
 .lesson-item.active .type-badge {
   background: var(--lime-dim); color: var(--lime);
-  border-color: rgba(60,255,143,.3);
+  border-color: rgba(255,107,43,.3);
 }
 .lesson-item.completed .type-badge {
   background: var(--lime-dim); color: var(--lime);
-  border-color: rgba(60,255,143,.25);
+  border-color: rgba(255,107,43,.25);
 }
 
 /* ── Main content ────────────────────────────────────────────── */
@@ -233,9 +233,9 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 #lesson-title {
-  font-size: 28px; font-weight: 700; margin-bottom: 16px;
+  font-size: 26px; font-weight: 800; margin-bottom: 16px;
   color: var(--white); letter-spacing: -.5px; line-height: 1.2;
-  font-family: var(--font-mono);
+  font-family: var(--font);
 }
 #lesson-meta {
   display: flex; gap: 8px; align-items: center;
@@ -249,7 +249,7 @@ html, body {
 }
 .meta-tag.practical {
   background: var(--lime-dim); color: var(--lime);
-  border-color: rgba(60,255,143,.3);
+  border-color: rgba(255,107,43,.3);
 }
 .meta-tag.theory {
   background: rgba(255,179,71,.08); color: var(--orange);
@@ -302,24 +302,24 @@ html, body {
 }
 .lesson-body li::marker { color: var(--lime); }
 
-/* Links — lime tint, easy on the eyes */
+/* Links — warm orange tint */
 .lesson-body a,
 .msg.assistant a {
-  color: #7de8a8;
+  color: #FF9A6C;
   text-decoration: underline;
-  text-decoration-color: rgba(125,232,168,.35);
+  text-decoration-color: rgba(255,107,43,.35);
   text-underline-offset: 3px;
   transition: color .15s, text-decoration-color .15s;
 }
 .lesson-body a:hover,
 .msg.assistant a:hover {
   color: var(--lime);
-  text-decoration-color: rgba(60,255,143,.6);
+  text-decoration-color: rgba(255,107,43,.7);
 }
 
 /* Code blocks — dark terminal style */
 .lesson-body pre {
-  background: #060e09;
+  background: #060A10;
   border: 1px solid var(--border2);
   border-top: 2px solid var(--lime);
   border-radius: var(--radius);
@@ -329,7 +329,7 @@ html, body {
   font-family: var(--code-font);
   font-size: 13px;
   line-height: 1.7;
-  color: #c8e6c9;
+  color: #C8D8EC;
   box-shadow: var(--shadow-md);
   position: relative;
 }
@@ -348,19 +348,19 @@ html, body {
 .lesson-body code {
   font-family: var(--code-font); font-size: 13px;
   background: var(--lime-dim);
-  border: 1px solid rgba(60,255,143,.2);
+  border: 1px solid rgba(255,107,43,.2);
   padding: 2px 7px; border-radius: 5px;
   color: var(--lime);
 }
 
-/* Syntax highlighting — terminal/SauceLabs green palette */
+/* Syntax highlighting — 3Pillar blue-black palette */
 .kw  { color: #ff7b72; font-weight: 500; }
 .cls { color: #79c0ff; }
 .str { color: var(--lime); }
 .num { color: #f2cc60; }
-.cmt { color: #4d6b54; font-style: italic; }
+.cmt { color: #4A6080; font-style: italic; }
 .ann { color: #ffa657; }
-.met { color: #b2e8c4; }
+.met { color: #A8C4E0; }
 
 /* Tables */
 .lesson-body table {
@@ -414,16 +414,16 @@ html, body {
   cursor: pointer; transition: all .2s; font-family: var(--font);
 }
 .solution-toggle:hover {
-  background: var(--lime-dim); border-color: rgba(60,255,143,.4);
+  background: var(--lime-dim); border-color: rgba(255,107,43,.4);
   color: var(--lime);
 }
 .solution-box {
   display: none; margin-top: 14px;
-  background: #060e09; border: 1px solid var(--border2);
+  background: #060A10; border: 1px solid var(--border2);
   border-top: 2px solid var(--lime);
   border-radius: var(--radius); padding: 20px;
   font-family: var(--code-font); font-size: 13px;
-  line-height: 1.7; color: #c8e6c9;
+  line-height: 1.7; color: #C8D8EC;
   overflow-x: auto; white-space: pre;
 }
 .solution-box.open { display: block; animation: fadeIn .2s ease; }
@@ -439,11 +439,11 @@ html, body {
 }
 .complete-btn.done {
   background: var(--lime-dim); color: var(--lime);
-  border: 1.5px solid rgba(60,255,143,.3);
+  border: 1.5px solid rgba(255,107,43,.3);
 }
 .complete-btn.not-done {
-  background: var(--lime); color: #060e09;
-  box-shadow: 0 0 14px rgba(60,255,143,.35);
+  background: var(--lime); color: #07090E;
+  box-shadow: 0 0 14px rgba(255,107,43,.35);
 }
 .complete-btn.not-done:hover {
   background: var(--lime2);
@@ -493,7 +493,7 @@ html, body {
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--text3); transition: all .3s; flex-shrink: 0;
 }
-#ollama-status.online  { background: var(--lime); box-shadow: 0 0 6px rgba(60,255,143,.6); }
+#ollama-status.online  { background: var(--lime); box-shadow: 0 0 6px rgba(255,107,43,.6); }
 #ollama-status.offline { background: var(--red);  box-shadow: 0 0 6px rgba(255,77,109,.4); }
 #model-select {
   margin-left: auto; font-size: 11.5px; font-weight: 600;
@@ -514,9 +514,9 @@ html, body {
 }
 .msg.user {
   align-self: flex-end;
-  background: var(--lime); color: #060e09;
+  background: var(--lime); color: #07090E;
   border-radius: 12px 12px 3px 12px; font-weight: 500;
-  box-shadow: 0 2px 12px rgba(60,255,143,.25);
+  box-shadow: 0 2px 12px rgba(255,107,43,.25);
 }
 .msg.assistant {
   align-self: flex-start;
@@ -525,7 +525,7 @@ html, body {
   border-radius: 12px 12px 12px 3px;
 }
 .msg.assistant pre {
-  background: #060e09; border-radius: 8px;
+  background: #060A10; border-radius: 8px;
   border-top: 2px solid var(--lime);
   padding: 12px; margin: 8px 0;
   overflow-x: auto; font-size: 12px;
@@ -565,7 +565,7 @@ html, body {
   font-size: 10.5px; font-weight: 600; color: var(--lime);
   margin-bottom: 8px; background: var(--lime-dim);
   padding: 3px 10px; border-radius: var(--radius-pill);
-  display: inline-block; border: 1px solid rgba(60,255,143,.2);
+  display: inline-block; border: 1px solid rgba(255,107,43,.2);
   font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .4px;
 }
 .quick-prompts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -576,7 +576,7 @@ html, body {
   cursor: pointer; transition: all .2s; font-family: var(--font);
 }
 .quick-prompt:hover {
-  color: var(--lime); border-color: rgba(60,255,143,.4);
+  color: var(--lime); border-color: rgba(255,107,43,.4);
   background: var(--lime-dim);
 }
 
@@ -594,11 +594,11 @@ html, body {
 }
 #chat-input::placeholder { color: var(--text3); }
 #chat-send {
-  padding: 10px 16px; background: var(--lime); color: #060e09;
+  padding: 10px 16px; background: var(--lime); color: #07090E;
   border: none; border-radius: var(--radius-sm);
   cursor: pointer; font-size: 16px; transition: all .2s;
   flex-shrink: 0; font-weight: 700;
-  box-shadow: 0 0 10px rgba(60,255,143,.25);
+  box-shadow: 0 0 10px rgba(255,107,43,.25);
 }
 #chat-send:hover { background: var(--lime2); box-shadow: var(--lime-glow); transform: scale(1.05); }
 #chat-send:disabled { background: var(--bg4); color: var(--text3); box-shadow: none; transform: none; cursor: not-allowed; }
@@ -608,12 +608,12 @@ html, body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   height: 100%; text-align: center; padding: 40px 20px;
-  background: radial-gradient(ellipse at 50% 30%, rgba(60,255,143,.06) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,107,43,.06) 0%, transparent 65%);
 }
 #welcome-screen h2 {
-  font-size: 32px; font-weight: 700; margin-bottom: 14px;
-  color: var(--white); letter-spacing: -1px;
-  font-family: var(--font-mono);
+  font-size: 32px; font-weight: 800; margin-bottom: 14px;
+  color: var(--white); letter-spacing: -1.5px;
+  font-family: var(--font);
 }
 #welcome-screen h2 em {
   font-style: normal; color: var(--lime);
@@ -707,7 +707,7 @@ html, body {
   text-decoration: none; transition: all .2s;
 }
 .affiliate-card:hover {
-  border-color: rgba(60,255,143,.4);
+  border-color: rgba(255,107,43,.4);
   background: var(--bg4);
   transform: translateY(-2px);
   box-shadow: var(--lime-glow);
