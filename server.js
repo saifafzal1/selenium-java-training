@@ -68,55 +68,27 @@ app.post('/api/chat', async (req, res) => {
   const { messages, model } = req.body;
   const selectedModel = model || DEFAULT_MODEL;
 
-  // Set SSE headers for streaming
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
   try {
-    // Dynamic import for node-fetch (ESM)
     const { default: fetch } = await import('node-fetch');
 
     const ollamaRes = await fetch(`${OLLAMA_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages,
-        stream: true
-      })
+      body: JSON.stringify({ model: selectedModel, messages, stream: false })
     });
 
     if (!ollamaRes.ok) {
       const hint = ollamaRes.status === 404
-        ? `Model not found. Pull it first:\n  ollama pull ${selectedModel}`
+        ? `Model not found. Run:  ollama pull ${selectedModel}`
         : `Ollama error ${ollamaRes.status}: ${ollamaRes.statusText}`;
-      res.write(`data: ${JSON.stringify({ error: hint })}\n\n`);
-      res.end();
-      return;
+      return res.json({ error: hint });
     }
 
-    // Stream chunks to client
-    for await (const chunk of ollamaRes.body) {
-      const lines = chunk.toString().split('\n').filter(Boolean);
-      for (const line of lines) {
-        try {
-          const parsed = JSON.parse(line);
-          if (parsed.message?.content) {
-            res.write(`data: ${JSON.stringify({ content: parsed.message.content, done: parsed.done })}\n\n`);
-          }
-          if (parsed.done) {
-            res.write('data: [DONE]\n\n');
-            res.end();
-            return;
-          }
-        } catch { /* skip malformed */ }
-      }
-    }
-    res.end();
+    const data = await ollamaRes.json();
+    return res.json({ content: data.message?.content || '' });
+
   } catch (err) {
-    res.write(`data: ${JSON.stringify({ error: `Cannot reach Ollama. Is it running? Start with: ollama serve\n\nThen pull the model: ollama pull ${selectedModel}\n\nError: ${err.message}` })}\n\n`);
-    res.end();
+    return res.json({ error: `Cannot reach Ollama. Is it running?\n  ollama serve\n\nError: ${err.message}` });
   }
 });
 

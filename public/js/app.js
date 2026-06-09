@@ -402,42 +402,32 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
     typing.remove();
 
-    // Stream response
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let assistantText = '';
-    let msgEl = appendMessage('assistant', '');
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
-      for (const line of lines) {
-        const data = line.slice(6);
-        if (data === '[DONE]') break;
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.error) {
-            msgEl.className = 'msg error';
-            msgEl.innerHTML = '⚠️ ' + escHtml(parsed.error);
-            break;
-          }
-          if (parsed.content) {
-            assistantText += parsed.content;
-            msgEl.innerHTML = renderMarkdown(assistantText);
-            requestAnimationFrame(highlightJava);
-            scrollChat();
-          }
-        } catch { /* skip */ }
-      }
+    if (!res.ok) {
+      appendMessage('assistant', `⚠️ Server error ${res.status}. Check your Vercel deployment.`);
+      isChatting = false;
+      sendBtn.disabled = false;
+      return;
     }
 
-    chatHistory.push({ role: 'assistant', content: assistantText });
+    const data = await res.json();
+
+    if (data.error) {
+      const msgEl = appendMessage('assistant', '');
+      msgEl.className = 'msg error';
+      msgEl.innerHTML = '⚠️ ' + escHtml(data.error);
+    } else {
+      const assistantText = data.content || '';
+      chatHistory.push({ role: 'assistant', content: assistantText });
+      const msgEl = appendMessage('assistant', '');
+      msgEl.innerHTML = renderMarkdown(assistantText);
+      requestAnimationFrame(highlightJava);
+      scrollChat();
+    }
+
   } catch (err) {
     typing.remove();
-    appendMessage('error',
-      `⚠️ Could not reach server. Make sure the Node server is running:\n\`npm start\``
+    appendMessage('assistant',
+      `⚠️ Could not reach the API.\n\nIf running locally: make sure \`npm start\` is running.\nIf on Vercel: check /api/debug for diagnosis.\n\nError: ${err.message}`
     );
   }
 
