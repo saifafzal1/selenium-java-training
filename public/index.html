@@ -134,27 +134,24 @@
   <!-- AI Chat Panel -->
   <aside id="chat-panel">
     <div id="chat-header">
-      <div id="ollama-status" title="Ollama status"></div>
-      <h3>AI Assistant (Qwen)</h3>
+      <div id="ollama-status" title="Groq API status"></div>
+      <h3>AI Assistant (Groq)</h3>
       <select id="model-select">
-        <option value="qwen3:latest">qwen3:latest ✨</option>
-        <option value="qwen3:8b">qwen3:8b</option>
-        <option value="qwen3:4b">qwen3:4b</option>
-        <option value="qwen3:1.7b">qwen3:1.7b</option>
-        <option value="qwen2.5-coder:latest">qwen2.5-coder:latest</option>
-        <option value="qwen2.5-coder:7b">qwen2.5-coder:7b</option>
+        <option value="llama-3.3-70b-versatile">Llama 3.3 70B ✨</option>
+        <option value="llama-3.1-8b-instant">Llama 3.1 8B (fast)</option>
+        <option value="qwen-qwq-32b">Qwen QwQ 32B</option>
+        <option value="gemma2-9b-it">Gemma 2 9B</option>
+        <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
       </select>
     </div>
     <div id="chat-messages">
       <div class="msg assistant">
-        👋 Hi! I'm your AI coding assistant powered by <strong>Qwen3</strong> (latest). I can:<br><br>
+        👋 Hi! I'm your AI coding assistant powered by <strong>Groq</strong> (free, ultra-fast). I can:<br><br>
         • <strong>Explain</strong> any Selenium/Java concept<br>
         • <strong>Generate</strong> test code for your scenarios<br>
         • <strong>Debug</strong> your errors — paste them here<br>
         • <strong>Review</strong> your code and suggest improvements<br><br>
-        Make sure Ollama is running:<br>
-        <code>ollama serve</code><br>
-        <code>ollama pull qwen3:latest</code>
+        Running on <strong>Llama 3.3 70B</strong> via Groq cloud —<br>no local setup needed. 🚀
       </div>
     </div>
     <div id="chat-input-area">

@@ -487,20 +487,15 @@ async function checkHealth() {
           select.value = currentVal;
         }
       } else {
-        // No models installed — show install hint in dropdown
-        select.innerHTML = `<option value="">— no models pulled —</option>`;
-        appendMessage('assistant',
-          '⚠️ **Ollama is running but no models are installed.**\n\nPull a model in your terminal:\n```\nollama pull qwen3:latest\n```\n\nOr for a lighter model:\n```\nollama pull qwen3:4b\n```'
-        );
-        requestAnimationFrame(highlightJava);
+        select.innerHTML = `<option value="llama-3.3-70b-versatile">Llama 3.3 70B ✨</option>`;
       }
     } else {
       dot.className = 'offline';
-      dot.title = 'Ollama offline. Run: ollama serve';
+      dot.title = 'Groq API offline — check GROQ_API_KEY in Vercel env vars';
     }
   } catch {
     dot.className = 'offline';
-    dot.title = 'Server not reachable';
+    dot.title = 'Could not reach server';
   }
 }
 

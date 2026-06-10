@@ -5,45 +5,47 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
-  const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    return res.json({ error: 'GROQ_API_KEY is not set.\nGo to Vercel → Settings → Environment Variables and add it.' });
+  }
+
   const { messages, model } = req.body;
-  const selectedModel = model || process.env.QWEN_MODEL || 'qwen3:latest';
+  const selectedModel = model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
   try {
     const controller = new AbortController();
-    // 55s — stays under the 60s maxDuration set in vercel.json
     const tid = setTimeout(() => controller.abort(), 55000);
 
-    const ollamaRes = await fetch(`${ollamaUrl}/api/chat`, {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; SeleniumTraining/1.0)'
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${apiKey}`
       },
-      // stream:false — get the full reply in one JSON object, no SSE needed
-      body: JSON.stringify({ model: selectedModel, messages, stream: false }),
+      body: JSON.stringify({
+        model:      selectedModel,
+        messages,
+        stream:     false,
+        max_tokens: 4096
+      }),
       signal: controller.signal
     });
     clearTimeout(tid);
 
-    if (!ollamaRes.ok) {
-      const text = await ollamaRes.text().catch(() => '');
-      return res.json({
-        error: ollamaRes.status === 404
-          ? `Model "${selectedModel}" not found on your machine.\nRun:  ollama pull ${selectedModel}`
-          : `Ollama returned HTTP ${ollamaRes.status}.\nResponse: ${text.slice(0, 300)}`
-      });
+    if (!groqRes.ok) {
+      const text = await groqRes.text().catch(() => '');
+      let hint;
+      if (groqRes.status === 401) hint = 'Invalid GROQ_API_KEY — check it in Vercel env vars.';
+      else if (groqRes.status === 429) hint = 'Rate limit hit. Free tier: 14,400 tokens/min. Wait a moment and try again.';
+      else hint = `Groq API error ${groqRes.status}: ${text.slice(0, 200)}`;
+      return res.json({ error: hint });
     }
 
-    const data = await ollamaRes.json();
-    return res.json({ content: data.message?.content || '' });
+    const data = await groqRes.json();
+    return res.json({ content: data.choices?.[0]?.message?.content || '' });
 
   } catch (err) {
-    const isLocal = ollamaUrl.includes('localhost') || ollamaUrl.includes('127.0.0.1');
-    return res.json({
-      error: isLocal
-        ? `Cannot reach Ollama locally.\nMake sure it is running:  ollama serve\n\nError: ${err.message}`
-        : `Cannot reach Ollama tunnel at:\n${ollamaUrl}\n\nCheck the tunnel is still running on your machine.\nError: ${err.message}`
-    });
+    return res.json({ error: `Request failed: ${err.message}` });
   }
 };
