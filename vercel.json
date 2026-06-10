@@ -1,6 +1,12 @@
 {
   "version": 2,
   "outputDirectory": "public",
+  "functions": {
+    "api/chat.js":     {},
+    "api/health.js":   {},
+    "api/debug.js":    {},
+    "api/progress.js": {}
+  },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
