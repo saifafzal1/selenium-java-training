@@ -1,13 +1,19 @@
 {
   "version": 2,
-  "outputDirectory": "public",
-  "functions": {
-    "api/chat.js":     {},
-    "api/health.js":   {},
-    "api/debug.js":    {},
-    "api/progress.js": {}
-  },
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "public" }
+    }
+  ],
+  "routes": [
+    { "src": "/api/chat",     "dest": "/api/chat.js" },
+    { "src": "/api/health",   "dest": "/api/health.js" },
+    { "src": "/api/debug",    "dest": "/api/debug.js" },
+    { "src": "/api/progress", "dest": "/api/progress.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)",         "dest": "/index.html" }
   ]
 }
