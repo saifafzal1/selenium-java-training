@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selenium WebDriver with Java: Complete Beginner Tutorial (2025) | SeleniumLab</title>
+  <meta name="description" content="Step-by-step Selenium WebDriver Java tutorial for beginners. Set up Maven, ChromeDriver, write your first test in under 30 minutes. Free 2025 guide."/>
+  <meta name="keywords" content="selenium webdriver java tutorial, selenium java beginners, selenium setup java maven, chromedriver setup, selenium first test java 2025"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://selenium-labs-training-ai.vercel.app/blog/selenium-webdriver-java-tutorial-beginners"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Selenium WebDriver with Java: Complete Beginner Tutorial (2025)","author":{"@type":"Organization","name":"SeleniumLab"},"publisher":{"@type":"Organization","name":"SeleniumLab","url":"https://selenium-labs-training-ai.vercel.app"},"datePublished":"2025-06-01","description":"Step-by-step Selenium WebDriver with Java tutorial for beginners. Maven setup, ChromeDriver, first test."}</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#07090E;--bg2:#0C1018;--bg3:#111827;--accent:#FF6B2B;--text:#E8EDF5;--text2:#9BA8BB;--border:#1C2A3A}
+    body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.75}
+    a{color:var(--accent)}
+    nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;gap:32px;height:56px}
+    .nav-logo{font-weight:800;font-size:17px;color:var(--text);display:flex;align-items:center;gap:8px;text-decoration:none}
+    .nav-logo span{color:var(--accent)}
+    .nav-logo .icon{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
+    .nav-links{display:flex;gap:24px;margin-left:auto}
+    .nav-links a{color:var(--text2);font-size:14px;font-weight:500;text-decoration:none}
+    .nav-links a:hover{color:var(--accent)}
+    .article-wrap{max-width:780px;margin:56px auto;padding:0 24px}
+    .breadcrumb{font-size:13px;color:var(--text2);margin-bottom:24px}
+    .breadcrumb a{color:var(--text2)}
+    .tag{background:rgba(255,107,43,.15);color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:16px}
+    h1{font-size:clamp(26px,4vw,38px);font-weight:800;line-height:1.25;margin-bottom:16px}
+    .meta{color:var(--text2);font-size:13px;margin-bottom:40px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+    h2{font-size:22px;font-weight:700;margin:40px 0 12px;color:var(--text)}
+    h3{font-size:17px;font-weight:700;margin:28px 0 10px;color:var(--accent)}
+    p{color:var(--text2);margin-bottom:16px}
+    ul,ol{color:var(--text2);padding-left:24px;margin-bottom:16px}
+    li{margin-bottom:6px}
+    pre{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin-bottom:20px}
+    code{font-family:'JetBrains Mono',monospace;font-size:13px;color:#E8EDF5}
+    .inline-code{background:var(--bg3);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:13px;font-family:monospace;color:var(--accent)}
+    .tip{background:rgba(255,107,43,.08);border-left:3px solid var(--accent);padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:20px}
+    .affiliate-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin:40px 0}
+    .affiliate-box h3{color:var(--text);margin:0 0 8px;font-size:16px}
+    .affiliate-box p{margin-bottom:16px;font-size:14px}
+    .affiliate-btn{background:var(--accent);color:#fff;padding:10px 20px;border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;display:inline-block}
+    .affiliate-btn:hover{background:#e85d20}
+    footer{background:var(--bg2);border-top:1px solid var(--border);padding:32px;text-align:center;color:var(--text2);font-size:13px;margin-top:80px}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><div class="icon">▶</div> SELENIUM<span>LAB</span></a>
+  <div class="nav-links">
+    <a href="/">Course</a>
+    <a href="/blog/">Blog</a>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <div class="breadcrumb"><a href="/">Home</a> › <a href="/blog/">Blog</a> › Tutorial</div>
+  <span class="tag">Tutorial</span>
+  <h1>Selenium WebDriver with Java: Complete Beginner Tutorial (2025)</h1>
+  <div class="meta">By SeleniumLab · June 2025 · ⏱ 12 min read</div>
+
+  <p>Selenium WebDriver is the most widely used test automation framework in the world. In this tutorial, you'll go from zero to running your first automated browser test using Java and Maven — in under 30 minutes.</p>
+
+  <h2>What You'll Need</h2>
+  <ul>
+    <li>Java 21+ (download from <a href="https://adoptium.net" target="_blank">Adoptium</a>)</li>
+    <li>Maven 3.9+ (download from <a href="https://maven.apache.org" target="_blank">maven.apache.org</a>)</li>
+    <li>IntelliJ IDEA Community Edition (free)</li>
+    <li>Google Chrome browser</li>
+  </ul>
+
+  <h2>Step 1 — Create a Maven Project</h2>
+  <p>Open IntelliJ IDEA and create a new Maven project. Use this structure:</p>
+  <pre><code>selenium-project/
+├── pom.xml
+└── src/
+    └── test/
+        └── java/
+            └── tests/
+                └── FirstTest.java</code></pre>
+
+  <h2>Step 2 — Add Selenium to pom.xml</h2>
+  <p>Add the Selenium Java dependency and TestNG to your <span class="inline-code">pom.xml</span>:</p>
+  <pre><code>&lt;dependencies&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+    &lt;artifactId&gt;selenium-java&lt;/artifactId&gt;
+    &lt;version&gt;4.21.0&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.testng&lt;/groupId&gt;
+    &lt;artifactId&gt;testng&lt;/artifactId&gt;
+    &lt;version&gt;7.9.0&lt;/version&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+
+  <div class="tip">
+    <strong>✨ Selenium 4 tip:</strong> Selenium 4 includes WebDriverManager built-in — you no longer need to manually download ChromeDriver. It's handled automatically.
+  </div>
+
+  <h2>Step 3 — Write Your First Test</h2>
+  <p>Create <span class="inline-code">src/test/java/tests/FirstTest.java</span>:</p>
+  <pre><code>package tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+public class FirstTest {
+
+    WebDriver driver;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @Test
+    public void verifyGoogleTitle() {
+        driver.get("https://www.google.com");
+        String title = driver.getTitle();
+        Assert.assertEquals(title, "Google");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}</code></pre>
+
+  <h2>Step 4 — Run the Test</h2>
+  <p>Right-click on <span class="inline-code">FirstTest.java</span> → Run. Chrome will open automatically, navigate to Google, and the test will pass.</p>
+
+  <h2>Key Selenium WebDriver Methods</h2>
+  <ul>
+    <li><span class="inline-code">driver.get(url)</span> — Navigate to a URL</li>
+    <li><span class="inline-code">driver.findElement(By.id("id"))</span> — Find element by ID</li>
+    <li><span class="inline-code">element.click()</span> — Click an element</li>
+    <li><span class="inline-code">element.sendKeys("text")</span> — Type into a field</li>
+    <li><span class="inline-code">element.getText()</span> — Get visible text</li>
+    <li><span class="inline-code">driver.quit()</span> — Close browser and end session</li>
+  </ul>
+
+  <h2>Next Steps</h2>
+  <p>Now that you've written your first test, the natural next steps are:</p>
+  <ol>
+    <li>Learn XPath and CSS Selectors for finding elements reliably</li>
+    <li>Implement the <a href="/blog/page-object-model-selenium-java">Page Object Model</a> pattern</li>
+    <li>Add TestNG annotations for test organisation</li>
+    <li>Integrate with Maven Surefire for CI/CD</li>
+  </ol>
+
+  <div class="affiliate-box">
+    <h3>📚 Want a deeper dive with video lessons?</h3>
+    <p>The top-rated Selenium with Java course on Udemy covers WebDriver, TestNG, Cucumber BDD, Page Object Model, and CI/CD with Jenkins — 50,000+ students enrolled.</p>
+    <a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" class="affiliate-btn" target="_blank" rel="noopener">View Course on Udemy →</a>
+    <p style="font-size:12px;margin-top:10px;color:#6B7A90">Affiliate link — we earn a small commission at no extra cost to you.</p>
+  </div>
+
+  <p>Ready to go deeper? <a href="/">Start the free SeleniumLab course →</a> — 17 hands-on lessons with an AI assistant that explains, debugs, and generates code for you.</p>
+</div>
+
+<footer>© 2025 SeleniumLab · <a href="/">Free Selenium Course</a> · <a href="/blog/">Blog</a></footer>
+
+</body>
+</html>

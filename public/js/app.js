@@ -6,7 +6,9 @@ let state = {
   allLessons: [],   // flat list for prev/next
   chatOpen: true,
   currentLessonContext: '',
-  serverMode: false   // true when Node server is reachable
+  serverMode: false,   // true when Node server is reachable
+  smartMode: false,    // Qwen→model chain mode
+  projectFolder: ''    // saved code destination
 };
 
 // ── Storage helpers (server + localStorage fallback) ──────────
@@ -22,6 +24,10 @@ function lsSave(p) {
 
 // ── Init ───────────────────────────────────────────────────────
 async function init() {
+  // Load persisted settings
+  state.smartMode    = localStorage.getItem('smartMode') === 'true';
+  state.projectFolder = localStorage.getItem('projectFolder') || '';
+
   // Detect file:// mode and show banner
   if (location.protocol === 'file:') {
     document.getElementById('file-mode-banner').style.display = 'block';
@@ -149,6 +155,9 @@ function showLesson(lesson, module) {
     <span class="meta-tag ${lesson.type === 'practical' ? 'practical' : 'theory'}">${lesson.type}</span>
     <span class="meta-tag">⏱ ${lesson.duration}</span>`;
 
+  // Render "What You'll Learn" section if lesson has it
+  renderWhatYoullLearn(lesson);
+
   // Render lesson content (markdown)
   document.getElementById('lesson-content').innerHTML =
     marked.parse(lesson.content || '_No content yet._');
@@ -156,6 +165,9 @@ function showLesson(lesson, module) {
 
   // Render exercise
   renderExercise(lesson);
+
+  // Render quiz
+  renderQuiz(lesson);
 
   // Render affiliate resources panel
   renderAffiliatePanel(lesson, module);
@@ -177,6 +189,148 @@ function showLesson(lesson, module) {
 
   // Save last visited
   saveProgress({ lastVisited: lesson.id });
+}
+
+// ── What You'll Learn ─────────────────────────────────────────
+function renderWhatYoullLearn(lesson) {
+  const existing = document.getElementById('wyll-panel');
+  if (existing) existing.remove();
+  if (!lesson.whatYoullLearn || !lesson.whatYoullLearn.length) return;
+
+  const panel = document.createElement('div');
+  panel.id = 'wyll-panel';
+  panel.className = 'wyll-panel';
+  panel.innerHTML = `
+    <div class="wyll-title">✅ What You'll Learn</div>
+    <ul class="wyll-list">
+      ${lesson.whatYoullLearn.map(item => `<li>${escHtml(item)}</li>`).join('')}
+    </ul>`;
+
+  const lessonContent = document.getElementById('lesson-content');
+  lessonContent.parentNode.insertBefore(panel, lessonContent);
+}
+
+// ── Quiz ──────────────────────────────────────────────────────
+function renderQuiz(lesson) {
+  const container = document.getElementById('quiz-content');
+  if (!lesson.quiz || !lesson.quiz.length) {
+    container.innerHTML = `
+      <div class="quiz-empty">
+        <div style="font-size:48px;margin-bottom:16px">🧩</div>
+        <h3>No quiz for this lesson yet</h3>
+        <p>Complete the exercise to practise — or ask the AI to quiz you!</p>
+      </div>`;
+    return;
+  }
+
+  const q = lesson.quiz;
+  container.innerHTML = `
+    <div class="quiz-panel">
+      <div class="quiz-header">
+        <span class="quiz-title">🧩 Knowledge Check</span>
+        <span class="quiz-count">${q.length} question${q.length !== 1 ? 's' : ''}</span>
+      </div>
+      <form id="quiz-form">
+        ${q.map((item, i) => renderQuizQuestion(item, i)).join('')}
+      </form>
+      <div class="quiz-actions">
+        <button class="btn btn-primary" id="quiz-submit-btn" onclick="submitQuiz(event)">Check Answers →</button>
+      </div>
+      <div id="quiz-result" style="display:none"></div>
+    </div>`;
+}
+
+function renderQuizQuestion(item, idx) {
+  if (item.type === 'mcq') {
+    return `
+      <div class="quiz-q" id="qq-${idx}">
+        <div class="quiz-q-text"><span class="q-num">Q${idx + 1}</span> ${escHtml(item.q)}</div>
+        <div class="quiz-options">
+          ${item.options.map((opt, oi) => `
+            <label class="quiz-option">
+              <input type="radio" name="q${idx}" value="${oi}" />
+              <span>${escHtml(opt)}</span>
+            </label>`).join('')}
+        </div>
+      </div>`;
+  }
+  if (item.type === 'truefalse') {
+    return `
+      <div class="quiz-q" id="qq-${idx}">
+        <div class="quiz-q-text"><span class="q-num">Q${idx + 1}</span> ${escHtml(item.q)}</div>
+        <div class="quiz-options">
+          <label class="quiz-option"><input type="radio" name="q${idx}" value="true" /><span>True</span></label>
+          <label class="quiz-option"><input type="radio" name="q${idx}" value="false" /><span>False</span></label>
+        </div>
+      </div>`;
+  }
+  if (item.type === 'fillin') {
+    return `
+      <div class="quiz-q" id="qq-${idx}">
+        <div class="quiz-q-text"><span class="q-num">Q${idx + 1}</span> ${escHtml(item.q)}</div>
+        <input class="quiz-fillin" type="text" name="q${idx}" placeholder="Type your answer…" autocomplete="off" />
+      </div>`;
+  }
+  return '';
+}
+
+function submitQuiz(e) {
+  e.preventDefault();
+  const lesson = state.currentLesson;
+  if (!lesson || !lesson.quiz) return;
+
+  const quiz = lesson.quiz;
+  let correct = 0;
+  const form = document.getElementById('quiz-form');
+
+  quiz.forEach((item, i) => {
+    const qEl = document.getElementById(`qq-${i}`);
+    let userAnswer, isCorrect;
+
+    if (item.type === 'mcq') {
+      const sel = form.querySelector(`input[name="q${i}"]:checked`);
+      userAnswer = sel ? parseInt(sel.value) : null;
+      isCorrect = userAnswer === item.answer;
+    } else if (item.type === 'truefalse') {
+      const sel = form.querySelector(`input[name="q${i}"]:checked`);
+      userAnswer = sel ? (sel.value === 'true') : null;
+      isCorrect = userAnswer === item.answer;
+    } else if (item.type === 'fillin') {
+      const inp = form.querySelector(`input[name="q${i}"]`);
+      userAnswer = inp ? inp.value.trim().toLowerCase() : '';
+      isCorrect = userAnswer === item.answer.toLowerCase();
+    }
+
+    if (isCorrect) {
+      correct++;
+      qEl.classList.add('q-correct');
+    } else {
+      qEl.classList.add('q-wrong');
+      // Show correct answer
+      const ans = document.createElement('div');
+      ans.className = 'quiz-correct-ans';
+      if (item.type === 'mcq') ans.textContent = `✓ Correct answer: ${item.options[item.answer]}`;
+      else if (item.type === 'truefalse') ans.textContent = `✓ Correct answer: ${item.answer ? 'True' : 'False'}`;
+      else if (item.type === 'fillin') ans.textContent = `✓ Correct answer: ${item.answer}`;
+      qEl.appendChild(ans);
+    }
+
+    // Disable inputs after submit
+    qEl.querySelectorAll('input').forEach(inp => inp.disabled = true);
+  });
+
+  const pct = Math.round(correct / quiz.length * 100);
+  const resultEl = document.getElementById('quiz-result');
+  const emoji = pct === 100 ? '🎉' : pct >= 60 ? '👍' : '📚';
+  const msg   = pct === 100 ? 'Perfect score! You nailed it.' : pct >= 60 ? 'Good work! Review the missed ones.' : 'Keep studying — try the lesson again!';
+
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = `
+    <div class="quiz-score ${pct === 100 ? 'perfect' : pct >= 60 ? 'good' : 'retry'}">
+      ${emoji} ${correct} / ${quiz.length} correct (${pct}%) — ${msg}
+    </div>`;
+
+  document.getElementById('quiz-submit-btn').style.display = 'none';
 }
 
 function renderExercise(lesson) {
@@ -312,6 +466,17 @@ function updateProgressUI() {
   document.getElementById('progress-text').textContent = `${done} / ${total} lessons`;
   document.getElementById('stat-done').textContent = done;
   document.getElementById('stat-pct').textContent  = pct + '%';
+
+  // Show certificate button when course complete
+  const certBtn = document.getElementById('cert-btn');
+  if (certBtn) certBtn.style.display = pct === 100 ? 'inline-flex' : 'none';
+}
+
+function showCertificate() {
+  const modal = document.getElementById('cert-modal');
+  const dateEl = document.getElementById('cert-date');
+  dateEl.textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  modal.style.display = 'flex';
 }
 
 async function saveProgress(payload) {
@@ -378,6 +543,18 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
   chatHistory.push({ role: 'user', content: userText });
 
+  const model = document.getElementById('model-select').value;
+
+  // Smart Mode status message (shown before answer)
+  let chainStatusEl = null;
+  if (state.smartMode) {
+    chainStatusEl = document.createElement('div');
+    chainStatusEl.className = 'msg assistant chain-status';
+    chainStatusEl.innerHTML = '🔄 <em>Refining your question with Qwen…</em>';
+    document.getElementById('chat-messages').appendChild(chainStatusEl);
+    scrollChat();
+  }
+
   // Typing indicator
   const typing = document.createElement('div');
   typing.className = 'msg assistant typing-indicator';
@@ -385,14 +562,13 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
   document.getElementById('chat-messages').appendChild(typing);
   scrollChat();
 
-  const model = document.getElementById('model-select').value;
-
   try {
     const res = await fetch('api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model,
+        chainMode: state.smartMode,
         messages: [
           { role: 'system', content: systemPrompt },
           ...chatHistory.slice(-10)
@@ -411,6 +587,16 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
     const data = await res.json();
 
+    // Update chain status with refined question (or remove it)
+    if (chainStatusEl) {
+      if (data.refinedQuestion) {
+        chainStatusEl.innerHTML = `🔍 <strong>Refined:</strong> <em>${escHtml(data.refinedQuestion)}</em>`;
+      } else {
+        chainStatusEl.remove();
+        chainStatusEl = null;
+      }
+    }
+
     if (data.error) {
       const msgEl = appendMessage('assistant', '');
       msgEl.className = 'msg error';
@@ -426,6 +612,7 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
   } catch (err) {
     typing.remove();
+    if (chainStatusEl) chainStatusEl.remove();
     appendMessage('assistant',
       `⚠️ Could not reach the API.\n\nIf running locally: make sure \`npm start\` is running.\nIf on Vercel: check /api/debug for diagnosis.\n\nError: ${err.message}`
     );
@@ -463,36 +650,38 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Ollama Health & Model Auto-Detect ─────────────────────────
+// ── Health & Provider Status ──────────────────────────────────
 async function checkHealth() {
-  const dot    = document.getElementById('ollama-status');
-  const select = document.getElementById('model-select');
+  const dot = document.getElementById('ollama-status');
   try {
     const res  = await fetch('api/health', { signal: AbortSignal.timeout(3000) });
     const data = await res.json();
 
-    if (data.ollama === 'ok') {
-      dot.className = 'online';
-      const models = data.models || [];
-      dot.title = 'Ollama online — ' + (models.join(', ') || 'no models pulled');
-
-      // Populate dropdown with ONLY installed models
-      if (models.length > 0) {
-        const currentVal = select.value;
-        select.innerHTML = models.map(m =>
-          `<option value="${m}">${m}</option>`
-        ).join('');
-        // Keep previous selection if still available, else pick first
-        if (models.includes(currentVal)) {
-          select.value = currentVal;
-        }
-      } else {
-        select.innerHTML = `<option value="llama-3.3-70b-versatile">Llama 3.3 70B ✨</option>`;
-      }
-    } else {
-      dot.className = 'offline';
-      dot.title = 'Groq API offline — check GROQ_API_KEY in Vercel env vars';
+    // Update Ollama optgroup with discovered local models
+    const ollamaGroup = document.getElementById('ollama-optgroup');
+    if (ollamaGroup && data.ollama === 'ok' && data.ollamaModels?.length > 0) {
+      ollamaGroup.innerHTML = data.ollamaModels.map(m =>
+        `<option value="${m}">🟢 ${m}</option>`
+      ).join('');
     }
+
+    // Status dot: green = at least one provider ready
+    const groqOk  = data.groq  === 'key_set';
+    const claudeOk = data.claude === 'key_set';
+    const ollamaOk = data.ollama === 'ok';
+    const anyOk = groqOk || claudeOk || ollamaOk;
+
+    dot.className = anyOk ? 'online' : 'offline';
+
+    const parts = [];
+    if (groqOk)   parts.push('Groq ✅');
+    else          parts.push('Groq ❌ (set GROQ_API_KEY)');
+    if (claudeOk) parts.push('Claude ✅');
+    else          parts.push('Claude ⚠️ (optional — set ANTHROPIC_API_KEY)');
+    if (ollamaOk) parts.push(`Ollama ✅ (${data.ollamaModels?.length || 0} models)`);
+    else          parts.push('Ollama offline (run: ollama serve)');
+    dot.title = parts.join(' · ');
+
   } catch {
     dot.className = 'offline';
     dot.title = 'Could not reach server';
@@ -503,6 +692,141 @@ async function checkHealth() {
 function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── Toast Notifications ────────────────────────────────────────
+function showToast(message, type = 'success', action = null) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span>${message}</span>`;
+  if (action) {
+    const btn = document.createElement('button');
+    btn.className = 'toast-action-btn';
+    btn.textContent = action.label;
+    btn.addEventListener('click', () => { action.fn(); toast.remove(); });
+    toast.appendChild(btn);
+  }
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'toast-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => toast.remove());
+  toast.appendChild(closeBtn);
+  container.appendChild(toast);
+  // Auto-remove after 5s
+  setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 5000);
+}
+
+// ── Save to Project (VS Code) ──────────────────────────────────
+async function saveToProject(code) {
+  const folder = state.projectFolder;
+
+  // Auto-detect filename from public class name
+  const match = code.match(/public\s+class\s+(\w+)/);
+  const filename = match ? `${match[1]}.java` : `SeleniumCode_${Date.now()}.java`;
+
+  if (state.serverMode && folder) {
+    // Write directly to disk via local server
+    try {
+      const res = await fetch('api/save-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, filename, folder })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(`✅ Saved: ${data.filename}`, 'success', {
+          label: 'Open in VS Code',
+          fn: () => { window.open(`vscode://file/${encodeURI(data.path)}`, '_blank'); }
+        });
+      } else {
+        showToast(`❌ ${data.error}`, 'error');
+      }
+    } catch (e) {
+      showToast(`❌ Save failed: ${e.message}`, 'error');
+    }
+  } else if (state.serverMode && !folder) {
+    // Server running but no folder set — prompt to set it
+    showToast('⚠️ Set your Project Folder in Settings first (⚙️)', 'warning', {
+      label: 'Open Settings',
+      fn: openSettings
+    });
+  } else {
+    // Vercel / no server — trigger browser download
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    showToast(`📥 Downloaded: ${filename}`, 'success');
+  }
+}
+
+// ── Settings Panel ─────────────────────────────────────────────
+function openSettings() {
+  const panel   = document.getElementById('settings-panel');
+  const overlay = document.getElementById('settings-overlay');
+  const input   = document.getElementById('project-folder-input');
+  const checkbox = document.getElementById('smart-mode-checkbox');
+  const statusText = document.getElementById('smart-mode-status-text');
+
+  input.value = state.projectFolder;
+  checkbox.checked = state.smartMode;
+  statusText.textContent = state.smartMode ? 'On' : 'Off';
+  document.getElementById('folder-status').textContent = '';
+
+  panel.style.display   = 'flex';
+  overlay.style.display = 'block';
+}
+
+function closeSettings() {
+  document.getElementById('settings-panel').style.display  = 'none';
+  document.getElementById('settings-overlay').style.display = 'none';
+}
+
+function saveProjectFolder() {
+  const val = document.getElementById('project-folder-input').value.trim();
+  state.projectFolder = val;
+  localStorage.setItem('projectFolder', val);
+  document.getElementById('folder-status').textContent = val ? '✅ Path saved!' : '⚠️ Path cleared.';
+  document.getElementById('folder-status').className = 'settings-status ' + (val ? 'ok' : 'warn');
+}
+
+async function testProjectFolder() {
+  const folder = document.getElementById('project-folder-input').value.trim();
+  const statusEl = document.getElementById('folder-status');
+  if (!folder) { statusEl.textContent = '⚠️ Enter a path first'; statusEl.className = 'settings-status warn'; return; }
+  if (!state.serverMode) { statusEl.textContent = '❌ Server not running locally (npm start required)'; statusEl.className = 'settings-status error'; return; }
+
+  statusEl.textContent = 'Testing…';
+  try {
+    const code = `// Test file — safe to delete\npublic class SeleniumTestConnection { }`;
+    const res  = await fetch('api/save-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, filename: 'SeleniumTestConnection.java', folder })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      statusEl.textContent = `✅ Connected! Wrote to: ${data.path}`;
+      statusEl.className = 'settings-status ok';
+    } else {
+      statusEl.textContent = `❌ ${data.error}`;
+      statusEl.className = 'settings-status error';
+    }
+  } catch (e) {
+    statusEl.textContent = `❌ ${e.message}`;
+    statusEl.className = 'settings-status error';
+  }
+}
+
+function toggleSmartMode(on) {
+  state.smartMode = on;
+  localStorage.setItem('smartMode', on);
+  document.getElementById('smart-mode-status-text').textContent = on ? 'On' : 'Off';
+  // Sync the header button
+  const btn = document.getElementById('smart-mode-btn');
+  if (btn) btn.classList.toggle('active', on);
 }
 
 // ── Wire Events ────────────────────────────────────────────────
@@ -531,6 +855,10 @@ function wireEvents() {
     const first = state.allLessons[0];
     if (first) showLesson(first, CURRICULUM[0]);
   });
+
+  // Certificate button
+  const certBtn = document.getElementById('cert-btn');
+  if (certBtn) certBtn.addEventListener('click', showCertificate);
 
   // Reset
   document.getElementById('reset-btn').addEventListener('click', async () => {
@@ -578,6 +906,23 @@ function wireEvents() {
     });
   });
 
+  // Settings gear button
+  document.getElementById('settings-btn').addEventListener('click', openSettings);
+
+  // Smart Mode header button (syncs with settings checkbox)
+  const smartBtn = document.getElementById('smart-mode-btn');
+  if (smartBtn) {
+    smartBtn.classList.toggle('active', state.smartMode);
+    smartBtn.addEventListener('click', () => {
+      state.smartMode = !state.smartMode;
+      localStorage.setItem('smartMode', state.smartMode);
+      smartBtn.classList.toggle('active', state.smartMode);
+      const cb = document.getElementById('smart-mode-checkbox');
+      if (cb) { cb.checked = state.smartMode; document.getElementById('smart-mode-status-text').textContent = state.smartMode ? 'On' : 'Off'; }
+      showToast(state.smartMode ? '⚡ Smart Mode ON — Qwen will refine your questions' : '⚡ Smart Mode OFF', state.smartMode ? 'success' : 'info');
+    });
+  }
+
   // Notes save
   document.getElementById('save-note-btn').addEventListener('click', async () => {
     if (!state.currentLesson) return;
@@ -595,7 +940,7 @@ function wireEvents() {
 // This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
   document.querySelectorAll(
-    '.lesson-body pre code, .solution-box, .msg.assistant pre code'
+    '.lesson-body pre code, .solution-box, .msg.assistant pre code, .msg.assistant pre'
   ).forEach(block => {
     if (block.dataset.highlighted) return;
     block.dataset.highlighted = '1';
@@ -664,6 +1009,37 @@ function highlightJava() {
     }).join('\n');
 
     block.innerHTML = highlighted;
+
+    // Add Copy + Save buttons to code blocks (lesson body, chat, solution boxes)
+    const pre = block.closest('.lesson-body pre, .solution-box, .msg.assistant pre');
+    if (pre && !pre.querySelector('.copy-code-btn')) {
+      const codeText = () => block.textContent || pre.textContent;
+
+      // Copy button
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-code-btn';
+      copyBtn.textContent = 'Copy';
+      copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeText()).then(() => {
+          copyBtn.textContent = '✓ Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 2000);
+        }).catch(() => {
+          copyBtn.textContent = 'Error';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        });
+      });
+      pre.appendChild(copyBtn);
+
+      // Save to Project button
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'save-code-btn';
+      saveBtn.textContent = '💾 Save';
+      saveBtn.setAttribute('aria-label', 'Save code to project folder');
+      saveBtn.addEventListener('click', () => saveToProject(codeText()));
+      pre.appendChild(saveBtn);
+    }
   });
 }
 

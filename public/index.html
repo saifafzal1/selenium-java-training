@@ -3,16 +3,54 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Selenium with Java — Training Platform</title>
+
+  <!-- ── SEO ─────────────────────────────────────────────────── -->
+  <title>Selenium with Java — Free Test Automation Training | SeleniumLab</title>
+  <meta name="description" content="Free Selenium WebDriver with Java course. Learn test automation from scratch — WebDriver setup, Page Object Model, TestNG, Maven, and CI/CD. AI assistant included."/>
+  <meta name="keywords" content="selenium with java, selenium webdriver tutorial, selenium java tutorial, test automation java, page object model selenium, testng tutorial, automation testing course free, selenium interview questions"/>
+  <meta name="author" content="SeleniumLab"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://selenium-labs-training-ai.vercel.app/"/>
+
+  <!-- ── Open Graph ──────────────────────────────────────────── -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Selenium with Java — Free Test Automation Course"/>
+  <meta property="og:description" content="Go from zero to Selenium expert. Free hands-on course with AI assistant, real exercises, and 17 lessons. No experience needed."/>
+  <meta property="og:url" content="https://selenium-labs-training-ai.vercel.app/"/>
+
+  <!-- ── Twitter Card ────────────────────────────────────────── -->
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Selenium with Java — Free Test Automation Course"/>
+  <meta name="twitter:description" content="Free Selenium WebDriver with Java training. Hands-on exercises, AI assistant, from beginner to expert."/>
+
+  <!-- ── Structured Data ────────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Selenium with Java — Test Automation Training",
+    "description": "Free hands-on Selenium WebDriver with Java course. Covers WebDriver setup, Page Object Model, TestNG, Maven, CI/CD pipelines.",
+    "provider": { "@type": "Organization", "name": "SeleniumLab", "url": "https://selenium-labs-training-ai.vercel.app" },
+    "url": "https://selenium-labs-training-ai.vercel.app",
+    "hasCourseInstance": { "@type": "CourseInstance", "courseMode": "online", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
   <link rel="stylesheet" href="css/style.css"/>
-  <!-- Marked.js for Markdown rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
-  <!-- ════════════════════════════════════════════════════════
-       GOOGLE ADSENSE — replace ca-pub-XXXXXXXXXXXXXXXX with
-       your Publisher ID from adsense.google.com
-       Apply at: https://adsense.google.com/start/
-  ════════════════════════════════════════════════════════ -->
+  <!-- ── Google Analytics GA4 ───────────────────────────────── -->
+  <!-- Replace G-XXXXXXXXXX with your Measurement ID from analytics.google.com -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- ── Google AdSense ─────────────────────────────────────── -->
+  <!-- Uncomment after AdSense approval and replace ca-pub-XXXXXXXXXXXXXXXX -->
   <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 </head>
 <body>
@@ -28,6 +66,7 @@
   </div>
   <div class="progress-text" id="progress-text">0 / 0 lessons</div>
   <div class="header-right">
+    <a href="/blog/" class="btn btn-ghost" style="text-decoration:none">📝 Blog</a>
     <button class="btn btn-ghost" id="toggle-chat-btn">💬 AI Chat</button>
     <button class="btn btn-ghost" id="reset-btn" title="Reset progress">↺ Reset</button>
   </div>
@@ -65,9 +104,14 @@
           <div class="lbl">Progress</div>
         </div>
       </div>
-      <button class="btn btn-primary" style="font-size:15px;padding:12px 32px" id="start-btn">
-        Start Learning →
-      </button>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-primary" style="font-size:15px;padding:12px 32px" id="start-btn">
+          Start Learning →
+        </button>
+        <button class="btn btn-ghost" id="cert-btn" style="font-size:15px;padding:12px 32px;display:none">
+          🎓 Get Certificate
+        </button>
+      </div>
     </div>
 
     <!-- Lesson view (hidden until lesson selected) -->
@@ -78,6 +122,7 @@
         <div class="tabs">
           <div class="tab active" data-tab="lesson">📖 Lesson</div>
           <div class="tab" data-tab="exercise">🏋️ Exercise</div>
+          <div class="tab" data-tab="quiz">🧩 Quiz</div>
           <div class="tab" data-tab="notes">📝 Notes</div>
         </div>
       </div>
@@ -119,6 +164,11 @@
         </div>
       </div>
 
+      <!-- Quiz tab -->
+      <div class="tab-content" id="tab-quiz">
+        <div id="quiz-content"></div>
+      </div>
+
       <!-- Notes tab -->
       <div class="tab-content" id="tab-notes">
         <h3 style="margin-bottom:12px;color:var(--text2)">Your Notes</h3>
@@ -135,23 +185,42 @@
   <aside id="chat-panel">
     <div id="chat-header">
       <div id="ollama-status" title="Groq API status"></div>
-      <h3>AI Assistant (Groq)</h3>
+      <h3>AI Assistant</h3>
+      <button id="smart-mode-btn" class="smart-mode-btn" title="Smart Mode: Qwen refines your question before sending to selected model">⚡ Smart</button>
+      <button id="settings-btn" class="settings-gear-btn" title="Settings">⚙️</button>
       <select id="model-select">
-        <option value="llama-3.3-70b-versatile">Llama 3.3 70B ✨</option>
-        <option value="llama-3.1-8b-instant">Llama 3.1 8B (fast)</option>
-        <option value="qwen-qwq-32b">Qwen QwQ 32B</option>
-        <option value="gemma2-9b-it">Gemma 2 9B</option>
-        <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+        <optgroup label="☁️ Groq (Free Cloud)">
+          <option value="llama-3.3-70b-versatile">Llama 3.3 70B ✨</option>
+          <option value="llama-3.1-8b-instant">Llama 3.1 8B ⚡</option>
+          <option value="qwen-qwq-32b">Qwen QwQ 32B</option>
+          <option value="gemma2-9b-it">Gemma 2 9B</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+          <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
+        </optgroup>
+        <optgroup label="🤖 Claude (Anthropic)">
+          <option value="claude-sonnet-4-6">Claude Sonnet 4.6 ✨</option>
+          <option value="claude-opus-4-6">Claude Opus 4.6</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 ⚡</option>
+        </optgroup>
+        <optgroup label="🏠 Local (Ollama)" id="ollama-optgroup">
+          <option value="gemma3:4b">Gemma 3 4B</option>
+          <option value="qwen2.5-coder:14b">Qwen 2.5 Coder 14B</option>
+          <option value="llama3.2:latest">Llama 3.2</option>
+          <option value="llama3.2:3b">Llama 3.2 3B ⚡</option>
+        </optgroup>
       </select>
     </div>
     <div id="chat-messages">
       <div class="msg assistant">
-        👋 Hi! I'm your AI coding assistant powered by <strong>Groq</strong> (free, ultra-fast). I can:<br><br>
+        👋 Hi! I'm your AI coding assistant. I can:<br><br>
         • <strong>Explain</strong> any Selenium/Java concept<br>
         • <strong>Generate</strong> test code for your scenarios<br>
         • <strong>Debug</strong> your errors — paste them here<br>
         • <strong>Review</strong> your code and suggest improvements<br><br>
-        Running on <strong>Llama 3.3 70B</strong> via Groq cloud —<br>no local setup needed. 🚀
+        Pick a model from the dropdown above:<br>
+        <strong>☁️ Groq</strong> — free &amp; fast cloud models<br>
+        <strong>🤖 Claude</strong> — Anthropic's models (needs API key)<br>
+        <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)
       </div>
     </div>
     <div id="chat-input-area">
@@ -171,7 +240,99 @@
 
 </div>
 
+<!-- Settings Panel -->
+<div id="settings-overlay" style="display:none" onclick="closeSettings()"></div>
+<div id="settings-panel" style="display:none">
+  <div class="settings-header">
+    <span>⚙️ Settings</span>
+    <button class="settings-close-btn" onclick="closeSettings()">✕</button>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">💾 Project Folder (Save to VS Code)</div>
+    <div class="settings-desc">Generated code will be saved here. Set this to your test sources folder.</div>
+    <input type="text" id="project-folder-input" class="settings-input"
+      placeholder="e.g. /Users/yourname/my-project/src/test/java" />
+    <div class="settings-row">
+      <button class="btn btn-primary" onclick="saveProjectFolder()">Save Path</button>
+      <button class="btn btn-ghost" onclick="testProjectFolder()">Test Connection</button>
+    </div>
+    <div id="folder-status" class="settings-status"></div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">⚡ Smart Mode (Qwen → Claude chain)</div>
+    <div class="settings-desc">Qwen refines your question first, then the selected model answers. Better answers, costs one extra fast call.</div>
+    <label class="settings-toggle-row">
+      <input type="checkbox" id="smart-mode-checkbox" onchange="toggleSmartMode(this.checked)" />
+      <span class="settings-toggle-track"><span class="settings-toggle-thumb"></span></span>
+      <span id="smart-mode-status-text">Off</span>
+    </label>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">🖥️ Open in VS Code</div>
+    <div class="settings-desc">After saving a file, click the toast notification to open it directly in VS Code.</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:4px">Uses the <code>vscode://file/</code> URL scheme — works with VS Code installed.</div>
+  </div>
+</div>
+
+<!-- Certificate Modal -->
+<div id="cert-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px">
+  <div id="cert-box">
+    <button id="cert-close" onclick="document.getElementById('cert-modal').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#9BA8BB;font-size:22px;cursor:pointer;line-height:1">✕</button>
+    <div id="cert-inner">
+      <div class="cert-watermark">SELENIUMLAB</div>
+      <div class="cert-badge">▶</div>
+      <div class="cert-header">Certificate of Completion</div>
+      <div class="cert-sub">This is to certify that</div>
+      <input id="cert-name" class="cert-name-input" placeholder="Enter your name" maxlength="60" />
+      <div class="cert-course">has successfully completed</div>
+      <div class="cert-title">Selenium with Java<br><span>Test Automation Training</span></div>
+      <div class="cert-meta">SeleniumLab · <span id="cert-date"></span> · 17 Lessons · ~8 Hours</div>
+      <div class="cert-topics">Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD</div>
+    </div>
+    <div class="cert-actions">
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="btn btn-primary" onclick="document.getElementById('cert-modal').style.display='none'">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notifications -->
+<div id="toast-container"></div>
+
 <script src="js/curriculum.js"></script>
 <script src="js/app.js"></script>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer id="site-footer" style="background:#0C1018;border-top:1px solid #1C2A3A;padding:40px 32px;display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;font-size:13px;color:#9BA8BB">
+  <div>
+    <div style="font-weight:800;font-size:16px;color:#E8EDF5;margin-bottom:8px">▶ SELENIUM<span style="color:#FF6B2B">LAB</span></div>
+    <div>Free Selenium with Java training.</div>
+    <div>From beginner to automation expert.</div>
+    <div style="margin-top:12px">© 2025 SeleniumLab</div>
+  </div>
+  <div>
+    <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Course</div>
+    <div style="line-height:2"><a href="/" style="color:#9BA8BB;text-decoration:none">All Lessons</a></div>
+    <div style="line-height:2"><a href="/blog/" style="color:#9BA8BB;text-decoration:none">Blog</a></div>
+    <div style="line-height:2"><a href="/blog/selenium-interview-questions-answers" style="color:#9BA8BB;text-decoration:none">Interview Prep</a></div>
+  </div>
+  <div>
+    <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Resources</div>
+    <div style="line-height:2"><a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" target="_blank" style="color:#9BA8BB;text-decoration:none">Udemy Selenium Course ↗</a></div>
+    <div style="line-height:2"><a href="https://www.browserstack.com/" target="_blank" style="color:#9BA8BB;text-decoration:none">BrowserStack ↗</a></div>
+    <div style="line-height:2"><a href="https://www.lambdatest.com/" target="_blank" style="color:#9BA8BB;text-decoration:none">LambdaTest ↗</a></div>
+    <div style="line-height:2"><a href="https://www.selenium.dev/documentation/" target="_blank" style="color:#9BA8BB;text-decoration:none">Selenium Docs ↗</a></div>
+  </div>
+  <div>
+    <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Tools</div>
+    <div style="line-height:2"><a href="https://adoptium.net" target="_blank" style="color:#9BA8BB;text-decoration:none">Java (Adoptium) ↗</a></div>
+    <div style="line-height:2"><a href="https://maven.apache.org" target="_blank" style="color:#9BA8BB;text-decoration:none">Apache Maven ↗</a></div>
+    <div style="line-height:2"><a href="https://www.jetbrains.com/idea/" target="_blank" style="color:#9BA8BB;text-decoration:none">IntelliJ IDEA ↗</a></div>
+    <div style="line-height:2"><a href="https://testng.org" target="_blank" style="color:#9BA8BB;text-decoration:none">TestNG ↗</a></div>
+  </div>
+</footer>
 </body>
 </html>

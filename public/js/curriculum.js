@@ -1,4 +1,215 @@
 const CURRICULUM = [
+  // ── Chapter 0: Before You Start ─────────────────────────────
+  {
+    id: 'module-0',
+    title: 'Before You Start',
+    icon: '👋',
+    lessons: [
+      {
+        id: 'l0',
+        title: 'Welcome: A Manual Tester\'s Journey to Automation',
+        type: 'intro',
+        duration: '10 min',
+        whatYoullLearn: [
+          'What Selenium WebDriver is and how it works',
+          'How your manual testing skills give you a head start',
+          'What you will build by the end of this course',
+          'The full 9-chapter course roadmap',
+          'Exactly what tools you need to get started'
+        ],
+        content: `
+## 👋 Welcome, Manual Tester!
+
+You've been clicking buttons, filling forms, and checking results manually for years. You know what good software looks like. You know when something is broken.
+
+**Now it's time to make the computer do your clicking for you.**
+
+---
+
+### 🤔 Why Learn Automation? (The Honest Answer)
+
+Think about this: how many times a week do you test the login page?
+
+The same steps, every sprint:
+1. Open the browser
+2. Type a username
+3. Type a password
+4. Click Login
+5. Check you're on the dashboard
+
+That's 5 steps. Done manually by a human. Done manually *every single release*. Done by *you*.
+
+**Automation lets you write those 5 steps once — and run them in 3 seconds, a hundred times a day, automatically.** You write the script once, and you never touch that test again manually.
+
+---
+
+### 🔍 What Exactly Is Selenium?
+
+Selenium WebDriver is a tool that lets Java code control a real web browser — Chrome, Firefox, Edge — just like you would with your mouse and keyboard.
+
+Your code says:
+\`\`\`java
+// 1. Open the browser and go to the page
+driver.get("https://myapp.com/login");
+
+// 2. Find the username field and type in it
+driver.findElement(By.id("username")).sendKeys("admin");
+
+// 3. Find the password field and type in it
+driver.findElement(By.id("password")).sendKeys("secret123");
+
+// 4. Click the Login button
+driver.findElement(By.id("submit")).click();
+
+// 5. Assert you're now on the dashboard
+Assert.assertTrue(driver.getCurrentUrl().contains("dashboard"));
+\`\`\`
+
+You're not doing anything magical. You're just *writing down* the steps you already know how to do — in a language the computer understands.
+
+---
+
+### 🆚 Manual vs Automation — Side by Side
+
+| Manual Testing | Automation Testing |
+|---|---|
+| You click buttons yourself | Code clicks for you |
+| Takes 5 min per test run | Takes 3 seconds per run |
+| Can run once per sprint | Can run 50x per day |
+| You get tired and miss things | Never misses, never tired |
+| Hard to test 10 browsers at once | Run on 10 browsers simultaneously |
+| No code required | Requires coding (we'll teach you!) |
+
+**You don't replace manual testing — you add automation on top, for the repetitive parts.**
+
+---
+
+### 📚 What Will You Build?
+
+By the end of this course, you'll have built a **complete Selenium test automation framework** — the same type used at companies like Infosys, Wipro, TCS, Capgemini, and Amazon.
+
+It includes:
+- **Real browser tests** that open Chrome and run test scenarios
+- **Page Object Model** — the industry-standard way to organise tests
+- **TestNG integration** — run 50 tests with one command
+- **Parallel execution** — run tests on 3 browsers simultaneously
+- **CI/CD ready** — plug directly into Jenkins or GitHub Actions
+
+---
+
+### 🗺️ Your Learning Roadmap
+
+| Chapter | What You'll Do | Time |
+|---------|---------------|------|
+| 0 (this one!) | Before You Start — understand the big picture | 10 min |
+| 1 | Java for Manual Testers — syntax, variables, loops | 70 min |
+| 2 | Your First Automation Test — run Chrome from code | 40 min |
+| 3 | Finding Elements — locate anything on any page | 65 min |
+| 4 | Complex Scenarios — alerts, frames, multiple windows | 65 min |
+| 5 | Writing Clean Tests — Page Object Model pattern | 50 min |
+| 6 | Building a Framework — config, reports, multi-browser | 60 min |
+| 7 | Advanced & Career Ready — Grid, debugging, logging | 45 min |
+
+**Total: ~8 hours of hands-on learning**
+
+---
+
+### ✅ What You Need Before We Start
+
+**You need:**
+- A computer (Windows, Mac, or Linux)
+- Google Chrome installed
+- An internet connection
+- About 15 minutes per lesson
+
+**You do NOT need:**
+- Any coding experience whatsoever
+- Java knowledge (Chapter 1 starts from zero)
+- Any automation background
+
+---
+
+### 💡 How to Use This Course
+
+1. **Read each lesson** — understand the *why*, not just the *how*
+2. **Try the exercise** — write the code yourself (don't just copy-paste!)
+3. **Use the AI chat** — if you're stuck, ask the AI anything — it's free
+4. **Mark complete** — tick off lessons as you go, watch your progress grow
+5. **Move at your own pace** — no deadlines, no pressure
+
+> 💡 **Tip**: You don't need to memorise everything. Experienced engineers Google syntax daily. What matters is understanding *why* each piece exists. The syntax you look up later.
+
+---
+
+### 🧑‍💼 What Changes When You Learn This Skill
+
+| Your World Today | After This Course |
+|--------|-------|
+| Testing login manually every sprint | One click runs 200 test cases |
+| "Automation is for developers" | You write production-quality test code |
+| Job title: Manual QA Tester | Eligible for: SDET / Automation Engineer |
+| Spending evenings on regression | Automation runs overnight, you review in morning |
+
+**You're not replacing yourself. You're upgrading yourself.**
+
+---
+
+Ready? Mark this lesson complete and head to Chapter 1: Java for Manual Testers. 🚀
+
+The first lesson starts with *why* Java instead of jumping straight into syntax — because understanding the reason makes everything else stick.
+`,
+        exercise: {
+          title: 'Reflection: Your Manual Testing to Automation Bridge',
+          task: 'Think about 3 test cases you currently run manually every sprint. Write them out as plain English steps (like: "1. Open browser. 2. Go to login page. 3. Type username..."). This is the first step — you already know what the automation needs to do. By Chapter 2, you\'ll be writing this in code.',
+          hints: [
+            'Think about your most repetitive test scenarios — the ones you dread doing manually',
+            'Write them as simple numbered steps, no technical jargon needed',
+            'Keep each step as one action: one click, one input, one assertion'
+          ]
+        },
+        quiz: [
+          {
+            type: 'mcq',
+            q: 'What does Selenium WebDriver primarily do?',
+            options: [
+              'Generates test reports automatically',
+              'Controls a real web browser from code',
+              'Replaces manual testing entirely',
+              'Finds bugs in your application code'
+            ],
+            answer: 1
+          },
+          {
+            type: 'truefalse',
+            q: 'You need prior coding experience to start Chapter 1 of this course.',
+            answer: false
+          },
+          {
+            type: 'fillin',
+            q: 'Selenium WebDriver controls a real _______ from your Java code.',
+            answer: 'browser'
+          },
+          {
+            type: 'mcq',
+            q: 'What is the main advantage of automation over manual testing?',
+            options: [
+              'Automation tests are always more accurate than manual testers',
+              'Automation completely eliminates the need for manual testing',
+              'Automated tests can run repeatedly and quickly without human effort',
+              'Automation is cheaper to set up than manual testing'
+            ],
+            answer: 2
+          },
+          {
+            type: 'truefalse',
+            q: 'The Page Object Model (POM) is a design pattern you will build in this course.',
+            answer: true
+          }
+        ]
+      }
+    ]
+  },
+  // ── Chapter 1: Java Essentials ───────────────────────────────
   {
     id: 'module-1',
     title: 'Java Essentials for Selenium',
@@ -9,6 +220,19 @@ const CURRICULUM = [
         title: 'Project Setup: Java 21 + Maven',
         type: 'practical',
         duration: '20 min',
+        whatYoullLearn: [
+          'Install Java 21 and verify it works in terminal',
+          'Install Maven and understand what it does',
+          'Create a Maven project structure from the command line',
+          'Write a pom.xml with Selenium 4 and TestNG dependencies',
+          'Run mvn clean install to download all dependencies'
+        ],
+        quiz: [
+          { type: 'mcq', q: 'Which command verifies Java is installed correctly?', options: ['java --check', 'java -version', 'javac --test', 'java --verify'], answer: 1 },
+          { type: 'truefalse', q: 'Maven automatically downloads project dependencies listed in pom.xml.', answer: true },
+          { type: 'fillin', q: 'The Maven project descriptor file is called _______.xml', answer: 'pom' },
+          { type: 'mcq', q: 'What does WebDriverManager do?', options: ['Creates WebDriver instances', 'Auto-downloads the correct browser driver', 'Opens Chrome browser windows', 'Generates test reports'], answer: 1 }
+        ],
         content: `
 ## Setting Up Your Environment
 
@@ -106,8 +330,20 @@ Run \`mvn clean install\` to download dependencies.
       {
         id: 'l2',
         title: 'Java Variables & Data Types',
-        type: 'theory+practical',
+        type: 'practical',
         duration: '15 min',
+        whatYoullLearn: [
+          'Declare String, int, boolean, and List variables in Java',
+          'Use the var keyword for type inference (Java 10+)',
+          'Work with String methods like contains(), equals(), and trim()',
+          'Store test data in Map<String, String> key-value pairs',
+          'Understand why types matter in Selenium test code'
+        ],
+        quiz: [
+          { type: 'mcq', q: 'Which data type stores URLs and element selectors in Selenium tests?', options: ['int', 'boolean', 'String', 'double'], answer: 2 },
+          { type: 'truefalse', q: 'The var keyword in Java requires you to explicitly state the type.', answer: false },
+          { type: 'fillin', q: 'To check if a String contains another String, use the _______ method.', answer: 'contains' }
+        ],
         content: `
 ## Java Variables for Test Automation
 
@@ -177,7 +413,7 @@ String.format("User: %s", username) // interpolation
       {
         id: 'l3',
         title: 'Control Flow & Loops',
-        type: 'theory+practical',
+        type: 'practical',
         duration: '15 min',
         content: `
 ## Control Flow in Test Automation
@@ -255,7 +491,7 @@ String baseUrl = switch (env) {
       {
         id: 'l4',
         title: 'OOP: Classes, Objects & Inheritance',
-        type: 'theory+practical',
+        type: 'practical',
         duration: '20 min',
         content: `
 ## OOP Concepts You Need for Selenium
@@ -387,6 +623,19 @@ public class DashboardPage implements Loadable {
         title: 'Your First Selenium Script',
         type: 'practical',
         duration: '20 min',
+        whatYoullLearn: [
+          'Write a complete Selenium test class with TestNG annotations',
+          'Use WebDriverManager to automatically download ChromeDriver',
+          'Navigate to a URL and assert the page title',
+          'Find elements, type into them, and submit forms',
+          'Run a test from the command line with mvn test'
+        ],
+        quiz: [
+          { type: 'mcq', q: 'Which annotation sets up the WebDriver before each test method?', options: ['@Test', '@BeforeClass', '@BeforeMethod', '@BeforeSuite'], answer: 2 },
+          { type: 'truefalse', q: 'driver.quit() should always be called after a test to close the browser.', answer: true },
+          { type: 'fillin', q: 'To navigate to a URL in Selenium, use driver._______(url)', answer: 'get' },
+          { type: 'mcq', q: 'What does driver.getTitle() return?', options: ['The page URL', 'The page HTML source', 'The browser window title', 'The current user session'], answer: 2 }
+        ],
         content: `
 ## First Working Selenium Test
 
@@ -1070,6 +1319,19 @@ for (int i = 0; i < figures.size(); i++) {
         title: 'Page Object Model (POM)',
         type: 'practical',
         duration: '30 min',
+        whatYoullLearn: [
+          'Understand why the Page Object Model exists and when to use it',
+          'Create a BasePage class with shared wait utilities',
+          'Build a page class that encapsulates locators and actions',
+          'Write test classes that use page objects — no locators visible',
+          'Return page objects from methods that navigate to new pages'
+        ],
+        quiz: [
+          { type: 'mcq', q: 'What is the main benefit of the Page Object Model?', options: ['Tests run faster', 'Locators are defined once — change one class to fix all tests', 'You need less Java knowledge', 'Tests are easier to run in parallel'], answer: 1 },
+          { type: 'truefalse', q: 'Assertions (Assert.assertEquals) should be placed inside Page classes.', answer: false },
+          { type: 'fillin', q: 'The Page Object Model is a design _______ used to organise test code.', answer: 'pattern' },
+          { type: 'mcq', q: 'A method like loginAs() in LoginPage should return what?', options: ['void always', 'A String with the result', 'Another page object (e.g. DashboardPage)', 'A boolean indicating success'], answer: 2 }
+        ],
         content: `
 ## Page Object Model — Industry Standard Pattern
 
