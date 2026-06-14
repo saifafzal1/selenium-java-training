@@ -109,13 +109,13 @@
         </button>
       </div>
 
-      <!-- Submit Project panel (shown when all lessons complete) -->
+      <!-- Submit Project panel — shown when all lessons complete -->
       <div id="submit-project-panel" class="submit-project-panel" style="display:none">
         <div class="submit-project-title">🎯 Submit Your Project for Review</div>
         <p class="submit-project-desc">
-          You've completed the course! Now push your Selenium Java project to a public GitHub repository
-          and submit it here. Our AI will review your code structure, locator strategy, wait patterns,
-          TestNG usage, and give you detailed feedback — just like a real code review.
+          You've completed the course! Push your Selenium Java project to a <strong>public GitHub repo</strong>,
+          then paste the URL below. The AI will review your code — locator strategy, wait patterns,
+          Page Object Model, TestNG usage — just like a real team code review.
         </p>
         <div class="submit-row">
           <input type="url" id="github-repo-url" class="submit-url-input"
@@ -190,7 +190,7 @@
     <div id="chat-header">
       <div id="ollama-status" title="Provider status"></div>
       <h3>AI Assistant</h3>
-      <div id="rag-indicator" style="display:none" title="RAG active: answers augmented with local Selenium docs">
+      <div id="rag-indicator" style="display:none" title="RAG active: responses augmented with local Selenium docs">
         <span style="font-size:10px;background:rgba(56,189,248,.12);color:#38bdf8;border:1px solid rgba(56,189,248,.2);border-radius:100px;padding:2px 7px;font-weight:600">📚 RAG</span>
       </div>
       <button id="smart-mode-btn" class="smart-mode-btn" title="Smart Mode: Qwen refines your question before sending to selected model">⚡ Smart</button>
@@ -227,7 +227,7 @@
         Pick a model from the dropdown above:<br>
         <strong>☁️ Groq</strong> — free &amp; fast cloud models<br>
         <strong>🤖 Claude</strong> — Anthropic's models (needs API key)<br>
-        <strong>🏠 Local</strong> — your Ollama models + <span style="color:#38bdf8">local RAG docs</span> (needs <code>ollama serve</code>)
+        <strong>🏠 Local</strong> — Ollama models + <span style="color:#38bdf8">📚 RAG docs</span> (needs <code>ollama serve</code>)
       </div>
     </div>
     <div id="chat-input-area">
@@ -268,7 +268,7 @@
   </div>
 
   <div class="settings-section">
-    <div class="settings-label">⚡ Smart Mode (Qwen → Claude chain)</div>
+    <div class="settings-label">⚡ Smart Mode (Qwen → model chain)</div>
     <div class="settings-desc">Qwen refines your question first, then the selected model answers. Better answers, costs one extra fast call.</div>
     <label class="settings-toggle-row">
       <input type="checkbox" id="smart-mode-checkbox" onchange="toggleSmartMode(this.checked)" />
@@ -277,10 +277,14 @@
     </label>
   </div>
 
-  <!-- ── RAG Knowledge Base section ─────────────────────────────── -->
+  <!-- ── RAG section ────────────────────────────────────────────────── -->
   <div class="settings-section">
     <div class="settings-label">📚 Local Knowledge Base (RAG)</div>
-    <div class="settings-desc">Download Selenium &amp; TestNG docs once while online. Your local AI then uses this knowledge even when <strong>offline</strong>. All data stays on your machine.</div>
+    <div class="settings-desc">
+      Download Selenium &amp; TestNG docs <strong>once</strong> while online.
+      Your local Ollama AI then answers from this knowledge even <strong>offline</strong>.
+      Data never leaves your machine.
+    </div>
     <div id="rag-status-row">
       <span id="rag-badge" class="rag-badge rag-warn">⏳ Not synced</span>
       <span id="rag-chunk-count"></span>
@@ -296,7 +300,7 @@
     <div id="rag-msg" class="settings-status"></div>
     <div class="rag-prereq">
       📦 Prerequisite: <code>ollama pull nomic-embed-text:latest</code><br>
-      📶 Sync requires internet. After sync, local Ollama models answer from saved knowledge offline.
+      📶 Sync needs internet once. After that, offline Ollama models use saved docs.
     </div>
   </div>
 
@@ -334,6 +338,7 @@
 
 <script src="js/curriculum.js"></script>
 <script src="js/app.js"></script>
+<script src="js/rag-app.js"></script>
 
 <!-- ── Footer ──────────────────────────────────────────────────────── -->
 <footer id="site-footer" style="background:#0C1018;border-top:1px solid #1C2A3A;padding:40px 32px;display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;font-size:13px;color:#9BA8BB">
