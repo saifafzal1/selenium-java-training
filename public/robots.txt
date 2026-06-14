@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://selenium-labs-training-ai.vercel.app/sitemap.xml
