@@ -1,4 +1,4 @@
-// ── State ──────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────────────
 let state = {
   progress: { completedLessons: [], lastVisited: null, notes: {} },
   currentLesson: null,
@@ -150,9 +150,14 @@ function showLesson(lesson, module) {
   // Populate header
   document.getElementById('lesson-title').textContent = lesson.title;
   const meta = document.getElementById('lesson-meta');
+  const diffTag = lesson.difficulty
+    ? `<span class="meta-tag diff-${lesson.difficulty}">${lesson.difficulty}</span>` : '';
+  const labTag = lesson.type === 'lab'
+    ? `<span class="meta-tag lab-badge">🔬 Lab Exercise</span>` : '';
   meta.innerHTML = `
     <span class="meta-tag">${module.icon} ${module.title}</span>
-    <span class="meta-tag ${lesson.type === 'practical' ? 'practical' : 'theory'}">${lesson.type}</span>
+    ${labTag || `<span class="meta-tag ${lesson.type === 'practical' ? 'practical' : 'theory'}">${lesson.type}</span>`}
+    ${diffTag}
     <span class="meta-tag">⏱ ${lesson.duration}</span>`;
 
   // Render "What You'll Learn" section if lesson has it
@@ -171,6 +176,14 @@ function showLesson(lesson, module) {
 
   // Render affiliate resources panel
   renderAffiliatePanel(lesson, module);
+
+  // Show/hide Evaluate tab and render rubric for lab lessons
+  const evaluateTab = document.querySelector('.lab-tab[data-tab="evaluate"]');
+  if (evaluateTab) {
+    const isLab = lesson.type === 'lab';
+    evaluateTab.style.display = isLab ? '' : 'none';
+    if (isLab) renderLabEvaluation(lesson);
+  }
 
   // Load notes
   const noteArea = document.getElementById('notes-area');
@@ -361,6 +374,125 @@ function renderExercise(lesson) {
       💡 Paste your code or errors into the AI chat for help →
     </p>`;
 }
+
+// ── Lab Evaluation / Rubric ───────────────────────────────────
+function renderLabEvaluation(lesson) {
+  const container = document.getElementById('evaluate-content');
+  if (!lesson.rubric) { container.innerHTML = ''; return; }
+
+  const rubric = lesson.rubric;
+  const savedKey = 'rubric_' + lesson.id;
+  const saved = JSON.parse(localStorage.getItem(savedKey) || '{}');
+
+  // Compute score from saved checks
+  function computeScore(checks) {
+    return rubric.criteria.reduce((sum, c) => sum + (checks[c.id] ? c.points : 0), 0);
+  }
+
+  function levelBadge(pct) {
+    if (pct >= 90) return { label: '🏆 Expert',        cls: 'level-expert' };
+    if (pct >= 80) return { label: '🥇 Advanced',      cls: 'level-advanced' };
+    if (pct >= 60) return { label: '⚡ Intermediate',  cls: 'level-intermediate' };
+    if (pct >= 40) return { label: '📈 Developing',    cls: 'level-developing' };
+    return             { label: '🌱 Beginner',         cls: 'level-beginner' };
+  }
+
+  function renderPanel(checks) {
+    const score = computeScore(checks);
+    const pct   = Math.round(score / rubric.totalPoints * 100);
+    const { label, cls } = levelBadge(pct);
+
+    // Capstone totals across all labs
+    const labIds = ['lab1','lab2','lab3','lab4','lab5'];
+    const labTotals = { lab1:20, lab2:20, lab3:25, lab4:20, lab5:30 };
+    let totalEarned = 0, totalPossible = 0;
+    labIds.forEach(id => {
+      const k = JSON.parse(localStorage.getItem('rubric_' + id) || '{}');
+      const lab = CURRICULUM.find(m => m.id === 'module-7')
+                            ?.lessons.find(l => l.id === id);
+      if (!lab || !lab.rubric) return;
+      totalPossible += lab.rubric.totalPoints;
+      totalEarned   += lab.rubric.criteria.reduce((s, c) => s + (k[c.id] ? c.points : 0), 0);
+    });
+    const overallPct = totalPossible > 0 ? Math.round(totalEarned / totalPossible * 100) : 0;
+    const overall    = levelBadge(overallPct);
+
+    container.innerHTML = `
+      <div class="eval-wrap">
+
+        <div class="eval-header">
+          <div>
+            <div class="eval-title">🏆 Self-Assessment Rubric</div>
+            <div class="eval-sub">${lesson.title}</div>
+          </div>
+          <div class="eval-score-badge ${cls}">${label}</div>
+        </div>
+
+        <div class="eval-score-bar-wrap">
+          <div class="eval-score-bar-track">
+            <div class="eval-score-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="eval-score-text">${score} / ${rubric.totalPoints} pts &nbsp;(${pct}%)</div>
+        </div>
+
+        <p class="eval-instruction">Check each criterion you have <strong>fully met</strong> in your implementation. Be honest — this is for your own learning.</p>
+
+        <div class="eval-criteria">
+          ${rubric.criteria.map(c => `
+            <label class="eval-criterion ${checks[c.id] ? 'checked' : ''}" data-id="${c.id}">
+              <input type="checkbox" class="eval-cb" data-id="${c.id}" data-pts="${c.points}" ${checks[c.id] ? 'checked' : ''}/>
+              <div class="eval-criterion-body">
+                <span class="eval-criterion-label">${escHtml(c.label)}</span>
+                <span class="eval-pts-badge">+${c.points} pts</span>
+              </div>
+            </label>`).join('')}
+        </div>
+
+        <div class="eval-divider"></div>
+
+        <div class="eval-overall">
+          <div class="eval-overall-title">📊 Capstone Overall Progress</div>
+          <div class="eval-overall-bar-wrap">
+            <div class="eval-overall-bar-track">
+              <div class="eval-overall-bar-fill" style="width:${overallPct}%"></div>
+            </div>
+            <div class="eval-score-text">${totalEarned} / ${totalPossible} pts across all labs &nbsp;(${overallPct}%)</div>
+          </div>
+          <div class="eval-overall-badge ${overall.cls}">${overall.label}</div>
+          <div class="eval-level-legend">
+            <span class="lvl level-beginner">🌱 Beginner &lt;40%</span>
+            <span class="lvl level-developing">📈 Developing 40–59%</span>
+            <span class="lvl level-intermediate">⚡ Intermediate 60–79%</span>
+            <span class="lvl level-advanced">🥇 Advanced 80–89%</span>
+            <span class="lvl level-expert">🏆 Expert 90–100%</span>
+          </div>
+        </div>
+
+        <div class="eval-footer">
+          <button class="btn btn-ghost eval-reset-btn" onclick="resetLabRubric('${lesson.id}')">↺ Reset Checklist</button>
+          <span style="color:var(--text3);font-size:12px">Scores saved in your browser · Ask the AI to review your code for deeper feedback</span>
+        </div>
+      </div>`;
+
+    // Attach checkbox listeners after render
+    container.querySelectorAll('.eval-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id  = cb.dataset.id;
+        checks[id] = cb.checked;
+        localStorage.setItem(savedKey, JSON.stringify(checks));
+        renderPanel(checks);          // re-render with updated scores
+      });
+    });
+  }
+
+  renderPanel({ ...saved });
+}
+
+window.resetLabRubric = function(lessonId) {
+  localStorage.removeItem('rubric_' + lessonId);
+  const lesson = state.currentLesson;
+  if (lesson && lesson.id === lessonId) renderLabEvaluation(lesson);
+};
 
 // ── Affiliate Resources Panel ──────────────────────────────────
 function renderAffiliatePanel(lesson, module) {
@@ -936,8 +1068,6 @@ function wireEvents() {
 }
 
 // ── Java Syntax Highlighter ────────────────────────────────────
-// Works on raw text → HTML-escape → apply spans → set innerHTML
-// This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
   document.querySelectorAll(
     '.lesson-body pre code, .solution-box, .msg.assistant pre code, .msg.assistant pre'
@@ -945,26 +1075,21 @@ function highlightJava() {
     if (block.dataset.highlighted) return;
     block.dataset.highlighted = '1';
 
-    // 1. Get raw text (no HTML)
     const raw = block.tagName === 'PRE'
       ? block.textContent
       : block.textContent;
 
-    // 2. HTML-escape the raw text first
     function esc(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // 3. Tokenise line by line to keep comments safe
     const lines = raw.split('\n');
     const highlighted = lines.map(line => {
-      // Whole-line comment (// or #)
       const lineCommentMatch = line.match(/^(\s*)(\/\/.*|#.*)$/);
       if (lineCommentMatch) {
         return esc(lineCommentMatch[1]) + `<span class="cmt">${esc(lineCommentMatch[2])}</span>`;
       }
 
-      // Split by string literals first to protect them
       const parts = [];
       let remaining = line;
       const strRe = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
@@ -981,14 +1106,11 @@ function highlightJava() {
 
         let s = esc(p.val);
 
-        // Inline comment after code
         const inlineCmt = s.indexOf('//');
         let cmt = '';
         if (inlineCmt !== -1) { cmt = s.slice(inlineCmt); s = s.slice(0, inlineCmt); }
 
-        // Annotations
         s = s.replace(/(@\w+)/g, '<span class="ann">$1</span>');
-        // Keywords
         const kws = ['public','private','protected','static','final','abstract','class',
           'interface','extends','implements','new','return','void','this','super',
           'null','true','false','if','else','for','while','do','switch','case',
@@ -996,11 +1118,8 @@ function highlightJava() {
           'import','package','var','instanceof','synchronized','volatile',
           'transient','native','enum','record','sealed','permits'];
         s = s.replace(new RegExp(`\\b(${kws.join('|')})\\b`, 'g'), '<span class="kw">$1</span>');
-        // Class names (PascalCase)
         s = s.replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="cls">$1</span>');
-        // Method calls
         s = s.replace(/\b([a-z]\w*)(\s*\()/g, '<span class="met">$1</span>$2');
-        // Numbers
         s = s.replace(/\b(\d+\.?\d*[LlFfDd]?)\b/g, '<span class="num">$1</span>');
 
         if (cmt) s += `<span class="cmt">${cmt}</span>`;
@@ -1010,12 +1129,10 @@ function highlightJava() {
 
     block.innerHTML = highlighted;
 
-    // Add Copy + Save buttons to code blocks (lesson body, chat, solution boxes)
     const pre = block.closest('.lesson-body pre, .solution-box, .msg.assistant pre');
     if (pre && !pre.querySelector('.copy-code-btn')) {
       const codeText = () => block.textContent || pre.textContent;
 
-      // Copy button
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-code-btn';
       copyBtn.textContent = 'Copy';
@@ -1032,7 +1149,6 @@ function highlightJava() {
       });
       pre.appendChild(copyBtn);
 
-      // Save to Project button
       const saveBtn = document.createElement('button');
       saveBtn.className = 'save-code-btn';
       saveBtn.textContent = '💾 Save';
