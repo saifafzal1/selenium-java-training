@@ -1,4 +1,4 @@
-// ── State ──────────────────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────
 let state = {
   progress: { completedLessons: [], lastVisited: null, notes: {} },
   currentLesson: null,
@@ -8,21 +8,122 @@ let state = {
   currentLessonContext: '',
   serverMode: false,   // true when Node server is reachable
   smartMode: false,    // Qwen→model chain mode
-  projectFolder: ''    // saved code destination
+  projectFolder: '',   // saved code destination
+  activeCourse: 'selenium'  // 'selenium' | 'playwright'
 };
 
-// ── Storage helpers (server + localStorage fallback) ──────────
+// ── Active curriculum helpers ───────────────────────────────────
+function getActiveCurriculum() {
+  return state.activeCourse === 'playwright' ? PLAYWRIGHT_CURRICULUM : CURRICULUM;
+}
+function getActiveLabs() {
+  return state.activeCourse === 'playwright' ? PLAYWRIGHT_LABS : CURRICULUM_LABS;
+}
+function getProgressKey() {
+  return state.activeCourse === 'playwright'
+    ? 'playwright-training-progress'
+    : 'selenium-training-progress';
+}
+
+// ── Course Switcher ─────────────────────────────────────────
+function switchCourse(course) {
+  if (state.activeCourse === course) return;
+
+  // Save current progress before switching
+  lsSave(state.progress, state.activeCourse === 'playwright'
+    ? 'playwright-training-progress' : 'selenium-training-progress');
+
+  state.activeCourse = course;
+  localStorage.setItem('activeCourse', course);
+
+  // Update button states
+  document.getElementById('btn-selenium').classList.toggle('active', course === 'selenium');
+  document.getElementById('btn-playwright').classList.toggle('active', course === 'playwright');
+
+  // Update welcome screen content
+  const isPlaywright = course === 'playwright';
+  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : '🚀';
+  document.getElementById('welcome-title').innerHTML = isPlaywright
+    ? 'Playwright —<br><em>From Zero to Expert</em>'
+    : 'Selenium with Java —<br><em>From Zero to Expert</em>';
+  document.getElementById('welcome-desc').textContent = isPlaywright
+    ? 'Modern, fast, and built-in API testing. Learn Playwright from scratch with hands-on exercises, the Request Builder pattern, and CI/CD. The AI assistant is here to help.'
+    : 'Hands-on, practical training with real exercises. Pick a lesson from the sidebar to begin. The AI assistant on the right can explain concepts, debug your code, and generate examples.';
+
+  // Update certificate content
+  document.getElementById('cert-course-title').innerHTML = isPlaywright
+    ? 'Playwright<br><span>Test Automation Training</span>'
+    : 'Selenium with Java<br><span>Test Automation Training</span>';
+  document.getElementById('cert-lessons').textContent = isPlaywright
+    ? '18 Lessons · ~9 Hours'
+    : '17 Lessons · ~8 Hours';
+  document.getElementById('cert-topics').textContent = isPlaywright
+    ? 'JavaScript · Node.js · POM · Fixtures · API Testing · Hybrid Tests · CI/CD · GitHub Actions'
+    : 'Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD';
+
+  // Update chat placeholder
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) chatInput.placeholder = isPlaywright
+    ? 'Ask anything about Playwright or JavaScript…'
+    : 'Ask anything about Selenium or Java…';
+
+  // Update first chat message
+  const firstMsg = document.querySelector('#chat-messages .msg.assistant');
+  if (firstMsg) firstMsg.innerHTML = isPlaywright
+    ? `👋 Hi! I'm your AI coding assistant for Playwright. I can:<br><br>
+      • <strong>Explain</strong> any Playwright/JavaScript concept<br>
+      • <strong>Generate</strong> test code and fixtures<br>
+      • <strong>Debug</strong> your errors — paste them here<br>
+      • <strong>Review</strong> your POM and request builders<br><br>
+      Pick a model above and start asking!`
+    : `👋 Hi! I'm your AI coding assistant. I can:<br><br>
+      • <strong>Explain</strong> any Selenium/Java concept<br>
+      • <strong>Generate</strong> test code for your scenarios<br>
+      • <strong>Debug</strong> your errors — paste them here<br>
+      • <strong>Review</strong> your code and suggest improvements<br><br>
+      Pick a model from the dropdown above:<br>
+      <strong>☁️ Groq</strong> — free &amp; fast cloud models<br>
+      <strong>🤖 Claude</strong> — Anthropic's models (needs API key)<br>
+      <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)`;
+
+  // Load progress for the new course
+  const key = isPlaywright ? 'playwright-training-progress' : 'selenium-training-progress';
+  try { state.progress = JSON.parse(localStorage.getItem(key)) || { completedLessons: [], lastVisited: null, notes: {} }; }
+  catch { state.progress = { completedLessons: [], lastVisited: null, notes: {} }; }
+
+  // Rebuild everything
+  state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
+  state.currentLesson = null;
+  state.currentModule = null;
+
+  document.getElementById('welcome-screen').style.display = '';
+  document.getElementById('lesson-view').style.display    = 'none';
+  document.getElementById('context-pill').textContent     = '📍 No lesson selected';
+
+  buildSidebar();
+  updateProgressUI();
+
+  document.getElementById('stat-total').textContent = state.allLessons.length;
+  document.getElementById('stat-done').textContent  = state.progress.completedLessons.length;
+  const pct = state.allLessons.length
+    ? Math.round(state.progress.completedLessons.length / state.allLessons.length * 100) : 0;
+  document.getElementById('stat-pct').textContent = pct + '%';
+}
+
+// ── Storage helpers (server + localStorage fallback) ────────────
 const LS_KEY = 'selenium-training-progress';
 
-function lsLoad() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || { completedLessons: [], lastVisited: null, notes: {} }; }
+function lsLoad(key) {
+  const k = key || LS_KEY;
+  try { return JSON.parse(localStorage.getItem(k)) || { completedLessons: [], lastVisited: null, notes: {} }; }
   catch { return { completedLessons: [], lastVisited: null, notes: {} }; }
 }
-function lsSave(p) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(p)); } catch {}
+function lsSave(p, key) {
+  const k = key || LS_KEY;
+  try { localStorage.setItem(k, JSON.stringify(p)); } catch {}
 }
 
-// ── Init ───────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────
 async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
@@ -35,10 +136,16 @@ async function init() {
     document.getElementById('app').style.marginTop = '32px';
   }
 
-  // Flatten all lessons
-  state.allLessons = CURRICULUM.flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
+  // Restore active course from localStorage
+  state.activeCourse = localStorage.getItem('activeCourse') || 'selenium';
+  document.getElementById('btn-selenium').classList.toggle('active', state.activeCourse === 'selenium');
+  document.getElementById('btn-playwright').classList.toggle('active', state.activeCourse === 'playwright');
+
+  // Flatten all lessons for active course
+  state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
 
   // Load progress — try server first, fall back to localStorage
+  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : LS_KEY;
   try {
     const res = await fetch('api/progress', { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -46,7 +153,7 @@ async function init() {
       state.serverMode = true;
     } else { throw new Error('not ok'); }
   } catch {
-    state.progress = lsLoad();
+    state.progress = lsLoad(progressKey);
     state.serverMode = false;
   }
 
@@ -76,12 +183,12 @@ async function init() {
   wireEvents();
 }
 
-// ── Sidebar ────────────────────────────────────────────────────
+// ── Sidebar ──────────────────────────────────────────────────────
 function buildSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
 
-  CURRICULUM.forEach(module => {
+  getActiveCurriculum().forEach(module => {
     const group = document.createElement('div');
     group.className = 'module-group';
     group.dataset.moduleId = module.id;
@@ -116,7 +223,7 @@ function buildSidebar() {
     sidebar.appendChild(group);
 
     // Auto-open first module
-    if (module === CURRICULUM[0]) toggleModule(hdr, list);
+    if (module === getActiveCurriculum()[0]) toggleModule(hdr, list);
   });
 }
 
@@ -125,7 +232,7 @@ function toggleModule(hdr, list) {
   list.classList.toggle('open');
 }
 
-// ── Show Lesson ────────────────────────────────────────────────
+// ── Show Lesson ────────────────────────────────────────────────────
 function showLesson(lesson, module) {
   state.currentLesson = lesson;
   state.currentModule = module;
@@ -204,7 +311,7 @@ function showLesson(lesson, module) {
   saveProgress({ lastVisited: lesson.id });
 }
 
-// ── What You'll Learn ─────────────────────────────────────────
+// ── What You'll Learn ─────────────────────────────────────────────
 function renderWhatYoullLearn(lesson) {
   const existing = document.getElementById('wyll-panel');
   if (existing) existing.remove();
@@ -223,7 +330,7 @@ function renderWhatYoullLearn(lesson) {
   lessonContent.parentNode.insertBefore(panel, lessonContent);
 }
 
-// ── Quiz ──────────────────────────────────────────────────────
+// ── Quiz ────────────────────────────────────────────────────────
 function renderQuiz(lesson) {
   const container = document.getElementById('quiz-content');
   if (!lesson.quiz || !lesson.quiz.length) {
@@ -365,7 +472,7 @@ function renderExercise(lesson) {
   }
   container.innerHTML = `
     <div class="exercise-panel">
-      <h3>🏋️ ${ex.title}</h3>
+      <h3>🏗️ ${ex.title}</h3>
       <p class="task-text">${ex.task}</p>
       ${hintsHtml}
       ${solutionHtml}
@@ -375,7 +482,7 @@ function renderExercise(lesson) {
     </p>`;
 }
 
-// ── Lab Evaluation / Rubric ───────────────────────────────────
+// ── Lab Evaluation / Rubric ───────────────────────────────────────────
 function renderLabEvaluation(lesson) {
   const container = document.getElementById('evaluate-content');
   if (!lesson.rubric) { container.innerHTML = ''; return; }
@@ -494,7 +601,7 @@ window.resetLabRubric = function(lessonId) {
   if (lesson && lesson.id === lessonId) renderLabEvaluation(lesson);
 };
 
-// ── Affiliate Resources Panel ──────────────────────────────────
+// ── Affiliate Resources Panel ────────────────────────────────────────────
 function renderAffiliatePanel(lesson, module) {
   // Remove existing panel if any
   const existing = document.getElementById('affiliate-panel');
@@ -546,7 +653,7 @@ function renderAffiliatePanel(lesson, module) {
   document.getElementById('tab-lesson').appendChild(panel);
 }
 
-// ── Tabs ───────────────────────────────────────────────────────
+// ── Tabs ─────────────────────────────────────────────────────────
 function switchTab(tabId) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
   document.querySelectorAll('.tab-content').forEach(c => {
@@ -555,7 +662,7 @@ function switchTab(tabId) {
   });
 }
 
-// ── Progress ───────────────────────────────────────────────────
+// ── Progress ─────────────────────────────────────────────────────
 function updateCompleteButtons(lessonId) {
   const done = state.progress.completedLessons.includes(lessonId);
   ['complete-btn', 'complete-btn-ex'].forEach(id => {
@@ -623,7 +730,7 @@ async function saveProgress(payload) {
   if (payload.note) state.progress.notes[payload.note.lessonId] = payload.note.text;
 
   // Always persist to localStorage as backup
-  lsSave(state.progress);
+  lsSave(state.progress, getProgressKey());
 
   // Also try server if available
   if (state.serverMode) {
@@ -636,13 +743,13 @@ async function saveProgress(payload) {
       if (res.ok) {
         const data = await res.json();
         state.progress = data.progress;
-        lsSave(state.progress);
+        lsSave(state.progress, getProgressKey());
       }
     } catch { state.serverMode = false; }
   }
 }
 
-// ── Navigation ─────────────────────────────────────────────────
+// ── Navigation ─────────────────────────────────────────────────────
 function navigateRelative(delta) {
   if (!state.currentLesson) return;
   const idx = state.allLessons.findIndex(l => l.id === state.currentLesson.id);
@@ -652,7 +759,7 @@ function navigateRelative(delta) {
   showLesson(next, mod);
 }
 
-// ── AI Chat ────────────────────────────────────────────────────
+// ── AI Chat ────────────────────────────────────────────────────────
 let chatHistory = [];
 let isChatting  = false;
 
@@ -820,13 +927,13 @@ async function checkHealth() {
   }
 }
 
-// ── Auto-resize textarea ───────────────────────────────────────
+// ── Auto-resize textarea ──────────────────────────────────────────────
 function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ── Toast Notifications ────────────────────────────────────────
+// ── Toast Notifications ──────────────────────────────────────────────
 function showToast(message, type = 'success', action = null) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -849,7 +956,7 @@ function showToast(message, type = 'success', action = null) {
   setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 5000);
 }
 
-// ── Save to Project (VS Code) ──────────────────────────────────
+// ── Save to Project (VS Code) ────────────────────────────────────────────
 async function saveToProject(code) {
   const folder = state.projectFolder;
 
@@ -894,7 +1001,7 @@ async function saveToProject(code) {
   }
 }
 
-// ── Settings Panel ─────────────────────────────────────────────
+// ── Settings Panel ─────────────────────────────────────────────────────
 function openSettings() {
   const panel   = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
@@ -961,7 +1068,7 @@ function toggleSmartMode(on) {
   if (btn) btn.classList.toggle('active', on);
 }
 
-// ── Wire Events ────────────────────────────────────────────────
+// ── Wire Events ──────────────────────────────────────────────────────
 function wireEvents() {
   // Tab clicks
   document.querySelectorAll('.tab').forEach(tab => {
@@ -996,7 +1103,7 @@ function wireEvents() {
   document.getElementById('reset-btn').addEventListener('click', async () => {
     if (!confirm('Reset all progress? This cannot be undone.')) return;
     state.progress = { completedLessons: [], lastVisited: null, notes: {} };
-    lsSave(state.progress);
+    lsSave(state.progress, getProgressKey());
     if (state.serverMode) {
       await fetch('api/progress', {
         method: 'POST',
@@ -1067,7 +1174,9 @@ function wireEvents() {
   });
 }
 
-// ── Java Syntax Highlighter ────────────────────────────────────
+// ── Java Syntax Highlighter ──────────────────────────────────────────────
+// Works on raw text → HTML-escape → apply spans → set innerHTML
+// This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
   document.querySelectorAll(
     '.lesson-body pre code, .solution-box, .msg.assistant pre code, .msg.assistant pre'
@@ -1075,21 +1184,26 @@ function highlightJava() {
     if (block.dataset.highlighted) return;
     block.dataset.highlighted = '1';
 
+    // 1. Get raw text (no HTML)
     const raw = block.tagName === 'PRE'
       ? block.textContent
       : block.textContent;
 
+    // 2. HTML-escape the raw text first
     function esc(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    // 3. Tokenise line by line to keep comments safe
     const lines = raw.split('\n');
     const highlighted = lines.map(line => {
+      // Whole-line comment (// or #)
       const lineCommentMatch = line.match(/^(\s*)(\/\/.*|#.*)$/);
       if (lineCommentMatch) {
         return esc(lineCommentMatch[1]) + `<span class="cmt">${esc(lineCommentMatch[2])}</span>`;
       }
 
+      // Split by string literals first to protect them
       const parts = [];
       let remaining = line;
       const strRe = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
@@ -1106,11 +1220,14 @@ function highlightJava() {
 
         let s = esc(p.val);
 
+        // Inline comment after code
         const inlineCmt = s.indexOf('//');
         let cmt = '';
         if (inlineCmt !== -1) { cmt = s.slice(inlineCmt); s = s.slice(0, inlineCmt); }
 
+        // Annotations
         s = s.replace(/(@\w+)/g, '<span class="ann">$1</span>');
+        // Keywords
         const kws = ['public','private','protected','static','final','abstract','class',
           'interface','extends','implements','new','return','void','this','super',
           'null','true','false','if','else','for','while','do','switch','case',
@@ -1118,8 +1235,11 @@ function highlightJava() {
           'import','package','var','instanceof','synchronized','volatile',
           'transient','native','enum','record','sealed','permits'];
         s = s.replace(new RegExp(`\\b(${kws.join('|')})\\b`, 'g'), '<span class="kw">$1</span>');
+        // Class names (PascalCase)
         s = s.replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="cls">$1</span>');
+        // Method calls
         s = s.replace(/\b([a-z]\w*)(\s*\()/g, '<span class="met">$1</span>$2');
+        // Numbers
         s = s.replace(/\b(\d+\.?\d*[LlFfDd]?)\b/g, '<span class="num">$1</span>');
 
         if (cmt) s += `<span class="cmt">${cmt}</span>`;
@@ -1129,10 +1249,12 @@ function highlightJava() {
 
     block.innerHTML = highlighted;
 
+    // Add Copy + Save buttons to code blocks (lesson body, chat, solution boxes)
     const pre = block.closest('.lesson-body pre, .solution-box, .msg.assistant pre');
     if (pre && !pre.querySelector('.copy-code-btn')) {
       const codeText = () => block.textContent || pre.textContent;
 
+      // Copy button
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-code-btn';
       copyBtn.textContent = 'Copy';
@@ -1149,6 +1271,7 @@ function highlightJava() {
       });
       pre.appendChild(copyBtn);
 
+      // Save to Project button
       const saveBtn = document.createElement('button');
       saveBtn.className = 'save-code-btn';
       saveBtn.textContent = '💾 Save';
@@ -1159,5 +1282,5 @@ function highlightJava() {
   });
 }
 
-// ── Boot ───────────────────────────────────────────────────────
+// ── Boot ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', init);
