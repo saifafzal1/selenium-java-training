@@ -702,6 +702,11 @@ public class FirstTest {
 \`\`\`bash
 mvn test -Dtest=FirstTest
 \`\`\`
+
+### Selenium 4 new features used:
+- **Relative locators**: \`driver.findElement(RelativeLocator.with(By.tagName("input")).below(By.id("label")))\`
+- **CDP (Chrome DevTools Protocol)**: Network throttling, console logs
+- **BiDi API**: New event-based browser interaction
 `,
         exercise: {
           title: 'Exercise: Wikipedia Search Test',
@@ -714,11 +719,14 @@ public void testWikipediaSearch() {
     searchInput.sendKeys("Selenium software");
     searchInput.submit();
 
+    // Wait for results page
     new WebDriverWait(driver, Duration.ofSeconds(10))
         .until(ExpectedConditions.titleContains("Selenium"));
 
     Assert.assertTrue(driver.getTitle().contains("Selenium"),
         "Page title should contain Selenium, got: " + driver.getTitle());
+
+    System.out.println("Current page: " + driver.getTitle());
 }`
         }
       },
@@ -747,16 +755,22 @@ WebElement passField = driver.findElement(By.name("password"));
 // ✅ CSS — class, attribute, hierarchy
 WebElement btn = driver.findElement(By.cssSelector("button.btn-primary"));
 WebElement input = driver.findElement(By.cssSelector("form#login input[type='email']"));
+WebElement nth = driver.findElement(By.cssSelector("ul.menu li:nth-child(3)"));
 
 // ✅ XPath — text content, complex conditions
 WebElement link = driver.findElement(By.xpath("//a[text()='Forgot Password?']"));
 WebElement row  = driver.findElement(By.xpath("//tr[td[text()='John']]"));
+WebElement icon = driver.findElement(By.xpath("//button[contains(@class,'delete') and @data-id='42']"));
 
-// By LinkText
+// By LinkText & PartialLinkText
 WebElement signIn = driver.findElement(By.linkText("Sign In"));
+WebElement forgot = driver.findElement(By.partialLinkText("Forgot"));
 
 // By TagName — get all of a type
 List<WebElement> allLinks = driver.findElements(By.tagName("a"));
+
+// By ClassName
+WebElement error = driver.findElement(By.className("error-message"));
 \`\`\`
 
 ### CSS Cheat Sheet:
@@ -765,24 +779,41 @@ List<WebElement> allLinks = driver.findElements(By.tagName("a"));
 .myClass                 /* class="myClass" */
 input[type='text']       /* attribute */
 div > p                  /* direct child */
+div p                    /* any descendant */
+li:first-child           /* first li */
+li:last-child            /* last li */
 li:nth-child(2)          /* 2nd li */
+input:not([disabled])    /* not disabled */
 \`\`\`
 
 ### XPath Cheat Sheet:
 \`\`\`xpath
+//tag                     absolute search
 //tag[@attr='val']        attribute match
 //tag[text()='val']       exact text
 //tag[contains(@attr,'x')] partial attribute
+//tag[contains(text(),'x')] partial text
+//parent/child            direct child
+//ancestor//descendant    any descendant
+(//tag)[2]                second match
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Locator Challenge',
           task: 'On https://demoqa.com/text-box — write locators to find: the Full Name input (by id), the Email input (by attribute), the Submit button (by CSS), and the output box (by xpath using partial id).',
-          solution: `By fullName = By.id("userName");
+          solution: `// Full Name — by ID
+By fullName = By.id("userName");
+
+// Email — by CSS attribute
 By email = By.cssSelector("input[placeholder='name@example.com']");
+
+// Submit button — by CSS
 By submit = By.cssSelector("#submit");
+
+// Output — by XPath partial ID
 By output = By.xpath("//*[contains(@id,'output')]");
 
+// Interact:
 driver.findElement(fullName).sendKeys("Saif Afzal");
 driver.findElement(email).sendKeys("saif@test.com");
 driver.findElement(submit).click();
@@ -800,51 +831,101 @@ Assert.assertTrue(driver.findElement(output).isDisplayed());`
 ### Input Fields
 \`\`\`java
 WebElement field = driver.findElement(By.id("search"));
+
 field.sendKeys("Selenium");           // type text
 field.clear();                        // clear existing text
+field.sendKeys(Keys.CONTROL + "a");   // Ctrl+A select all
 field.sendKeys(Keys.ENTER);           // press Enter
+field.sendKeys(Keys.TAB);             // press Tab
+\`\`\`
+
+### Buttons & Links
+\`\`\`java
+driver.findElement(By.id("submit")).click();
+driver.findElement(By.linkText("Home")).click();
+
+// Right-click (context menu)
+Actions actions = new Actions(driver);
+actions.contextClick(element).perform();
+
+// Double-click
+actions.doubleClick(element).perform();
 \`\`\`
 
 ### Dropdowns (Select)
 \`\`\`java
 WebElement dropdown = driver.findElement(By.id("country"));
 Select select = new Select(dropdown);
+
 select.selectByVisibleText("India");
 select.selectByValue("IN");
 select.selectByIndex(2);
+
+// Get selected option
 String selected = select.getFirstSelectedOption().getText();
+
+// Multi-select
+select.selectByVisibleText("Option A");
+select.selectByVisibleText("Option B");
+List<WebElement> selectedOptions = select.getAllSelectedOptions();
 \`\`\`
 
 ### Checkboxes & Radio Buttons
 \`\`\`java
 WebElement checkbox = driver.findElement(By.id("agree"));
+
+// Check only if not already checked
 if (!checkbox.isSelected()) {
     checkbox.click();
 }
+
+// Assert state
 Assert.assertTrue(checkbox.isSelected(), "Checkbox should be checked");
+
+// Radio button
+driver.findElement(By.cssSelector("input[type='radio'][value='male']")).click();
 \`\`\`
 
 ### Get Element Info
 \`\`\`java
 element.getText()             // visible text
 element.getAttribute("href")  // attribute value
+element.getAttribute("value") // input field value
 element.isDisplayed()         // visible?
 element.isEnabled()           // enabled?
 element.isSelected()          // checked/selected?
+element.getTagName()          // "input", "div", etc.
+element.getCssValue("color")  // CSS property
+element.getRect()             // position and size
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Form Filler',
-          task: 'On https://demoqa.com/automation-practice-form — fill in: First Name, Last Name, select Gender radio, enter Mobile number, and click Submit.',
+          task: 'On https://demoqa.com/automation-practice-form — fill in: First Name, Last Name, select Gender radio, enter Mobile number, select a Subject from the dropdown, and click Submit.',
           solution: `driver.get("https://demoqa.com/automation-practice-form");
+
 driver.findElement(By.id("firstName")).sendKeys("Saif");
 driver.findElement(By.id("lastName")).sendKeys("Afzal");
+
+// Gender radio
 driver.findElement(By.cssSelector("input[value='Male']")).click();
+
 driver.findElement(By.id("userNumber")).sendKeys("9876543210");
+
+// Subject autocomplete
+WebElement subject = driver.findElement(By.id("subjectsInput"));
+subject.sendKeys("Java");
+subject.sendKeys(Keys.ENTER);
+
+// Scroll to submit and click
 WebElement submit = driver.findElement(By.id("submit"));
 ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true)", submit);
 submit.click();
-Assert.assertTrue(driver.findElement(By.id("example-modal-sizes-title-lg")).isDisplayed());`
+
+// Assert modal appeared
+Assert.assertTrue(
+    driver.findElement(By.id("example-modal-sizes-title-lg")).isDisplayed()
+);`
         }
       },
       {
@@ -855,6 +936,9 @@ Assert.assertTrue(driver.findElement(By.id("example-modal-sizes-title-lg")).isDi
         content: `
 ## Wait Strategies — Critical for Reliable Tests
 
+### The Problem: Dynamic Pages
+Elements load asynchronously. Without waits, tests fail with NoSuchElementException.
+
 ### ❌ Never use Thread.sleep()
 \`\`\`java
 Thread.sleep(3000); // BAD — wastes time, still breaks
@@ -862,26 +946,52 @@ Thread.sleep(3000); // BAD — wastes time, still breaks
 
 ### ✅ Implicit Wait — global default
 \`\`\`java
+// Set once in setUp()
 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+// Selenium polls for 10s before throwing NoSuchElementException
 \`\`\`
 
 ### ✅ Explicit Wait — wait for specific condition
 \`\`\`java
 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
+// Wait for element visible
 WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("result")));
+
+// Wait for clickable
 WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(By.id("submit")));
+
+// Wait for text
 wait.until(ExpectedConditions.textToBePresentInElement(el, "Success"));
+
+// Wait for URL
 wait.until(ExpectedConditions.urlContains("dashboard"));
+
+// Wait for title
+wait.until(ExpectedConditions.titleContains("Home"));
+
+// Wait for element to disappear
 wait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("spinner")));
+
+// Wait for count
+wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.cssSelector("li"), 3));
+
+// Custom condition — wait for attribute
+wait.until(driver -> driver.findElement(By.id("status"))
+    .getAttribute("class").contains("loaded"));
 \`\`\`
 
-### ✅ Fluent Wait
+### ✅ Fluent Wait — fine-grained control
 \`\`\`java
 Wait<WebDriver> fluentWait = new FluentWait<>(driver)
     .withTimeout(Duration.ofSeconds(30))
     .pollingEvery(Duration.ofSeconds(2))
-    .ignoring(NoSuchElementException.class);
+    .ignoring(NoSuchElementException.class)
+    .ignoring(StaleElementReferenceException.class);
+
+WebElement element = fluentWait.until(driver ->
+    driver.findElement(By.id("data-table"))
+);
 \`\`\`
 
 ### Rule of thumb:
@@ -895,10 +1005,19 @@ Wait<WebDriver> fluentWait = new FluentWait<>(driver)
           title: 'Exercise: Wait for AJAX Result',
           task: 'On https://the-internet.herokuapp.com/dynamic_loading/1 — click Start, then use an explicit wait to wait for the "Hello World!" text to appear, and assert it.',
           solution: `driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
+
 driver.findElement(By.cssSelector("#start button")).click();
+
 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Wait for loading to finish
 wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("loading")));
-WebElement result = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("finish")));
+
+// Wait for result text
+WebElement result = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("finish"))
+);
+
 Assert.assertEquals(result.getText(), "Hello World!");`
         }
       }
@@ -917,55 +1036,101 @@ Assert.assertEquals(result.getText(), "Hello World!");`
         content: `
 ## Alerts
 \`\`\`java
+// Simple alert
 Alert alert = driver.switchTo().alert();
 String msg = alert.getText();
 alert.accept();     // click OK
 alert.dismiss();    // click Cancel
+
+// Prompt — type text before accepting
 alert.sendKeys("My input");
+alert.accept();
+
+// Wait for alert first
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+alert = wait.until(ExpectedConditions.alertIsPresent());
 \`\`\`
 
 ## iFrames
 \`\`\`java
+// Switch by index
 driver.switchTo().frame(0);
+
+// Switch by name or id
 driver.switchTo().frame("frameName");
+
+// Switch by WebElement
 WebElement frameEl = driver.findElement(By.cssSelector("iframe#editor"));
 driver.switchTo().frame(frameEl);
+
+// Interact inside frame
 driver.findElement(By.id("insideFrame")).click();
+
+// ALWAYS switch back to main page
 driver.switchTo().defaultContent();
+
+// Nested frames
+driver.switchTo().frame("outer");
+driver.switchTo().frame("inner");
+driver.switchTo().parentFrame(); // one level up
 \`\`\`
 
 ## Multiple Windows / Tabs
 \`\`\`java
 String mainWindow = driver.getWindowHandle();
+
+// Click opens new tab
 driver.findElement(By.linkText("Open New Tab")).click();
+
+// Get all handles
 Set<String> allWindows = driver.getWindowHandles();
+
+// Switch to new window
 for (String handle : allWindows) {
     if (!handle.equals(mainWindow)) {
         driver.switchTo().window(handle);
         break;
     }
 }
+
+System.out.println("New tab title: " + driver.getTitle());
+
+// Close new tab and switch back
 driver.close();
 driver.switchTo().window(mainWindow);
 \`\`\`
 
-## Selenium 4 — Open new tab programmatically
+## Selenium 4 — Open new tab/window programmatically
 \`\`\`java
+// Open new tab
 driver.switchTo().newWindow(WindowType.TAB);
 driver.get("https://example.com");
+
+// Open new browser window
+driver.switchTo().newWindow(WindowType.WINDOW);
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Frames on The Internet',
-          task: 'On https://the-internet.herokuapp.com/nested_frames — switch to each frame, get its text, and assert LEFT, MIDDLE, and BOTTOM.',
+          task: 'On https://the-internet.herokuapp.com/frames — navigate to the Nested Frames page, switch to the top frame, get its text, then switch to the bottom frame and get its text. Assert both.',
           solution: `driver.get("https://the-internet.herokuapp.com/nested_frames");
+
+// Switch to top frame
 driver.switchTo().frame("frame-top");
 driver.switchTo().frame("frame-left");
 String leftText = driver.findElement(By.tagName("body")).getText();
+
+driver.switchTo().defaultContent();
+driver.switchTo().frame("frame-top");
+driver.switchTo().frame("frame-middle");
+String middleText = driver.findElement(By.tagName("body")).getText();
+
 driver.switchTo().defaultContent();
 driver.switchTo().frame("frame-bottom");
 String bottomText = driver.findElement(By.tagName("body")).getText();
+
 Assert.assertEquals(leftText, "LEFT");
+Assert.assertEquals(middleText, "MIDDLE");
 Assert.assertEquals(bottomText, "BOTTOM");`
         }
       },
@@ -983,9 +1148,18 @@ JavascriptExecutor js = (JavascriptExecutor) driver;
 
 ### Scroll operations
 \`\`\`java
+// Scroll to bottom of page
 js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+
+// Scroll element into view
 WebElement el = driver.findElement(By.id("footer"));
 js.executeScript("arguments[0].scrollIntoView(true)", el);
+
+// Scroll by pixels
+js.executeScript("window.scrollBy(0, 500)");
+
+// Scroll to top
+js.executeScript("window.scrollTo(0, 0)");
 \`\`\`
 
 ### Click hidden/disabled elements
@@ -994,7 +1168,7 @@ WebElement btn = driver.findElement(By.id("hiddenButton"));
 js.executeScript("arguments[0].click()", btn);
 \`\`\`
 
-### Set input value
+### Set input value (when sendKeys doesn't work)
 \`\`\`java
 WebElement dateInput = driver.findElement(By.id("datePicker"));
 js.executeScript("arguments[0].value = '2025-01-15'", dateInput);
@@ -1002,25 +1176,42 @@ js.executeScript("arguments[0].value = '2025-01-15'", dateInput);
 
 ### Get page info
 \`\`\`java
-String title   = (String) js.executeScript("return document.title");
-Long scrollPos = (Long) js.executeScript("return window.pageYOffset");
+String title    = (String) js.executeScript("return document.title");
+Long scrollPos  = (Long) js.executeScript("return window.pageYOffset");
+Boolean visible = (Boolean) js.executeScript(
+    "var rect = arguments[0].getBoundingClientRect();" +
+    "return rect.top >= 0 && rect.bottom <= window.innerHeight;", element);
 \`\`\`
 
-### Highlight element (debugging)
+### Highlight element (useful for debugging)
 \`\`\`java
-js.executeScript("arguments[0].style.border='3px solid red'", element);
+public void highlight(WebElement element) {
+    js.executeScript(
+        "arguments[0].style.border='3px solid red'", element);
+}
+\`\`\`
+
+### Async JavaScript (for AJAX)
+\`\`\`java
+Object result = js.executeAsyncScript(
+    "var callback = arguments[arguments.length - 1];" +
+    "setTimeout(function() { callback('done'); }, 2000);"
+);
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Scroll & Interact',
-          task: 'On https://the-internet.herokuapp.com/infinite_scroll — use JavascriptExecutor to scroll down 3 times, then count paragraphs and assert count > 3.',
+          task: 'On https://the-internet.herokuapp.com/infinite_scroll — use JavascriptExecutor to scroll down 3 times, each time waiting 1s, then count how many paragraphs are loaded and assert count > 3.',
           solution: `driver.get("https://the-internet.herokuapp.com/infinite_scroll");
 JavascriptExecutor js = (JavascriptExecutor) driver;
+
 for (int i = 0; i < 3; i++) {
     js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-    Thread.sleep(1500);
+    Thread.sleep(1500); // acceptable here since we're triggering load
 }
+
 List<WebElement> paragraphs = driver.findElements(By.cssSelector(".jscroll-added"));
+System.out.println("Loaded paragraphs: " + paragraphs.size());
 Assert.assertTrue(paragraphs.size() > 3, "Should have loaded more than 3 paragraphs");`
         }
       },
@@ -1040,6 +1231,8 @@ Actions actions = new Actions(driver);
 \`\`\`java
 WebElement menu = driver.findElement(By.id("menu-products"));
 actions.moveToElement(menu).perform();
+
+// Sub-menu appears — click item
 WebElement subItem = driver.findElement(By.linkText("Laptops"));
 actions.moveToElement(menu).click(subItem).perform();
 \`\`\`
@@ -1048,17 +1241,50 @@ actions.moveToElement(menu).click(subItem).perform();
 \`\`\`java
 WebElement source = driver.findElement(By.id("draggable"));
 WebElement target = driver.findElement(By.id("droppable"));
+
+// Method 1 — dragAndDrop
 actions.dragAndDrop(source, target).perform();
-// OR manual:
-actions.clickAndHold(source).moveToElement(target).release().perform();
+
+// Method 2 — manual (more reliable for some sites)
+actions.clickAndHold(source)
+       .moveToElement(target)
+       .release()
+       .perform();
+
+// Method 3 — drag by offset
+actions.dragAndDropBy(source, 200, 100).perform();
 \`\`\`
 
 ### Keyboard shortcuts
 \`\`\`java
 WebElement field = driver.findElement(By.id("text"));
+
+// Select All + Copy
 actions.click(field)
-       .keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
-       .keyDown(Keys.CONTROL).sendKeys("c").keyUp(Keys.CONTROL)
+       .keyDown(Keys.CONTROL)
+       .sendKeys("a")
+       .keyUp(Keys.CONTROL)
+       .keyDown(Keys.CONTROL)
+       .sendKeys("c")
+       .keyUp(Keys.CONTROL)
+       .perform();
+
+// Select text with Shift+End
+actions.click(field)
+       .keyDown(Keys.SHIFT)
+       .sendKeys(Keys.END)
+       .keyUp(Keys.SHIFT)
+       .perform();
+\`\`\`
+
+### Canvas / Slider interactions
+\`\`\`java
+WebElement slider = driver.findElement(By.id("slider"));
+
+// Move slider right by 50 pixels
+actions.clickAndHold(slider)
+       .moveByOffset(50, 0)
+       .release()
        .perform();
 \`\`\`
 `,
@@ -1067,11 +1293,17 @@ actions.click(field)
           task: 'On https://the-internet.herokuapp.com/hovers — hover over each user photo, capture the displayed username text, and assert each username follows the format "name: user[N]".',
           solution: `driver.get("https://the-internet.herokuapp.com/hovers");
 Actions actions = new Actions(driver);
+
 List<WebElement> figures = driver.findElements(By.cssSelector(".figure"));
+
 for (int i = 0; i < figures.size(); i++) {
     actions.moveToElement(figures.get(i)).perform();
+
     WebElement caption = figures.get(i).findElement(By.cssSelector(".figcaption h5"));
-    Assert.assertTrue(caption.getText().contains("user" + (i+1)));
+    String text = caption.getText();
+    System.out.println("User " + (i+1) + ": " + text);
+    Assert.assertTrue(text.contains("user" + (i+1)),
+        "Expected user" + (i+1) + " in caption, got: " + text);
 }`
         }
       }
@@ -1115,13 +1347,21 @@ src/
       BasePage.java
       LoginPage.java
       HomePage.java
+      ProductPage.java
   test/java/com/training/
     tests/
       LoginTest.java
+      ProductTest.java
 \`\`\`
 
 ### BasePage.java
 \`\`\`java
+package com.training.pages;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+
 public abstract class BasePage {
     protected WebDriver driver;
     protected WebDriverWait wait;
@@ -1135,10 +1375,17 @@ public abstract class BasePage {
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
 
+    protected boolean isVisible(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException e) { return false; }
+    }
+
     protected void click(By locator)  { waitFor(locator).click(); }
     protected void type(By locator, String text) {
         WebElement el = waitFor(locator);
-        el.clear(); el.sendKeys(text);
+        el.clear();
+        el.sendKeys(text);
     }
     protected String getText(By locator) {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
@@ -1148,13 +1395,24 @@ public abstract class BasePage {
 
 ### LoginPage.java
 \`\`\`java
+package com.training.pages;
+
+import org.openqa.selenium.*;
+
 public class LoginPage extends BasePage {
-    private final By emailInput    = By.id("email");
+
+    // Locators — only place in the codebase where these exist
+    private final By emailInput   = By.id("email");
     private final By passwordInput = By.id("password");
-    private final By loginButton   = By.cssSelector("button[type='submit']");
-    private final By errorMessage  = By.className("alert-danger");
+    private final By loginButton  = By.cssSelector("button[type='submit']");
+    private final By errorMessage = By.className("alert-danger");
 
     public LoginPage(WebDriver driver) { super(driver); }
+
+    public LoginPage open(String baseUrl) {
+        driver.get(baseUrl + "/login");
+        return this;
+    }
 
     public HomePage loginAs(String email, String password) {
         type(emailInput, email);
@@ -1163,24 +1421,40 @@ public class LoginPage extends BasePage {
         return new HomePage(driver);
     }
 
+    public LoginPage loginExpectingFailure(String email, String password) {
+        type(emailInput, email);
+        type(passwordInput, password);
+        click(loginButton);
+        return this;
+    }
+
     public String getErrorMessage() { return getText(errorMessage); }
+    public boolean hasError()       { return isVisible(errorMessage); }
 }
 \`\`\`
 
 ### LoginTest.java
 \`\`\`java
+package com.training.tests;
+
+import com.training.pages.LoginPage;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 public class LoginTest extends BaseTest {
+
     @Test
     public void testValidLogin() {
         LoginPage loginPage = new LoginPage(driver).open(BASE_URL);
         var homePage = loginPage.loginAs("user@test.com", "Password1");
-        Assert.assertTrue(homePage.isLoaded());
+        Assert.assertTrue(homePage.isLoaded(), "Should redirect to homepage");
     }
 
     @Test
     public void testInvalidLogin() {
         LoginPage loginPage = new LoginPage(driver).open(BASE_URL);
         loginPage.loginExpectingFailure("wrong@test.com", "badpass");
+        Assert.assertTrue(loginPage.hasError());
         Assert.assertEquals(loginPage.getErrorMessage(), "Invalid email or password");
     }
 }
@@ -1188,30 +1462,47 @@ public class LoginTest extends BaseTest {
 `,
         exercise: {
           title: 'Exercise: Build POM for The Internet',
-          task: 'Build a full POM for https://the-internet.herokuapp.com/login — LoginPage with locators, login() method, getFlashMessage() method. Write 2 tests: valid login and invalid login.',
-          solution: `public class LoginPage extends BasePage {
-    private final By username = By.id("username");
-    private final By password = By.id("password");
-    private final By loginBtn = By.cssSelector("button[type='submit']");
-    private final By flash    = By.id("flash");
+          task: 'Build a full POM for https://the-internet.herokuapp.com/login — LoginPage with locators, login() method, getFlashMessage() method. Write 2 tests: valid login (admin/admin) and invalid login with assertion on error message.',
+          solution: `// LoginPage.java
+public class LoginPage extends BasePage {
+    private final By username  = By.id("username");
+    private final By password  = By.id("password");
+    private final By loginBtn  = By.cssSelector("button[type='submit']");
+    private final By flash     = By.id("flash");
 
     public LoginPage(WebDriver driver) { super(driver); }
+
     public void open() { driver.get("https://the-internet.herokuapp.com/login"); }
+
     public SecurePage loginAs(String user, String pass) {
-        type(username, user); type(password, pass); click(loginBtn);
+        type(username, user);
+        type(password, pass);
+        click(loginBtn);
         return new SecurePage(driver);
     }
+
+    public LoginPage loginExpectingFailure(String user, String pass) {
+        type(username, user);
+        type(password, pass);
+        click(loginBtn);
+        return this;
+    }
+
     public String getFlash() { return getText(flash); }
 }
 
+// Tests
 @Test public void testValidLogin() {
-    LoginPage lp = new LoginPage(driver); lp.open();
+    LoginPage lp = new LoginPage(driver);
+    lp.open();
     SecurePage sp = lp.loginAs("tomsmith", "SuperSecretPassword!");
     Assert.assertTrue(sp.isLoaded());
 }
+
 @Test public void testInvalidLogin() {
-    LoginPage lp = new LoginPage(driver); lp.open();
-    lp.loginAs("wrong", "wrong");
+    LoginPage lp = new LoginPage(driver);
+    lp.open();
+    lp.loginExpectingFailure("wrong", "wrong");
     Assert.assertTrue(lp.getFlash().contains("Your username is invalid"));
 }`
         }
@@ -1225,9 +1516,15 @@ public class LoginTest extends BaseTest {
 ## Page Factory — Cleaner POM with Annotations
 
 \`\`\`java
+package com.training.pages;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.*;
+
 public class LoginPage {
     private WebDriver driver;
 
+    // @FindBy replaces driver.findElement
     @FindBy(id = "email")
     private WebElement emailInput;
 
@@ -1240,6 +1537,7 @@ public class LoginPage {
     @FindBy(className = "error-message")
     private WebElement errorMsg;
 
+    // Lists work too
     @FindBy(css = ".nav-item")
     private List<WebElement> navItems;
 
@@ -1250,45 +1548,81 @@ public class LoginPage {
     }
 
     public void login(String email, String password) {
-        emailInput.clear(); emailInput.sendKeys(email);
-        passwordInput.clear(); passwordInput.sendKeys(password);
+        emailInput.clear();
+        emailInput.sendKeys(email);
+        passwordInput.clear();
+        passwordInput.sendKeys(password);
         loginButton.click();
     }
 
-    public String getError() { return errorMsg.getText(); }
+    public String getError() {
+        return errorMsg.getText();
+    }
+
+    public int getNavItemCount() {
+        return navItems.size();
+    }
 }
 \`\`\`
 
-### @FindBys — AND condition
+### @FindBys — AND condition (all must match)
 \`\`\`java
-@FindBys({ @FindBy(className = "form-group"), @FindBy(tagName = "input") })
+@FindBys({
+    @FindBy(className = "form-group"),
+    @FindBy(tagName = "input")
+})
 private List<WebElement> formInputs;
+\`\`\`
+
+### @FindAll — OR condition (any can match)
+\`\`\`java
+@FindAll({
+    @FindBy(id = "submit"),
+    @FindBy(id = "save"),
+    @FindBy(css = "button.primary")
+})
+private List<WebElement> actionButtons;
 \`\`\`
 
 ### When to use which:
 | | POM with By | Page Factory |
 |---|---|---|
 | Lazy loading | ✅ Yes | ✅ Yes (proxy) |
+| Refactoring | Manual | Annotation |
 | Lists | findElements | @FindBy |
+| Nested elements | Easier | Harder |
 `,
         exercise: {
           title: 'Exercise: Rewrite with Page Factory',
-          task: 'Convert your LoginPage from the previous exercise to use Page Factory annotations.',
+          task: 'Convert your LoginPage from the previous exercise to use Page Factory annotations. Ensure your tests still pass.',
           solution: `public class LoginPageFactory {
-    @FindBy(id = "username") private WebElement usernameField;
-    @FindBy(id = "password") private WebElement passwordField;
-    @FindBy(css = "button[type='submit']") private WebElement loginBtn;
-    @FindBy(id = "flash") private WebElement flashMessage;
+    @FindBy(id = "username")
+    private WebElement usernameField;
+
+    @FindBy(id = "password")
+    private WebElement passwordField;
+
+    @FindBy(css = "button[type='submit']")
+    private WebElement loginBtn;
+
+    @FindBy(id = "flash")
+    private WebElement flashMessage;
 
     public LoginPageFactory(WebDriver driver) {
         PageFactory.initElements(driver, this);
     }
+
     public void login(String user, String pass) {
-        usernameField.clear(); usernameField.sendKeys(user);
-        passwordField.clear(); passwordField.sendKeys(pass);
+        usernameField.clear();
+        usernameField.sendKeys(user);
+        passwordField.clear();
+        passwordField.sendKeys(pass);
         loginBtn.click();
     }
-    public String getFlashMessage() { return flashMessage.getText(); }
+
+    public String getFlashMessage() {
+        return flashMessage.getText();
+    }
 }`
         }
       }
@@ -1317,14 +1651,31 @@ private List<WebElement> formInputs;
 ### Full example:
 \`\`\`java
 public class TestNGDemo {
+
+    @BeforeSuite
+    public void beforeSuite() {
+        System.out.println("Suite started — runs once for all");
+    }
+
+    @BeforeClass
+    public void beforeClass() {
+        System.out.println("Class started — runs once per class");
+    }
+
     @BeforeMethod
-    public void setUp() { /* Setup WebDriver */ }
+    public void setUp() {
+        // Setup WebDriver here
+    }
 
     @Test(description = "Verify login works")
     public void testLogin() { /* ... */ }
 
     @Test(priority = 1, groups = {"smoke"})
     public void testHomePage() { /* ... */ }
+
+    @Test(priority = 2, groups = {"regression"},
+          dependsOnMethods = "testHomePage")
+    public void testNavigation() { /* ... */ }
 
     @Test(dataProvider = "loginData")
     public void testMultipleLogins(String user, String pass) { /* ... */ }
@@ -1333,12 +1684,20 @@ public class TestNGDemo {
     public Object[][] loginData() {
         return new Object[][] {
             {"admin@test.com", "admin123"},
-            {"user@test.com",  "user123"}
+            {"user@test.com",  "user123"},
+            {"guest@test.com", "guest123"}
         };
     }
 
+    @Test(expectedExceptions = NoSuchElementException.class)
+    public void testExpectsException() {
+        driver.findElement(By.id("nonexistent"));
+    }
+
     @AfterMethod(alwaysRun = true)
-    public void tearDown() { if (driver != null) driver.quit(); }
+    public void tearDown() {
+        if (driver != null) driver.quit();
+    }
 }
 \`\`\`
 
@@ -1346,44 +1705,62 @@ public class TestNGDemo {
 \`\`\`java
 // Hard assertions — test stops on failure
 Assert.assertEquals(actual, expected, "message");
-Assert.assertTrue(condition);
+Assert.assertTrue(condition, "message");
 Assert.assertFalse(condition);
+Assert.assertNull(object);
+Assert.assertNotNull(object);
+Assert.fail("Explicit failure");
 
-// Soft assertions — collect all failures
+// Soft assertions — collect all failures, report at end
 SoftAssert soft = new SoftAssert();
 soft.assertEquals(title, "Expected Title");
 soft.assertTrue(element.isDisplayed());
-soft.assertAll();
+soft.assertAll(); // throws if any failed
 \`\`\`
 
-### testng.xml
+### testng.xml — run specific groups
 \`\`\`xml
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Regression Suite" parallel="methods" thread-count="4">
   <test name="Smoke Tests">
-    <groups><run><include name="smoke"/></run></groups>
-    <classes><class name="com.training.tests.LoginTest"/></classes>
+    <groups>
+      <run><include name="smoke"/></run>
+    </groups>
+    <classes>
+      <class name="com.training.tests.LoginTest"/>
+    </classes>
   </test>
 </suite>
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Data-Driven Login Test',
-          task: 'Create a data-driven TestNG test with @DataProvider that tests 3 different login scenarios. Use SoftAsserts.',
+          task: 'Create a data-driven TestNG test with @DataProvider that tests 3 different login scenarios (valid, wrong password, wrong email). Use SoftAsserts to check both the URL change and page title.',
           solution: `@DataProvider(name = "loginScenarios")
 public Object[][] loginScenarios() {
     return new Object[][] {
-        {"tomsmith", "SuperSecretPassword!", true},
-        {"tomsmith", "wrongpass", false},
-        {"wronguser", "SuperSecretPassword!", false}
+        {"tomsmith", "SuperSecretPassword!", true,  "Secure Area"},
+        {"tomsmith", "wrongpass",            false, "Login Page"},
+        {"wronguser", "SuperSecretPassword!", false, "Login Page"}
     };
 }
+
 @Test(dataProvider = "loginScenarios")
-public void testLoginScenarios(String user, String pass, boolean shouldSucceed) {
+public void testLoginScenarios(String user, String pass,
+                                boolean shouldSucceed, String expectedTitle) {
     driver.get("https://the-internet.herokuapp.com/login");
     new LoginPageFactory(driver).login(user, pass);
+
     SoftAssert soft = new SoftAssert();
-    if (shouldSucceed) soft.assertTrue(driver.getCurrentUrl().contains("secure"));
-    else soft.assertTrue(driver.getCurrentUrl().contains("login"));
+    String title = driver.getTitle();
+
+    if (shouldSucceed) {
+        soft.assertTrue(driver.getCurrentUrl().contains("secure"));
+    } else {
+        soft.assertTrue(driver.getCurrentUrl().contains("login"));
+    }
+    soft.assertTrue(title.contains(expectedTitle),
+        "Title mismatch: " + title);
     soft.assertAll();
 }`
         }
@@ -1396,8 +1773,9 @@ public void testLoginScenarios(String user, String pass, boolean shouldSucceed) 
         content: `
 ## Building a Production-Grade Framework
 
-### 1. config.properties
+### 1. Configuration — config.properties
 \`\`\`
+# src/test/resources/config.properties
 browser=chrome
 baseUrl=https://the-internet.herokuapp.com
 implicitWait=10
@@ -1409,32 +1787,55 @@ headless=false
 \`\`\`java
 public class ConfigReader {
     private static Properties props = new Properties();
+
     static {
-        try (InputStream in = ConfigReader.class.getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream in = ConfigReader.class
+                .getClassLoader()
+                .getResourceAsStream("config.properties")) {
             props.load(in);
-        } catch (IOException e) { throw new RuntimeException(e); }
+        } catch (IOException e) {
+            throw new RuntimeException("config.properties not found", e);
+        }
     }
-    public static String get(String key) { return System.getProperty(key, props.getProperty(key)); }
-    public static boolean getBool(String key) { return Boolean.parseBoolean(get(key)); }
+
+    public static String get(String key) {
+        return System.getProperty(key, props.getProperty(key));
+    }
+
+    public static int getInt(String key) {
+        return Integer.parseInt(get(key));
+    }
+
+    public static boolean getBool(String key) {
+        return Boolean.parseBoolean(get(key));
+    }
 }
 \`\`\`
 
-### 3. DriverFactory.java
+### 3. DriverFactory.java — multi-browser support
 \`\`\`java
 public class DriverFactory {
     public static WebDriver create() {
         String browser = ConfigReader.get("browser").toLowerCase();
         boolean headless = ConfigReader.getBool("headless");
+
         return switch (browser) {
             case "chrome" -> {
                 WebDriverManager.chromedriver().setup();
                 var options = new ChromeOptions();
                 if (headless) options.addArguments("--headless=new");
+                options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
                 yield new ChromeDriver(options);
             }
             case "firefox" -> {
                 WebDriverManager.firefoxdriver().setup();
-                yield new FirefoxDriver();
+                var options = new FirefoxOptions();
+                if (headless) options.addArguments("-headless");
+                yield new FirefoxDriver(options);
+            }
+            case "edge" -> {
+                WebDriverManager.edgedriver().setup();
+                yield new EdgeDriver();
             }
             default -> throw new IllegalArgumentException("Unknown browser: " + browser);
         };
@@ -1442,18 +1843,66 @@ public class DriverFactory {
 }
 \`\`\`
 
-### 4. Run from CLI
+### 4. ExtentReports — HTML Test Reports
+Add to pom.xml:
+\`\`\`xml
+<dependency>
+  <groupId>com.aventstack</groupId>
+  <artifactId>extentreports</artifactId>
+  <version>5.1.1</version>
+</dependency>
+\`\`\`
+
+\`\`\`java
+// ReportManager.java
+public class ReportManager {
+    private static ExtentReports extent;
+    private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+
+    public static ExtentReports getInstance() {
+        if (extent == null) {
+            ExtentSparkReporter reporter = new ExtentSparkReporter("reports/TestReport.html");
+            reporter.config().setDocumentTitle("Selenium Training Report");
+            reporter.config().setReportName("Automation Results");
+            reporter.config().setTheme(Theme.DARK);
+            extent = new ExtentReports();
+            extent.attachReporter(reporter);
+        }
+        return extent;
+    }
+
+    public static void createTest(String name) {
+        test.set(getInstance().createTest(name));
+    }
+
+    public static ExtentTest getTest() { return test.get(); }
+
+    public static void flush() { getInstance().flush(); }
+}
+\`\`\`
+
+### 5. Run from CLI with Maven
 \`\`\`bash
+# Run all tests
 mvn test
+
+# Run specific group
 mvn test -Dgroups=smoke
+
+# Override config
 mvn test -Dbrowser=firefox -Dheadless=true
+
+# Run specific testng.xml
 mvn test -DsuiteXmlFile=testng-regression.xml
+
+# Generate Surefire HTML report
+mvn test site
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Complete Framework',
-          task: 'Build the complete framework: ConfigReader + DriverFactory + BaseTest + LoginPage POM + 3 tests. Run with `mvn test` and verify all 3 tests pass.',
-          hints: ['BaseTest should use @BeforeMethod to create driver from DriverFactory', 'config.properties lives in src/test/resources', 'testng.xml in project root']
+          task: 'Build the complete framework: ConfigReader + DriverFactory + BaseTest + LoginPage POM + 3 tests using testng.xml. Run with `mvn test` and verify all 3 tests pass.',
+          hints: ['BaseTest should use @BeforeMethod to create driver from DriverFactory', 'config.properties should live in src/test/resources', 'testng.xml should be in the project root']
         }
       }
     ]
@@ -1475,65 +1924,105 @@ public class ScreenshotUtil {
     public static String capture(WebDriver driver, String testName) {
         TakesScreenshot ts = (TakesScreenshot) driver;
         File src = ts.getScreenshotAs(OutputType.FILE);
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        String timestamp = LocalDateTime.now()
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String dest = "screenshots/" + testName + "_" + timestamp + ".png";
+
         try {
             Files.createDirectories(Path.of("screenshots"));
             Files.copy(src.toPath(), Path.of(dest));
             return dest;
-        } catch (IOException e) { throw new RuntimeException(e); }
+        } catch (IOException e) {
+            throw new RuntimeException("Screenshot failed", e);
+        }
     }
 }
 
+// In BaseTest @AfterMethod:
 @AfterMethod
 public void tearDown(ITestResult result) {
     if (result.getStatus() == ITestResult.FAILURE) {
         String path = ScreenshotUtil.capture(driver, result.getName());
-        ReportManager.getTest().fail("Test failed").addScreenCaptureFromPath(path);
+        ReportManager.getTest().fail("Test failed")
+            .addScreenCaptureFromPath(path);
     }
     driver.quit();
 }
 \`\`\`
 
 ## Logging with SLF4J
-\`\`\`java
-private static final Logger log = LoggerFactory.getLogger(LoginPage.class);
+\`\`\`xml
+<!-- pom.xml -->
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-simple</artifactId>
+  <version>2.0.13</version>
+</dependency>
+\`\`\`
 
-public HomePage login(String email, String pass) {
-    log.info("Logging in as: {}", email);
-    type(emailInput, email);
-    type(passwordInput, pass);
-    click(loginButton);
-    log.debug("Login button clicked");
-    return new HomePage(driver);
+\`\`\`java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class LoginPage extends BasePage {
+    private static final Logger log = LoggerFactory.getLogger(LoginPage.class);
+
+    public HomePage login(String email, String pass) {
+        log.info("Logging in as: {}", email);
+        type(emailInput, email);
+        type(passwordInput, pass);
+        click(loginButton);
+        log.debug("Login button clicked");
+        return new HomePage(driver);
+    }
 }
 \`\`\`
 
 ## Debugging Tips
 \`\`\`java
+// Print page source
 System.out.println(driver.getPageSource());
+
+// Print all element attributes
+JavascriptExecutor js = (JavascriptExecutor) driver;
+Map<String, Object> attrs = (Map<String, Object>) js.executeScript(
+    "var attrs = {}; " +
+    "for (var a of arguments[0].attributes) attrs[a.name] = a.value;" +
+    "return attrs;", element);
+System.out.println(attrs);
+
+// Highlight element before interacting
 js.executeScript("arguments[0].style.outline='3px solid red'", element);
+
+// Console logs
 LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
 logs.getAll().forEach(e -> System.out.println(e.getMessage()));
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Screenshot on Failure',
-          task: 'Add a @AfterMethod to BaseTest that captures a screenshot when a test fails, saves it to "screenshots/" with timestamp.',
+          task: 'Add a @AfterMethod to BaseTest that captures a screenshot when a test fails, saves it to a "screenshots/" folder with timestamp, and prints the path to console.',
           solution: `@AfterMethod(alwaysRun = true)
 public void afterMethod(ITestResult result) {
     if (result.getStatus() == ITestResult.FAILURE) {
-        TakesScreenshot ts = (TakesScreenshot) driver;
-        File src = ts.getScreenshotAs(OutputType.FILE);
-        String ts2 = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String destPath = "screenshots/" + result.getName() + "_" + ts2 + ".png";
-        try {
-            new File("screenshots").mkdirs();
-            Files.copy(src.toPath(), Path.of(destPath), StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("Screenshot: " + destPath);
-        } catch (IOException e) { e.printStackTrace(); }
+        String path = captureScreenshot(result.getName());
+        System.out.println("Screenshot saved: " + path);
     }
     if (driver != null) driver.quit();
+}
+
+private String captureScreenshot(String testName) {
+    TakesScreenshot ts = (TakesScreenshot) driver;
+    File src = ts.getScreenshotAs(OutputType.FILE);
+    String timestamp = LocalDateTime.now()
+        .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+    String destPath = "screenshots/" + testName + "_" + timestamp + ".png";
+    try {
+        new File("screenshots").mkdirs();
+        Files.copy(src.toPath(), Path.of(destPath), StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) { e.printStackTrace(); }
+    return destPath;
 }`
         }
       },
@@ -1545,31 +2034,44 @@ public void afterMethod(ITestResult result) {
         content: `
 ## Selenium Grid 4 — Parallel Cross-Browser Testing
 
-### Start Grid:
+### Start Grid (Hub + Node in one command):
 \`\`\`bash
+# Download selenium-server-4.x.x.jar from selenium.dev
 java -jar selenium-server-4.21.0.jar standalone
 # Grid UI: http://localhost:4444
 \`\`\`
 
 ### Connect tests to Grid:
 \`\`\`java
-public static WebDriver createRemote(String browser) throws Exception {
-    MutableCapabilities options = switch (browser.toLowerCase()) {
-        case "chrome"  -> new ChromeOptions();
-        case "firefox" -> new FirefoxOptions();
-        default -> throw new IllegalArgumentException(browser);
-    };
-    return new RemoteWebDriver(new URL("http://localhost:4444"), options);
+public class GridDriverFactory {
+    private static final String GRID_URL = "http://localhost:4444";
+
+    public static WebDriver createRemote(String browser) throws Exception {
+        DesiredCapabilities caps = new DesiredCapabilities();
+
+        MutableCapabilities options = switch (browser.toLowerCase()) {
+            case "chrome"  -> new ChromeOptions();
+            case "firefox" -> new FirefoxOptions();
+            case "edge"    -> new EdgeOptions();
+            default -> throw new IllegalArgumentException(browser);
+        };
+
+        return new RemoteWebDriver(new URL(GRID_URL), options);
+    }
 }
 \`\`\`
 
 ### Parallel testng.xml:
 \`\`\`xml
 <suite name="Parallel Suite" parallel="tests" thread-count="3">
-  <test name="Chrome"><parameter name="browser" value="chrome"/>
-    <classes><class name="com.training.tests.LoginTest"/></classes></test>
-  <test name="Firefox"><parameter name="browser" value="firefox"/>
-    <classes><class name="com.training.tests.LoginTest"/></classes></test>
+  <test name="Chrome">
+    <parameter name="browser" value="chrome"/>
+    <classes><class name="com.training.tests.LoginTest"/></classes>
+  </test>
+  <test name="Firefox">
+    <parameter name="browser" value="firefox"/>
+    <classes><class name="com.training.tests.LoginTest"/></classes>
+  </test>
 </suite>
 \`\`\`
 
@@ -1577,22 +2079,41 @@ public static WebDriver createRemote(String browser) throws Exception {
 \`\`\`java
 public class DriverManager {
     private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+
     public static WebDriver getDriver() { return driver.get(); }
+
     public static void setDriver(WebDriver d) { driver.set(d); }
+
     public static void quit() {
-        if (driver.get() != null) { driver.get().quit(); driver.remove(); }
+        if (driver.get() != null) {
+            driver.get().quit();
+            driver.remove();
+        }
     }
 }
+
+// BaseTest uses DriverManager
+@BeforeMethod
+@Parameters("browser")
+public void setUp(@Optional("chrome") String browser) {
+    WebDriver d = DriverFactory.create(browser);
+    DriverManager.setDriver(d);
+}
+
+@AfterMethod(alwaysRun = true)
+public void tearDown() { DriverManager.quit(); }
 \`\`\`
 `,
         exercise: {
           title: 'Exercise: Parallel Tests',
-          task: 'Update testng.xml to run LoginTest in parallel with thread-count="2" at the "methods" level. Add ThreadLocal to DriverManager.',
+          task: 'Update your testng.xml to run your LoginTest in parallel with thread-count="2" at the "methods" level. Add ThreadLocal to DriverManager and verify both tests run simultaneously.',
           hints: ['parallel="methods" runs test methods in parallel', 'ThreadLocal ensures each thread has its own WebDriver', 'Check TestNG output for parallel execution confirmation']
         }
       }
     ]
-  }
+  },
+
 ];
 
+// Total lessons count — module-7 (Capstone Labs) loaded separately via curriculum-labs.js
 const TOTAL_LESSONS = CURRICULUM.reduce((sum, m) => sum + m.lessons.length, 0);
