@@ -55,7 +55,7 @@ function readProgress() {
   catch { return { completedLessons: [], lastVisited: null, startedAt: null, notes: {} }; }
 }
 function writeProgress(data) {
-  fs.writeFileSync(PROGRESS_FILE, JSON.stringify(data, null, 2));
+  try { fs.writeFileSync(PROGRESS_FILE, JSON.stringify(data, null, 2)); } catch { /* read-only fs on Vercel */ }
 }
 
 app.get('/api/progress', (req, res) => res.json(readProgress()));
@@ -397,17 +397,23 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 Selenium Training App → http://localhost:${PORT}`);
-  console.log(`\n🤖 AI Providers:`);
-  console.log(`   Groq   : ${GROQ_KEY      ? '✅ key set' : '❌ set GROQ_API_KEY'}`);
-  console.log(`   Claude : ${ANTHROPIC_KEY ? '✅ key set' : '⚠️  set ANTHROPIC_API_KEY (optional)'}`);
-  console.log(`   Ollama : run "ollama serve" for local models`);
-  if (ragEnabled) {
-    const rs = ragGetStatus();
-    console.log(`\n📚 RAG Knowledge Base:`);
-    console.log(`   Status : ${rs.synced ? `✅ ${rs.count} chunks, ${rs.sources.length} sources` : '⏳ Not synced — open Settings → Sync Docs'}`);
-    if (!rs.synced) console.log(`   Setup  : ollama pull nomic-embed-text:latest`);
-  }
-  console.log('');
-});
+// ── Export for Vercel serverless (module.exports = app lets @vercel/node wrap it)
+// ── Conditional listen: only binds port when run directly (not imported as module)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Selenium Training App → http://localhost:${PORT}`);
+    console.log(`\n🤖 AI Providers:`);
+    console.log(`   Groq   : ${GROQ_KEY      ? '✅ key set' : '❌ set GROQ_API_KEY'}`);
+    console.log(`   Claude : ${ANTHROPIC_KEY ? '✅ key set' : '⚠️  set ANTHROPIC_API_KEY (optional)'}`);
+    console.log(`   Ollama : run "ollama serve" for local models`);
+    if (ragEnabled) {
+      const rs = ragGetStatus();
+      console.log(`\n📚 RAG Knowledge Base:`);
+      console.log(`   Status : ${rs.synced ? `✅ ${rs.count} chunks, ${rs.sources.length} sources` : '⏳ Not synced — open Settings → Sync Docs'}`);
+      if (!rs.synced) console.log(`   Setup  : ollama pull nomic-embed-text:latest`);
+    }
+    console.log('');
+  });
+}
+
+module.exports = app;
