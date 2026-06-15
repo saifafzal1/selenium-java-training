@@ -55,7 +55,7 @@ function readProgress() {
   catch { return { completedLessons: [], lastVisited: null, startedAt: null, notes: {} }; }
 }
 function writeProgress(data) {
-  try { fs.writeFileSync(PROGRESS_FILE, JSON.stringify(data, null, 2)); } catch { /* read-only fs on Vercel */ }
+  fs.writeFileSync(PROGRESS_FILE, JSON.stringify(data, null, 2));
 }
 
 app.get('/api/progress', (req, res) => res.json(readProgress()));
@@ -205,6 +205,7 @@ app.post('/api/chat', async (req, res) => {
       error: 'ANTHROPIC_API_KEY is not set.\n\nTo use Claude:\n1. Get a key at console.anthropic.com\n2. Set it: export ANTHROPIC_API_KEY=sk-ant-...\n3. Restart the server'
     });
     try {
+      // Separate system message from conversation messages (Anthropic format)
       const systemMsg = workingMessages.find(m => m.role === 'system');
       const convoMsgs = workingMessages.filter(m => m.role !== 'system');
       const body = {
@@ -239,6 +240,7 @@ app.post('/api/chat', async (req, res) => {
   }
 
   // ── Ollama (local) with RAG augmentation ─────────────────────────────
+  // When docs are synced, embed user query → find top-3 chunks → prepend as context
   let ragMessages = [...workingMessages];
   if (ragEnabled) {
     try {
@@ -289,6 +291,7 @@ app.post('/api/save-file', (req, res) => {
   const { code, filename, folder } = req.body;
   if (!code) return res.status(400).json({ error: 'No code provided' });
 
+  // Resolve target directory (default: generated-code/ inside project)
   let targetDir;
   try {
     targetDir = path.resolve(folder || path.join(__dirname, 'generated-code'));
@@ -296,12 +299,14 @@ app.post('/api/save-file', (req, res) => {
     return res.status(400).json({ error: 'Invalid folder path' });
   }
 
+  // Create directory if it doesn't exist
   try {
     fs.mkdirSync(targetDir, { recursive: true });
   } catch (e) {
     return res.status(500).json({ error: `Cannot create folder: ${e.message}` });
   }
 
+  // Auto-generate filename from Java class name if not provided
   let fname = filename;
   if (!fname) {
     const match = code.match(/public\s+class\s+(\w+)/);
@@ -326,7 +331,7 @@ app.post('/api/submit-review', async (req, res) => {
   if (!match) return res.status(400).json({ error: 'Invalid GitHub URL. Expected: https://github.com/owner/repo' });
   const [, owner, repo] = match;
   const { default: fetch } = await import('node-fetch');
-  const ghHeaders = { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'SeleniumLab-Training/1.0' };
+  const ghHeaders = { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Automation AI Lab-Training/1.0' };
   try {
     const treeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`, { headers: ghHeaders, signal: AbortSignal.timeout(15000) });
     if (!treeRes.ok) {
@@ -347,7 +352,7 @@ app.post('/api/submit-review', async (req, res) => {
     }
     if (!fileContents.length) return res.json({ ok: false, error: 'Could not read any Java files.' });
     const filesText = fileContents.map(f => `### ${f.path}\n\`\`\`java\n${f.content}\n\`\`\`\n`).join('\n');
-    const reviewPrompt = `You are an expert Selenium with Java automation engineer reviewing code from a learner who completed the SeleniumLab training course.\n\nRepository: ${owner}/${repo}\nFiles: ${fileContents.map(f=>f.path).join(', ')}\n\n${filesText}\n\nProvide a structured code review:\n## 🌟 Overall Assessment\n## ✅ What's Done Well\n## 📚 Structure & Design (POM, packages)\n## 🤖 Selenium Best Practices (waits, locators)\n## 🧪 TestNG Usage\n## 🔧 Areas for Improvement (with code examples)\n## 🏅 Score (table: Structure/10, Selenium/10, CodeQuality/10)\n\nBe encouraging and specific. This person is a beginner building their first automation framework.`;
+    const reviewPrompt = `You are an expert Selenium with Java automation engineer reviewing code from a learner who completed the Automation AI Lab training course.\n\nRepository: ${owner}/${repo}\nFiles: ${fileContents.map(f=>f.path).join(', ')}\n\n${filesText}\n\nProvide a structured code review:\n## 🌟 Overall Assessment\n## ✅ What's Done Well\n## 📚 Structure & Design (POM, packages)\n## 🤖 Selenium Best Practices (waits, locators)\n## 🧪 TestNG Usage\n## 🔧 Areas for Improvement (with code examples)\n## 🏅 Score (table: Structure/10, Selenium/10, CodeQuality/10)\n\nBe encouraging and specific. This person is a beginner building their first automation framework.`;
     const selectedModel = model || (GROQ_KEY ? 'llama-3.3-70b-versatile' : 'qwen2.5-coder:14b');
     const provider = getProvider(selectedModel);
     let reviewText = '';
@@ -378,6 +383,7 @@ app.get('/api/health', async (req, res) => {
     ollamaModels: []
   };
 
+  // Probe Ollama
   try {
     const r = await fetch(`${OLLAMA_BASE}/api/tags`, { signal: AbortSignal.timeout(2000) });
     const data = await r.json();
@@ -397,23 +403,17 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ── Export for Vercel serverless (module.exports = app lets @vercel/node wrap it)
-// ── Conditional listen: only binds port when run directly (not imported as module)
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`\n🚀 Selenium Training App → http://localhost:${PORT}`);
-    console.log(`\n🤖 AI Providers:`);
-    console.log(`   Groq   : ${GROQ_KEY      ? '✅ key set' : '❌ set GROQ_API_KEY'}`);
-    console.log(`   Claude : ${ANTHROPIC_KEY ? '✅ key set' : '⚠️  set ANTHROPIC_API_KEY (optional)'}`);
-    console.log(`   Ollama : run "ollama serve" for local models`);
-    if (ragEnabled) {
-      const rs = ragGetStatus();
-      console.log(`\n📚 RAG Knowledge Base:`);
-      console.log(`   Status : ${rs.synced ? `✅ ${rs.count} chunks, ${rs.sources.length} sources` : '⏳ Not synced — open Settings → Sync Docs'}`);
-      if (!rs.synced) console.log(`   Setup  : ollama pull nomic-embed-text:latest`);
-    }
-    console.log('');
-  });
-}
-
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`\n🚀 Selenium Training App → http://localhost:${PORT}`);
+  console.log(`\n🤖 AI Providers:`);
+  console.log(`   Groq   : ${GROQ_KEY      ? '✅ key set' : '❌ set GROQ_API_KEY'}`);
+  console.log(`   Claude : ${ANTHROPIC_KEY ? '✅ key set' : '⚠️  set ANTHROPIC_API_KEY (optional)'}`);
+  console.log(`   Ollama : run "ollama serve" for local models`);
+  if (ragEnabled) {
+    const rs = ragGetStatus();
+    console.log(`\n📚 RAG Knowledge Base:`);
+    console.log(`   Status : ${rs.synced ? `✅ ${rs.count} chunks, ${rs.sources.length} sources` : '⏳ Not synced — open Settings → Sync Docs'}`);
+    if (!rs.synced) console.log(`   Setup  : ollama pull nomic-embed-text:latest`);
+  }
+  console.log('');
+});

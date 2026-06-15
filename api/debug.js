@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
       : `❌ Groq API unreachable: ${error}`;
 
   res.setHeader('Content-Type', 'text/html');
-  res.send(`<!DOCTYPE html><html><head><title>SeleniumLab Debug</title>
+  res.send(`<!DOCTYPE html><html><head><title>Automation AI Lab Debug</title>
   <style>
     body{font-family:Inter,sans-serif;background:#07090E;color:#E8EDF5;padding:40px}
     h1{color:#FF6B2B;font-size:22px;margin-bottom:24px}
@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
     .ok{color:#3cff8f}.err{color:#ff4d6d}.warn{color:#ffb347}
     pre{background:#060A10;padding:20px;border-radius:8px;border:1px solid #1C2A3A;font-size:12px;color:#C8D8EC;white-space:pre-wrap}
   </style></head><body>
-  <h1>⚡ SeleniumLab — Debug</h1>
+  <h1>⚡ Automation AI Lab — Debug</h1>
   <div class="verdict">${verdict}</div>
   <table>
     <tr><th>Check</th><th>Value</th><th>Status</th></tr>
