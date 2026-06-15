@@ -2038,7 +2038,7 @@ class CreateUserRequestBuilder {
     this.body    = {};
   }
 
-  // Fluent setters — each returns `this` for chaining
+  // Fluent setters — each returns \`this\` for chaining
   withName(name) {
     this.body.name = name;
     return this;
