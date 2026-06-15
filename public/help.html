@@ -9,27 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg:      #07090E;
-      --bg2:     #0C1018;
-      --bg3:     #111827;
-      --bg4:     #1A2235;
-      --bg5:     #1F2C42;
-      --border:  #1C2A3A;
-      --border2: #253347;
-      --accent:  #FF6B2B;
-      --accent2: #E85D20;
-      --accent-dim: rgba(255,107,43,.12);
-      --blue:    #38bdf8;
-      --green:   #34d399;
-      --yellow:  #fbbf24;
-      --red:     #ff4d6d;
-      --text:    #E8EDF5;
-      --text2:   #7B8FA6;
-      --text3:   #3D5166;
-      --font:    'Inter', -apple-system, sans-serif;
-      --mono:    'JetBrains Mono', monospace;
-      --radius:  12px;
-      --shadow:  0 4px 24px rgba(0,0,0,.6);
+      --bg:      #ffffff;
+      --bg2:     #f4f7ff;
+      --bg3:     #eef1fb;
+      --bg4:     #e5eaf8;
+      --bg5:     #dbe1f5;
+      --border:  #dde3f0;
+      --border2: #c8d0e8;
+      --accent:  #4361EE;
+      --accent2: #3350D9;
+      --accent-dim: rgba(67,97,238,.1);
+      --text:    #1a1a2e;
+      --text2:   #4a5568;
+      --text3:   #94a3b8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -44,7 +36,7 @@
     /* ── Header ───────────────────────────────────────────── */
     .top-bar {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(7,9,14,.95);
+      background: rgba(255,255,255,.97);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 0 32px;
@@ -167,7 +159,7 @@
       font-size: 11px; font-weight: 700; letter-spacing: .5px;
     }
     .badge-green  { background: rgba(52,211,153,.15); color: #34d399; border: 1px solid rgba(52,211,153,.3); }
-    .badge-orange { background: rgba(255,107,43,.15); color: var(--accent); border: 1px solid rgba(255,107,43,.3); }
+    .badge-orange { background: rgba(67,97,238,.12); color: var(--accent); border: 1px solid rgba(67,97,238,.3); }
     .badge-blue   { background: rgba(56,189,248,.15); color: #38bdf8; border: 1px solid rgba(56,189,248,.3); }
 
     /* ── TOC sidebar ──────────────────────────────────────── */
