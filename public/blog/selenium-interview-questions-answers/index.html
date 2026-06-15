@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Top 30 Selenium Interview Questions &amp; Answers (2025) | SeleniumLab</title>
+  <title>Top 30 Selenium Interview Questions & Answers (2025) | Automation AI Lab</title>
   <meta name="description" content="The 30 most common Selenium with Java interview questions asked at top companies in 2025. Detailed answers, code examples, and tips to ace your QA interview."/>
   <meta name="keywords" content="selenium interview questions 2025, selenium java interview questions, selenium webdriver interview questions answers, QA automation interview questions, selenium TestNG interview"/>
   <meta name="robots" content="index, follow"/>
-  <link rel="canonical" href="https://selenium-labs-training-ai.vercel.app/blog/selenium-interview-questions-answers"/>
+  <link rel="canonical" href="https://automation-labs-training-ai.vercel.app/blog/selenium-interview-questions-answers"/>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
   <style>
@@ -52,33 +52,33 @@
 </head>
 <body>
 <nav>
-  <a href="/" class="nav-logo"><div class="icon">&#9654;</div> SELENIUM<span>LAB</span></a>
+  <a href="/" class="nav-logo"><div class="icon">▶</div> SELENIUM<span>LAB</span></a>
   <div class="nav-links"><a href="/">Course</a><a href="/blog/">Blog</a></div>
 </nav>
 
 <div class="article-wrap">
-  <div class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/blog/">Blog</a> &rsaquo; Career</div>
+  <div class="breadcrumb"><a href="/">Home</a> › <a href="/blog/">Blog</a> › Career</div>
   <span class="tag">Career</span>
-  <h1>Top 30 Selenium Interview Questions &amp; Answers (2025)</h1>
-  <div class="meta">By SeleniumLab &middot; June 2025 &middot; &#9201; 15 min read</div>
+  <h1>Top 30 Selenium Interview Questions & Answers (2025)</h1>
+  <div class="meta">By Automation AI Lab · June 2025 · ⏱ 15 min read</div>
 
   <p>These are the most frequently asked Selenium with Java interview questions at companies like TCS, Infosys, Wipro, Cognizant, Capgemini, and product companies. Grouped by difficulty.</p>
 
-  <h2>&#127834; Beginner Level</h2>
+  <h2>🟢 Beginner Level</h2>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty easy">Easy</span>What is Selenium WebDriver and how does it work?</div>
-    <div class="answer">Selenium WebDriver is an open-source API that allows you to control web browsers programmatically. It communicates with browsers via the W3C WebDriver protocol &mdash; your Java code sends HTTP commands to a browser driver (ChromeDriver, GeckoDriver), which then controls the browser.</div>
+    <div class="answer">Selenium WebDriver is an open-source API that allows you to control web browsers programmatically. It communicates with browsers via the W3C WebDriver protocol — your Java code sends HTTP commands to a browser driver (ChromeDriver, GeckoDriver), which then controls the browser.</div>
   </div>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty easy">Easy</span>What is the difference between findElement() and findElements()?</div>
-    <div class="answer"><span class="inline-code">findElement()</span> returns a single WebElement and throws NoSuchElementException if not found. <span class="inline-code">findElements()</span> returns a List&lt;WebElement&gt; &mdash; returns an empty list if nothing is found, never throws an exception. Use findElements() when an element may or may not be present.</div>
+    <div class="answer"><span class="inline-code">findElement()</span> returns a single WebElement and throws NoSuchElementException if not found. <span class="inline-code">findElements()</span> returns a List&lt;WebElement&gt; — returns an empty list if nothing is found, never throws an exception. Use findElements() when an element may or may not be present.</div>
   </div>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty easy">Easy</span>What locator strategies does Selenium support?</div>
-    <div class="answer">By.id, By.name, By.className, By.tagName, By.linkText, By.partialLinkText, By.cssSelector, By.xpath. Preference order: id &gt; name &gt; CSS selector &gt; XPath. Avoid By.xpath when CSS selector works &mdash; XPath is slower and more brittle.</div>
+    <div class="answer">By.id, By.name, By.className, By.tagName, By.linkText, By.partialLinkText, By.cssSelector, By.xpath. Preference order: id &gt; name &gt; CSS selector &gt; XPath. Avoid By.xpath when CSS selector works — XPath is slower and more brittle.</div>
   </div>
 
   <div class="qa-block">
@@ -96,21 +96,21 @@ dropdown.selectByIndex(2);</code></pre>
     For custom dropdowns (divs/ul), click to open then click the option element directly.</div>
   </div>
 
-  <h2>&#127801; Intermediate Level</h2>
+  <h2>🟡 Intermediate Level</h2>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty medium">Medium</span>What are implicit, explicit and fluent waits?</div>
     <div class="answer">
-      <strong>Implicit wait</strong>: Global setting &mdash; WebDriver polls for an element for N seconds before throwing NoSuchElementException.<br><br>
+      <strong>Implicit wait</strong>: Global setting — WebDriver polls for an element for N seconds before throwing NoSuchElementException.<br><br>
       <strong>Explicit wait</strong>: Waits for a specific condition on a specific element:<pre><code>WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 wait.until(ExpectedConditions.elementToBeClickable(By.id("submit")));</code></pre>
-      <strong>Fluent wait</strong>: Like explicit wait but you can configure polling interval and ignore specific exceptions. Never mix implicit + explicit waits &mdash; they interact unpredictably.
+      <strong>Fluent wait</strong>: Like explicit wait but you can configure polling interval and ignore specific exceptions. Never mix implicit + explicit waits — they interact unpredictably.
     </div>
   </div>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty medium">Medium</span>What is the Page Object Model and why use it?</div>
-    <div class="answer">POM is a design pattern where each web page has a corresponding Java class containing its locators and action methods. Benefits: (1) Reduces code duplication &mdash; locators defined once, (2) Easier maintenance &mdash; when UI changes, update one class, (3) Readable tests &mdash; methods like <span class="inline-code">loginPage.loginAs("user", "pass")</span> read like English. See our <a href="/blog/page-object-model-selenium-java">POM complete guide</a>.</div>
+    <div class="answer">POM is a design pattern where each web page has a corresponding Java class containing its locators and action methods. Benefits: (1) Reduces code duplication — locators defined once, (2) Easier maintenance — when UI changes, update one class, (3) Readable tests — methods like <span class="inline-code">loginPage.loginAs("user", "pass")</span> read like English. See our <a href="/blog/page-object-model-selenium-java">POM complete guide</a>.</div>
   </div>
 
   <div class="qa-block">
@@ -161,7 +161,7 @@ alert.accept();</code></pre></div>
     Make each test method thread-safe by using ThreadLocal&lt;WebDriver&gt; instead of a shared driver instance.</div>
   </div>
 
-  <h2>&#128308; Advanced Level</h2>
+  <h2>🔴 Advanced Level</h2>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty hard">Hard</span>How do you implement ThreadLocal WebDriver for parallel tests?</div>
@@ -184,7 +184,7 @@ alert.accept();</code></pre></div>
         }
     }
 }</code></pre>
-    Each thread gets its own WebDriver instance &mdash; no shared state, no flakiness.</div>
+    Each thread gets its own WebDriver instance — no shared state, no flakiness.</div>
   </div>
 
   <div class="qa-block">
@@ -194,7 +194,7 @@ alert.accept();</code></pre></div>
 
   <div class="qa-block">
     <div class="question"><span class="difficulty hard">Hard</span>How do you handle StaleElementReferenceException?</div>
-    <div class="answer">StaleElementReferenceException occurs when a WebElement reference becomes invalid &mdash; typically after a page reload or DOM update. Solutions: (1) Re-find the element before each interaction, (2) Use explicit wait with ExpectedConditions.refreshed(), (3) Wrap the interaction in a retry loop:
+    <div class="answer">StaleElementReferenceException occurs when a WebElement reference becomes invalid — typically after a page reload or DOM update. Solutions: (1) Re-find the element before each interaction, (2) Use explicit wait with ExpectedConditions.refreshed(), (3) Wrap the interaction in a retry loop:
     <pre><code>public void clickWithRetry(By locator, int maxRetries) {
     for (int i = 0; i &lt; maxRetries; i++) {
         try {
@@ -208,15 +208,15 @@ alert.accept();</code></pre></div>
   </div>
 
   <div class="affiliate-box">
-    <h3>&#127919; Practice these questions with real code</h3>
+    <h3>🎯 Practice these questions with real code</h3>
     <p>The top Selenium Java Udemy course includes interview prep, real-world framework projects, and 50+ hours of video content used by 50,000+ students.</p>
-    <a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" class="affiliate-btn" target="_blank" rel="noopener">View Course on Udemy &rarr;</a>
-    <p style="font-size:12px;margin-top:10px;color:#6B7A90">Affiliate link &mdash; we earn a small commission at no extra cost to you.</p>
+    <a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" class="affiliate-btn" target="_blank" rel="noopener">View Course on Udemy →</a>
+    <p style="font-size:12px;margin-top:10px;color:#6B7A90">Affiliate link — we earn a small commission at no extra cost to you.</p>
   </div>
 
-  <p>Build the skills behind these answers &mdash; <a href="/">SeleniumLab's free course</a> covers all these topics with hands-on exercises and an AI assistant to help you when you're stuck.</p>
+  <p>Build the skills behind these answers — <a href="/">Automation AI Lab's free course</a> covers all these topics with hands-on exercises and an AI assistant to help you when you're stuck.</p>
 </div>
 
-<footer>&copy; 2025 SeleniumLab &middot; <a href="/">Free Selenium Course</a> &middot; <a href="/blog/">Blog</a></footer>
+<footer>© 2025 Automation AI Lab · <a href="/">Free Selenium Course</a> · <a href="/blog/">Blog</a></footer>
 </body>
 </html>

@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Page Object Model in Selenium Java: Complete Guide | SeleniumLab</title>
+  <title>Page Object Model in Selenium Java: Complete Guide | Automation AI Lab</title>
   <meta name="description" content="Learn the Page Object Model (POM) design pattern in Selenium with Java. Includes folder structure, real code examples, PageFactory, and best practices."/>
   <meta name="keywords" content="page object model selenium java, POM selenium tutorial, selenium page object pattern, pagefactory selenium java, selenium design patterns java"/>
   <meta name="robots" content="index, follow"/>
-  <link rel="canonical" href="https://selenium-labs-training-ai.vercel.app/blog/page-object-model-selenium-java"/>
+  <link rel="canonical" href="https://automation-labs-training-ai.vercel.app/blog/page-object-model-selenium-java"/>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
   <style>
@@ -46,34 +46,34 @@
 </head>
 <body>
 <nav>
-  <a href="/" class="nav-logo"><div class="icon">&#9654;</div> SELENIUM<span>LAB</span></a>
+  <a href="/" class="nav-logo"><div class="icon">▶</div> SELENIUM<span>LAB</span></a>
   <div class="nav-links"><a href="/">Course</a><a href="/blog/">Blog</a></div>
 </nav>
 
 <div class="article-wrap">
-  <div class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/blog/">Blog</a> &rsaquo; Design Pattern</div>
+  <div class="breadcrumb"><a href="/">Home</a> › <a href="/blog/">Blog</a> › Design Pattern</div>
   <span class="tag">Design Pattern</span>
   <h1>Page Object Model in Selenium Java: The Complete Guide</h1>
-  <div class="meta">By SeleniumLab &middot; June 2025 &middot; &#9201; 10 min read</div>
+  <div class="meta">By Automation AI Lab · June 2025 · ⏱ 10 min read</div>
 
   <p>The Page Object Model (POM) is the single most important design pattern in Selenium test automation. It makes your tests readable, maintainable, and scalable. Here's how to implement it correctly in Java.</p>
 
   <h2>Why POM Exists</h2>
-  <p>Without POM, when a UI element changes (say, a button ID gets renamed), you have to hunt through every test that touches that button and update each one. With POM, you update it in one place &mdash; the page class &mdash; and every test that uses it is automatically fixed.</p>
+  <p>Without POM, when a UI element changes (say, a button ID gets renamed), you have to hunt through every test that touches that button and update each one. With POM, you update it in one place — the page class — and every test that uses it is automatically fixed.</p>
 
   <h2>Project Structure</h2>
   <pre><code>src/
-&#x251C;&#x2500;&#x2500; main/java/
-&#x2502;   &#x2514;&#x2500;&#x2500; pages/
-&#x2502;       &#x251C;&#x2500;&#x2500; LoginPage.java       &larr; page class
-&#x2502;       &#x251C;&#x2500;&#x2500; DashboardPage.java
-&#x2502;       &#x2514;&#x2500;&#x2500; BasePage.java        &larr; shared utilities
-&#x2514;&#x2500;&#x2500; test/java/
-    &#x2514;&#x2500;&#x2500; tests/
-        &#x251C;&#x2500;&#x2500; LoginTest.java       &larr; test class (uses page objects)
-        &#x2514;&#x2500;&#x2500; DashboardTest.java</code></pre>
+├── main/java/
+│   └── pages/
+│       ├── LoginPage.java       ← page class
+│       ├── DashboardPage.java
+│       └── BasePage.java        ← shared utilities
+└── test/java/
+    └── tests/
+        ├── LoginTest.java       ← test class (uses page objects)
+        └── DashboardTest.java</code></pre>
 
-  <h2>Step 1 &mdash; Create a Page Class</h2>
+  <h2>Step 1 — Create a Page Class</h2>
   <p>Each page gets its own class. The class holds locators and actions for that page only.</p>
   <pre><code>package pages;
 
@@ -84,7 +84,7 @@ public class LoginPage {
 
     private WebDriver driver;
 
-    // Locators &mdash; defined once
+    // Locators — defined once
     private By usernameField = By.id("username");
     private By passwordField = By.id("password");
     private By loginButton   = By.cssSelector("button[type='submit']");
@@ -94,7 +94,7 @@ public class LoginPage {
         this.driver = driver;
     }
 
-    // Actions &mdash; readable methods
+    // Actions — readable methods
     public void enterUsername(String username) {
         driver.findElement(usernameField).sendKeys(username);
     }
@@ -111,7 +111,7 @@ public class LoginPage {
         return driver.findElement(errorMessage).getText();
     }
 
-    // Fluent login &mdash; combines steps
+    // Fluent login — combines steps
     public DashboardPage loginAs(String username, String password) {
         enterUsername(username);
         enterPassword(password);
@@ -120,8 +120,8 @@ public class LoginPage {
     }
 }</code></pre>
 
-  <h2>Step 2 &mdash; Use Page Objects in Tests</h2>
-  <p>Tests become readable English &mdash; no locators visible at all:</p>
+  <h2>Step 2 — Use Page Objects in Tests</h2>
+  <p>Tests become readable English — no locators visible at all:</p>
   <pre><code>package tests;
 
 import org.openqa.selenium.WebDriver;
@@ -164,7 +164,7 @@ public class LoginTest {
 }</code></pre>
 
   <div class="tip">
-    <strong>Best practice:</strong> Page methods should return either void or another page object. Never put assertions inside page classes &mdash; assertions belong in the test.
+    <strong>Best practice:</strong> Page methods should return either void or another page object. Never put assertions inside page classes — assertions belong in the test.
   </div>
 
   <h2>PageFactory Alternative</h2>
@@ -196,22 +196,22 @@ public class LoginPage {
   <h2>POM Best Practices</h2>
   <ul>
     <li>One page class per page (or per major component)</li>
-    <li>Keep locators private &mdash; never expose them to tests</li>
+    <li>Keep locators private — never expose them to tests</li>
     <li>Use meaningful method names: <span class="inline-code">clickAddToCart()</span> not <span class="inline-code">clickButton()</span></li>
     <li>Create a <span class="inline-code">BasePage</span> for shared waits and utilities</li>
     <li>Return page objects from methods that navigate to a new page</li>
   </ul>
 
   <div class="affiliate-box">
-    <h3>&#128218; Master POM with real project examples</h3>
+    <h3>📚 Master POM with real project examples</h3>
     <p>The top-rated Selenium Java Udemy course covers Page Object Model, PageFactory, BasePage patterns, and builds a complete framework from scratch.</p>
-    <a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" class="affiliate-btn" target="_blank" rel="noopener">View Course on Udemy &rarr;</a>
-    <p style="font-size:12px;margin-top:10px;color:#6B7A90">Affiliate link &mdash; we earn a small commission at no extra cost to you.</p>
+    <a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" class="affiliate-btn" target="_blank" rel="noopener">View Course on Udemy →</a>
+    <p style="font-size:12px;margin-top:10px;color:#6B7A90">Affiliate link — we earn a small commission at no extra cost to you.</p>
   </div>
 
-  <p>Practice POM in our interactive course &mdash; <a href="/">SeleniumLab has a dedicated Design Patterns module</a> with exercises and AI-assisted code review.</p>
+  <p>Practice POM in our interactive course — <a href="/">Automation AI Lab has a dedicated Design Patterns module</a> with exercises and AI-assisted code review.</p>
 </div>
 
-<footer>&copy; 2025 SeleniumLab &middot; <a href="/">Free Selenium Course</a> &middot; <a href="/blog/">Blog</a></footer>
+<footer>© 2025 Automation AI Lab · <a href="/">Free Selenium Course</a> · <a href="/blog/">Blog</a></footer>
 </body>
 </html>
