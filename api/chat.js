@@ -57,11 +57,9 @@ function truncateMessages(messages) {
 const GROQ_MODELS = new Set([
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
-  'llama-3.1-70b-versatile',
-  'qwen-qwq-32b',
-  'gemma2-9b-it',
-  'mixtral-8x7b-32768',
-  'deepseek-r1-distill-llama-70b',
+  'qwen/qwen3-32b',
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'openai/gpt-oss-120b',
 ]);
 
 function getProvider(model = '') {
