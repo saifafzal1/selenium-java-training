@@ -199,6 +199,7 @@
       <div id="ollama-status" title="Groq API status"></div>
       <h3>AI Assistant</h3>
       <button id="smart-mode-btn" class="smart-mode-btn" title="Smart Mode: Qwen refines your question before sending to selected model">⚡ Smart</button>
+      <button id="web-mode-btn" class="smart-mode-btn" title="Web Mode: uses Groq Compound to search the web for real-time information">🌐 Web</button>
       <button id="settings-btn" class="settings-gear-btn" title="Settings">⚙️</button>
       <select id="model-select">
         <optgroup label="☁️ Groq (Free Cloud)">
@@ -207,6 +208,10 @@
           <option value="qwen/qwen3-32b">Qwen 3 32B</option>
           <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout 17B</option>
           <option value="openai/gpt-oss-120b">GPT-OSS 120B</option>
+        </optgroup>
+        <optgroup label="🌐 Groq + Web Search">
+          <option value="groq/compound-mini">Compound Mini ⚡ (fast search)</option>
+          <option value="groq/compound">Compound (deep search)</option>
         </optgroup>
         <optgroup label="🤖 Claude (Anthropic)">
           <option value="claude-sonnet-4-6">Claude Sonnet 4.6 ✨</option>
