@@ -575,5 +575,10 @@ Score out of 100. This is the capstone — be thorough in your feedback.`
 ];
 
 if (typeof PLAYWRIGHT_CURRICULUM !== "undefined") {
-  PLAYWRIGHT_CURRICULUM.push(...PLAYWRIGHT_LABS);
+  PLAYWRIGHT_CURRICULUM.push({
+    id: 'pw-module-labs',
+    title: 'Capstone Lab Exercises',
+    icon: '🏆',
+    lessons: PLAYWRIGHT_LABS
+  });
 }
