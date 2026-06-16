@@ -25,7 +25,7 @@ function getProgressKey() {
     : 'selenium-training-progress';
 }
 
-// ── Course Switcher ─────────────────────────────────────────
+// ── Course Switcher ─────────────────────────────────────────────
 function switchCourse(course) {
   if (state.activeCourse === course) return;
 
@@ -110,7 +110,7 @@ function switchCourse(course) {
   document.getElementById('stat-pct').textContent = pct + '%';
 }
 
-// ── Storage helpers (server + localStorage fallback) ────────────
+// ── Storage helpers (server + localStorage fallback) ──────────
 const LS_KEY = 'selenium-training-progress';
 
 function lsLoad(key) {
@@ -123,7 +123,7 @@ function lsSave(p, key) {
   try { localStorage.setItem(k, JSON.stringify(p)); } catch {}
 }
 
-// ── Init ─────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────
 async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
@@ -183,7 +183,7 @@ async function init() {
   wireEvents();
 }
 
-// ── Sidebar ──────────────────────────────────────────────────────
+// ── Sidebar ────────────────────────────────────────────────────
 function buildSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
@@ -232,7 +232,7 @@ function toggleModule(hdr, list) {
   list.classList.toggle('open');
 }
 
-// ── Show Lesson ────────────────────────────────────────────────────
+// ── Show Lesson ────────────────────────────────────────────────
 function showLesson(lesson, module) {
   state.currentLesson = lesson;
   state.currentModule = module;
@@ -311,7 +311,7 @@ function showLesson(lesson, module) {
   saveProgress({ lastVisited: lesson.id });
 }
 
-// ── What You'll Learn ─────────────────────────────────────────────
+// ── What You'll Learn ─────────────────────────────────────────
 function renderWhatYoullLearn(lesson) {
   const existing = document.getElementById('wyll-panel');
   if (existing) existing.remove();
@@ -330,7 +330,7 @@ function renderWhatYoullLearn(lesson) {
   lessonContent.parentNode.insertBefore(panel, lessonContent);
 }
 
-// ── Quiz ────────────────────────────────────────────────────────
+// ── Quiz ──────────────────────────────────────────────────────
 function renderQuiz(lesson) {
   const container = document.getElementById('quiz-content');
   if (!lesson.quiz || !lesson.quiz.length) {
@@ -472,7 +472,7 @@ function renderExercise(lesson) {
   }
   container.innerHTML = `
     <div class="exercise-panel">
-      <h3>🏗️ ${ex.title}</h3>
+      <h3>🏋️ ${ex.title}</h3>
       <p class="task-text">${ex.task}</p>
       ${hintsHtml}
       ${solutionHtml}
@@ -482,7 +482,7 @@ function renderExercise(lesson) {
     </p>`;
 }
 
-// ── Lab Evaluation / Rubric ───────────────────────────────────────────
+// ── Lab Evaluation / Rubric ───────────────────────────────────
 function renderLabEvaluation(lesson) {
   const container = document.getElementById('evaluate-content');
   if (!lesson.rubric) { container.innerHTML = ''; return; }
@@ -601,7 +601,7 @@ window.resetLabRubric = function(lessonId) {
   if (lesson && lesson.id === lessonId) renderLabEvaluation(lesson);
 };
 
-// ── Affiliate Resources Panel ────────────────────────────────────────────
+// ── Affiliate Resources Panel ──────────────────────────────────
 function renderAffiliatePanel(lesson, module) {
   // Remove existing panel if any
   const existing = document.getElementById('affiliate-panel');
@@ -653,7 +653,7 @@ function renderAffiliatePanel(lesson, module) {
   document.getElementById('tab-lesson').appendChild(panel);
 }
 
-// ── Tabs ─────────────────────────────────────────────────────────
+// ── Tabs ───────────────────────────────────────────────────────
 function switchTab(tabId) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
   document.querySelectorAll('.tab-content').forEach(c => {
@@ -662,7 +662,7 @@ function switchTab(tabId) {
   });
 }
 
-// ── Progress ─────────────────────────────────────────────────────
+// ── Progress ───────────────────────────────────────────────────
 function updateCompleteButtons(lessonId) {
   const done = state.progress.completedLessons.includes(lessonId);
   ['complete-btn', 'complete-btn-ex'].forEach(id => {
@@ -749,7 +749,7 @@ async function saveProgress(payload) {
   }
 }
 
-// ── Navigation ─────────────────────────────────────────────────────
+// ── Navigation ─────────────────────────────────────────────────
 function navigateRelative(delta) {
   if (!state.currentLesson) return;
   const idx = state.allLessons.findIndex(l => l.id === state.currentLesson.id);
@@ -759,12 +759,37 @@ function navigateRelative(delta) {
   showLesson(next, mod);
 }
 
-// ── AI Chat ────────────────────────────────────────────────────────
+// ── AI Chat ────────────────────────────────────────────────────
 let chatHistory = [];
 let isChatting  = false;
 
+// ── Client-side guards (fixes #4 + #5) ───────────────────────
+const CHAT_MAX_CHARS    = 3000;   // max chars per message
+const CHAT_SESSION_WARN = 20;     // warn after this many messages
+const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString(); // resets daily
+
+function getChatCount()  { return parseInt(localStorage.getItem(CHAT_SESSION_KEY) || '0', 10); }
+function incChatCount()  { localStorage.setItem(CHAT_SESSION_KEY, getChatCount() + 1); }
+
 async function sendMessage(userText) {
   if (!userText.trim() || isChatting) return;
+
+  // Fix #4 — hard cap on message length
+  if (userText.length > CHAT_MAX_CHARS) {
+    appendMessage('assistant',
+      `⚠️ Your message is **${userText.length} characters** — the limit is ${CHAT_MAX_CHARS}.\n\nPlease shorten your message. For large code pastes, paste only the relevant section and describe the rest.`
+    );
+    return;
+  }
+
+  // Fix #5 — per-session counter with warning
+  const count = getChatCount();
+  if (count >= CHAT_SESSION_WARN && count % 10 === 0) {
+    appendMessage('assistant',
+      `💡 **Heads-up:** You've sent **${count} messages** today. The server allows up to 30 per hour per user.\n\nFor unlimited usage, switch to a **local Ollama model** in the ⚙️ settings.`
+    );
+  }
+
   isChatting = true;
 
   const sendBtn = document.getElementById('chat-send');
@@ -841,6 +866,7 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
       msgEl.className = 'msg error';
       msgEl.innerHTML = '⚠️ ' + escHtml(data.error);
     } else {
+      incChatCount(); // fix #5 — only count successful responses
       const assistantText = data.content || '';
       chatHistory.push({ role: 'assistant', content: assistantText });
       const msgEl = appendMessage('assistant', '');
@@ -927,13 +953,13 @@ async function checkHealth() {
   }
 }
 
-// ── Auto-resize textarea ──────────────────────────────────────────────
+// ── Auto-resize textarea ───────────────────────────────────────
 function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ── Toast Notifications ──────────────────────────────────────────────
+// ── Toast Notifications ────────────────────────────────────────
 function showToast(message, type = 'success', action = null) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -956,7 +982,7 @@ function showToast(message, type = 'success', action = null) {
   setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 5000);
 }
 
-// ── Save to Project (VS Code) ────────────────────────────────────────────
+// ── Save to Project (VS Code) ──────────────────────────────────
 async function saveToProject(code) {
   const folder = state.projectFolder;
 
@@ -1001,7 +1027,7 @@ async function saveToProject(code) {
   }
 }
 
-// ── Settings Panel ─────────────────────────────────────────────────────
+// ── Settings Panel ─────────────────────────────────────────────
 function openSettings() {
   const panel   = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
@@ -1068,7 +1094,7 @@ function toggleSmartMode(on) {
   if (btn) btn.classList.toggle('active', on);
 }
 
-// ── Wire Events ──────────────────────────────────────────────────────
+// ── Wire Events ────────────────────────────────────────────────
 function wireEvents() {
   // Tab clicks
   document.querySelectorAll('.tab').forEach(tab => {
@@ -1135,7 +1161,16 @@ function wireEvents() {
     }
   });
 
-  document.getElementById('chat-input').addEventListener('input', e => autoResizeTextarea(e.target));
+  document.getElementById('chat-input').addEventListener('input', e => {
+    autoResizeTextarea(e.target);
+    // Fix #4 — live character counter
+    const len     = e.target.value.length;
+    const counter = document.getElementById('chat-char-counter');
+    if (counter) {
+      counter.textContent = `${len} / ${CHAT_MAX_CHARS}`;
+      counter.style.color = len > CHAT_MAX_CHARS * 0.9 ? '#e74c3c' : '#9BA8BB';
+    }
+  });
 
   // Quick prompts
   document.querySelectorAll('.quick-prompt').forEach(qp => {
@@ -1174,7 +1209,7 @@ function wireEvents() {
   });
 }
 
-// ── Java Syntax Highlighter ──────────────────────────────────────────────
+// ── Java Syntax Highlighter ────────────────────────────────────
 // Works on raw text → HTML-escape → apply spans → set innerHTML
 // This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
@@ -1282,5 +1317,5 @@ function highlightJava() {
   });
 }
 
-// ── Boot ─────────────────────────────────────────────────────────
+// ── Boot ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', init);
