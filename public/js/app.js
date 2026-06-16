@@ -1,4 +1,4 @@
-// ── State ──────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────
 let state = {
   progress: { completedLessons: [], lastVisited: null, notes: {} },
   currentLesson: null,
@@ -8,6 +8,7 @@ let state = {
   currentLessonContext: '',
   serverMode: false,   // true when Node server is reachable
   smartMode: false,    // Qwen→model chain mode
+  webMode: false,      // Groq compound web search mode
   projectFolder: '',   // saved code destination
   activeCourse: 'selenium'  // 'selenium' | 'playwright'
 };
@@ -25,7 +26,7 @@ function getProgressKey() {
     : 'selenium-training-progress';
 }
 
-// ── Course Switcher ─────────────────────────────────────────────
+// ── Course Switcher ───────────────────────────────────────────
 function switchCourse(course) {
   if (state.activeCourse === course) return;
 
@@ -110,7 +111,7 @@ function switchCourse(course) {
   document.getElementById('stat-pct').textContent = pct + '%';
 }
 
-// ── Storage helpers (server + localStorage fallback) ──────────
+// ── Storage helpers (server + localStorage fallback) ────────────
 const LS_KEY = 'selenium-training-progress';
 
 function lsLoad(key) {
@@ -123,10 +124,11 @@ function lsSave(p, key) {
   try { localStorage.setItem(k, JSON.stringify(p)); } catch {}
 }
 
-// ── Init ───────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────
 async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
+  state.webMode      = localStorage.getItem('webMode') === 'true';
   state.projectFolder = localStorage.getItem('projectFolder') || '';
 
   // Detect file:// mode and show banner
@@ -183,7 +185,7 @@ async function init() {
   wireEvents();
 }
 
-// ── Sidebar ────────────────────────────────────────────────────
+// ── Sidebar ──────────────────────────────────────────────────────
 function buildSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
@@ -330,7 +332,7 @@ function renderWhatYoullLearn(lesson) {
   lessonContent.parentNode.insertBefore(panel, lessonContent);
 }
 
-// ── Quiz ──────────────────────────────────────────────────────
+// ── Quiz ────────────────────────────────────────────────────
 function renderQuiz(lesson) {
   const container = document.getElementById('quiz-content');
   if (!lesson.quiz || !lesson.quiz.length) {
@@ -482,7 +484,7 @@ function renderExercise(lesson) {
     </p>`;
 }
 
-// ── Lab Evaluation / Rubric ───────────────────────────────────
+// ── Lab Evaluation / Rubric ────────────────────────────────────
 function renderLabEvaluation(lesson) {
   const container = document.getElementById('evaluate-content');
   if (!lesson.rubric) { container.innerHTML = ''; return; }
@@ -653,7 +655,7 @@ function renderAffiliatePanel(lesson, module) {
   document.getElementById('tab-lesson').appendChild(panel);
 }
 
-// ── Tabs ───────────────────────────────────────────────────────
+// ── Tabs ──────────────────────────────────────────────────────────
 function switchTab(tabId) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
   document.querySelectorAll('.tab-content').forEach(c => {
@@ -662,7 +664,7 @@ function switchTab(tabId) {
   });
 }
 
-// ── Progress ───────────────────────────────────────────────────
+// ── Progress ─────────────────────────────────────────────────────────
 function updateCompleteButtons(lessonId) {
   const done = state.progress.completedLessons.includes(lessonId);
   ['complete-btn', 'complete-btn-ex'].forEach(id => {
@@ -749,7 +751,7 @@ async function saveProgress(payload) {
   }
 }
 
-// ── Navigation ─────────────────────────────────────────────────
+// ── Navigation ────────────────────────────────────────────────────
 function navigateRelative(delta) {
   if (!state.currentLesson) return;
   const idx = state.allLessons.findIndex(l => l.id === state.currentLesson.id);
@@ -759,11 +761,11 @@ function navigateRelative(delta) {
   showLesson(next, mod);
 }
 
-// ── AI Chat ────────────────────────────────────────────────────
+// ── AI Chat ────────────────────────────────────────────────────────
 let chatHistory = [];
 let isChatting  = false;
 
-// ── Client-side guards (fixes #4 + #5) ───────────────────────
+// ── Client-side guards (fixes #4 + #5) ─────────────────────
 const CHAT_MAX_CHARS    = 3000;   // max chars per message
 const CHAT_SESSION_WARN = 20;     // warn after this many messages
 const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString(); // resets daily
@@ -809,9 +811,15 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
   const model = document.getElementById('model-select').value;
 
-  // Smart Mode status message (shown before answer)
+  // Status message (Smart Mode or Web Mode)
   let chainStatusEl = null;
-  if (state.smartMode) {
+  if (state.webMode) {
+    chainStatusEl = document.createElement('div');
+    chainStatusEl.className = 'msg assistant chain-status';
+    chainStatusEl.innerHTML = '🌐 <em>Searching the web for current information…</em>';
+    document.getElementById('chat-messages').appendChild(chainStatusEl);
+    scrollChat();
+  } else if (state.smartMode) {
     chainStatusEl = document.createElement('div');
     chainStatusEl.className = 'msg assistant chain-status';
     chainStatusEl.innerHTML = '🔄 <em>Refining your question with Qwen…</em>';
@@ -833,6 +841,7 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
       body: JSON.stringify({
         model,
         chainMode: state.smartMode,
+        webMode: state.webMode,
         messages: [
           { role: 'system', content: systemPrompt },
           ...chatHistory.slice(-10)
@@ -851,9 +860,11 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
     const data = await res.json();
 
-    // Update chain status with refined question (or remove it)
+    // Update status message
     if (chainStatusEl) {
-      if (data.refinedQuestion) {
+      if (data.webSearchUsed) {
+        chainStatusEl.innerHTML = `🌐 <strong>Web searched</strong> — answer includes real-time data`;
+      } else if (data.refinedQuestion) {
         chainStatusEl.innerHTML = `🔍 <strong>Refined:</strong> <em>${escHtml(data.refinedQuestion)}</em>`;
       } else {
         chainStatusEl.remove();
@@ -915,7 +926,7 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Health & Provider Status ──────────────────────────────────
+// ── Health & Provider Status ───────────────────────────────
 async function checkHealth() {
   const dot = document.getElementById('ollama-status');
   try {
@@ -953,13 +964,13 @@ async function checkHealth() {
   }
 }
 
-// ── Auto-resize textarea ───────────────────────────────────────
+// ── Auto-resize textarea ─────────────────────────────────────────
 function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ── Toast Notifications ────────────────────────────────────────
+// ── Toast Notifications ──────────────────────────────────────────
 function showToast(message, type = 'success', action = null) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -1027,7 +1038,7 @@ async function saveToProject(code) {
   }
 }
 
-// ── Settings Panel ─────────────────────────────────────────────
+// ── Settings Panel ──────────────────────────────────────────────────
 function openSettings() {
   const panel   = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
@@ -1094,7 +1105,7 @@ function toggleSmartMode(on) {
   if (btn) btn.classList.toggle('active', on);
 }
 
-// ── Wire Events ────────────────────────────────────────────────
+// ── Wire Events ──────────────────────────────────────────────────────
 function wireEvents() {
   // Tab clicks
   document.querySelectorAll('.tab').forEach(tab => {
@@ -1197,6 +1208,18 @@ function wireEvents() {
     });
   }
 
+  // Web Mode header button
+  const webBtn = document.getElementById('web-mode-btn');
+  if (webBtn) {
+    webBtn.classList.toggle('active', state.webMode);
+    webBtn.addEventListener('click', () => {
+      state.webMode = !state.webMode;
+      localStorage.setItem('webMode', state.webMode);
+      webBtn.classList.toggle('active', state.webMode);
+      showToast(state.webMode ? '🌐 Web Mode ON — answers will use real-time search' : '🌐 Web Mode OFF', state.webMode ? 'success' : 'info');
+    });
+  }
+
   // Notes save
   document.getElementById('save-note-btn').addEventListener('click', async () => {
     if (!state.currentLesson) return;
@@ -1209,7 +1232,7 @@ function wireEvents() {
   });
 }
 
-// ── Java Syntax Highlighter ────────────────────────────────────
+// ── Java Syntax Highlighter ────────────────────────────────────────
 // Works on raw text → HTML-escape → apply spans → set innerHTML
 // This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
@@ -1317,5 +1340,5 @@ function highlightJava() {
   });
 }
 
-// ── Boot ───────────────────────────────────────────────────────
+// ── Boot ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', init);

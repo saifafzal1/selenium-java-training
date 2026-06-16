@@ -60,6 +60,8 @@ const GROQ_MODELS = new Set([
   'qwen/qwen3-32b',
   'meta-llama/llama-4-scout-17b-16e-instruct',
   'openai/gpt-oss-120b',
+  'groq/compound',
+  'groq/compound-mini',
 ]);
 
 function getProvider(model = '') {
@@ -116,7 +118,7 @@ module.exports = async function handler(req, res) {
   res.setHeader('X-RateLimit-Remaining', remaining);
   res.setHeader('X-RateLimit-Limit', RATE_LIMIT);
 
-  const { messages, model, chainMode } = req.body;
+  const { messages, model, chainMode, webMode } = req.body;
 
   // ── Validate & truncate messages (fixes #4 + #6) ─────────
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -124,7 +126,10 @@ module.exports = async function handler(req, res) {
   }
   const safeMessages = truncateMessages(messages);
 
-  const selectedModel = model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  // Web Mode: force compound-mini for real-time search
+  const selectedModel = webMode
+    ? 'groq/compound-mini'
+    : (model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile');
   const provider = getProvider(selectedModel);
 
   // ── Smart Mode: refine prompt with Qwen first ─────────────
@@ -162,7 +167,9 @@ module.exports = async function handler(req, res) {
         return res.json({ error: `Groq error ${r.status}: ${txt.slice(0, 200)}` });
       }
       const data = await r.json();
-      return res.json({ content: data.choices?.[0]?.message?.content || '', refinedQuestion });
+      const msg = data.choices?.[0]?.message;
+      const webSearchUsed = !!(msg?.executed_tools?.length);
+      return res.json({ content: msg?.content || '', refinedQuestion, webSearchUsed });
     } catch (err) {
       return res.json({ error: `Groq request failed: ${err.message}` });
     }
