@@ -1,9 +1,9 @@
+// v2 — updated GROQ_MODELS with current model IDs (2026)
 // ── IP Rate Limiter (in-memory, per warm instance) ──────────
-// Max 30 requests per IP per hour. Resets automatically.
 const ipWindows    = new Map();
-const RATE_LIMIT   = 30;               // max requests per window
-const WINDOW_MS    = 60 * 60 * 1000;  // 1-hour rolling window
-const MAX_MSG_CHARS = 4000;            // truncate any single message longer than this
+const RATE_LIMIT   = 30;
+const WINDOW_MS    = 60 * 60 * 1000;
+const MAX_MSG_CHARS = 4000;
 
 function getClientIp(req) {
   return (
@@ -29,7 +29,6 @@ function checkRateLimit(ip) {
   return { allowed: true, remaining: RATE_LIMIT - entry.count };
 }
 
-// Purge stale IP entries every 100 requests to prevent memory leak
 let _cleanupTick = 0;
 function maybeCleanup() {
   if (++_cleanupTick % 100 !== 0) return;
@@ -39,14 +38,13 @@ function maybeCleanup() {
   }
 }
 
-// ── Truncate oversized messages (fix #6) ────────────────────
 function truncateMessages(messages) {
   return messages.map(m => {
     if (typeof m.content === 'string' && m.content.length > MAX_MSG_CHARS) {
       return {
         ...m,
         content: m.content.slice(0, MAX_MSG_CHARS) +
-          `\n\n[... truncated at ${MAX_MSG_CHARS} chars to protect API quota ...]`
+          `\n\n[... truncated at ${MAX_MSG_CHARS} chars ...]`
       };
     }
     return m;
@@ -54,6 +52,7 @@ function truncateMessages(messages) {
 }
 
 // ── Provider detection ───────────────────────────────────────
+// ALL current Groq model IDs (2026). Slash-prefixed IDs are valid Groq identifiers.
 const GROQ_MODELS = new Set([
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
@@ -64,13 +63,13 @@ const GROQ_MODELS = new Set([
   'groq/compound-mini',
 ]);
 
-function getProvider(model = '') {
+function getProvider(model) {
+  if (!model) return 'groq'; // default
   if (model.startsWith('claude-')) return 'anthropic';
-  if (GROQ_MODELS.has(model))       return 'groq';
+  if (GROQ_MODELS.has(model)) return 'groq';
   return 'ollama';
 }
 
-// ── Qwen prompt refinement helper (Smart Mode) ───────────────
 async function refineWithQwen(messages, groqKey) {
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
   if (!lastUserMsg || !groqKey) return null;
@@ -84,7 +83,7 @@ async function refineWithQwen(messages, groqKey) {
         stream: false,
         messages: [
           { role: 'system', content: 'You are a prompt refinement engine for a Selenium/Playwright coding tutor. Rewrite the user\'s question to be precise, specific, and technical. Return ONLY the refined question — no preamble, no explanation.' },
-          { role: 'user', content: lastUserMsg.content.slice(0, 1000) } // cap refinement input too
+          { role: 'user', content: lastUserMsg.content.slice(0, 1000) }
         ]
       }),
       signal: AbortSignal.timeout(10000)
@@ -95,7 +94,6 @@ async function refineWithQwen(messages, groqKey) {
   } catch { return null; }
 }
 
-// ── Main handler ─────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
@@ -103,7 +101,6 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')   return res.status(405).end();
 
-  // ── IP Rate Limit check ──────────────────────────────────
   const ip = getClientIp(req);
   maybeCleanup();
   const { allowed, remaining, resetIn } = checkRateLimit(ip);
@@ -114,25 +111,21 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // Add remaining count to response headers (useful for debugging)
   res.setHeader('X-RateLimit-Remaining', remaining);
   res.setHeader('X-RateLimit-Limit', RATE_LIMIT);
 
   const { messages, model, chainMode, webMode } = req.body;
 
-  // ── Validate & truncate messages (fixes #4 + #6) ─────────
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'No messages provided.' });
   }
   const safeMessages = truncateMessages(messages);
 
-  // Web Mode: force compound-mini for real-time search
   const selectedModel = webMode
     ? 'groq/compound-mini'
-    : (model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile');
+    : (model || 'llama-3.3-70b-versatile');
   const provider = getProvider(selectedModel);
 
-  // ── Smart Mode: refine prompt with Qwen first ─────────────
   let workingMessages = safeMessages;
   let refinedQuestion = null;
   if (chainMode) {
@@ -183,8 +176,8 @@ module.exports = async function handler(req, res) {
     });
 
     try {
-      const systemMsg    = workingMessages.find(m => m.role === 'system');
-      const convoMsgs    = workingMessages.filter(m => m.role !== 'system');
+      const systemMsg = workingMessages.find(m => m.role === 'system');
+      const convoMsgs = workingMessages.filter(m => m.role !== 'system');
       const body = { model: selectedModel, max_tokens: 2048, messages: convoMsgs };
       if (systemMsg) body.system = systemMsg.content;
 
@@ -215,8 +208,8 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Ollama (local only) ───────────────────────────────────
+  // ── Ollama / Local only ───────────────────────────────────
   return res.json({
-    error: `"${selectedModel}" is a local Ollama model and only works when running locally with npm start.\n\nFor the cloud version, choose a Groq or Claude model from the dropdown.`
+    error: `"${selectedModel}" is a local Ollama model.\n\nThis only works when running locally with npm start.\nFor the cloud version, choose a Groq or Claude model from the dropdown.`
   });
 };
