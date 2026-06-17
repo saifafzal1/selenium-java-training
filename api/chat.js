@@ -1,5 +1,6 @@
-// v2 — updated GROQ_MODELS with current model IDs (2026)
+// v3 — smart provider detection (no hardcoded model list needed)
 // ── IP Rate Limiter (in-memory, per warm instance) ──────────
+// Max 30 requests per IP per hour. Resets automatically.
 const ipWindows    = new Map();
 const RATE_LIMIT   = 30;
 const WINDOW_MS    = 60 * 60 * 1000;
@@ -52,22 +53,15 @@ function truncateMessages(messages) {
 }
 
 // ── Provider detection ───────────────────────────────────────
-// ALL current Groq model IDs (2026). Slash-prefixed IDs are valid Groq identifiers.
-const GROQ_MODELS = new Set([
-  'llama-3.3-70b-versatile',
-  'llama-3.1-8b-instant',
-  'qwen/qwen3-32b',
-  'meta-llama/llama-4-scout-17b-16e-instruct',
-  'openai/gpt-oss-120b',
-  'groq/compound',
-  'groq/compound-mini',
-]);
-
-function getProvider(model) {
-  if (!model) return 'groq'; // default
+// Rule: Ollama models always use "name:tag" format (e.g. gemma3:4b, llama3.2:latest)
+//       Groq models NEVER contain ":" — they use plain IDs or "org/model" format
+//       Claude models start with "claude-"
+// This avoids a hardcoded model list that breaks every time Groq adds/removes models.
+function getProvider(model = '') {
+  if (!model) return 'groq';
   if (model.startsWith('claude-')) return 'anthropic';
-  if (GROQ_MODELS.has(model)) return 'groq';
-  return 'ollama';
+  if (model.includes(':')) return 'ollama';   // Ollama: always name:tag
+  return 'groq';                               // Everything else → Groq
 }
 
 async function refineWithQwen(messages, groqKey) {
@@ -138,7 +132,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Groq ──────────────────────────────────────────────────
+  // ── Groq ──────────────────────────────────────────────────────────────────
   if (provider === 'groq') {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) return res.json({ error: 'GROQ_API_KEY is not set in Vercel Environment Variables.' });
@@ -168,7 +162,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Anthropic / Claude ────────────────────────────────────
+  // ── Anthropic / Claude ────────────────────────────────────────────────────
   if (provider === 'anthropic') {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return res.json({
@@ -208,7 +202,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Ollama / Local only ───────────────────────────────────
+  // ── Ollama / Local only ───────────────────────────────────────────────────
   return res.json({
     error: `"${selectedModel}" is a local Ollama model.\n\nThis only works when running locally with npm start.\nFor the cloud version, choose a Groq or Claude model from the dropdown.`
   });
