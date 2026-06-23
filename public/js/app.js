@@ -1179,18 +1179,27 @@ function toggleSmartMode(on) {
 }
 
 // ── Skill Mode ─────────────────────────────────────────────────
+const SKILL_DESCRIPTIONS = {
+  explain:  '🎓 Patient tutor — explains with analogies & simple code',
+  debug:    '🐛 Expert debugger — root cause analysis + corrected code',
+  generate: '⚙️ Senior engineer — production-ready POM code',
+  quiz:     '🧩 Quiz master — tests your knowledge with 3 questions'
+};
+
 function setSkillMode(skill) {
   state.skillMode = skill;
   localStorage.setItem('skillMode', skill);
   document.querySelectorAll('.skill-btn').forEach(btn =>
     btn.classList.toggle('active', btn.dataset.skill === skill)
   );
+  const desc = document.getElementById('skill-desc');
+  if (desc) desc.textContent = SKILL_DESCRIPTIONS[skill] || '';
   updateQuickPrompts(skill);
   const labels = {
-    explain:  '🎓 Explain Mode — patient tutor',
-    debug:    '🐛 Debug Mode — root cause + fix',
-    generate: '⚙️ Generate Mode — production code',
-    quiz:     '🧩 Quiz Mode — test your knowledge'
+    explain:  '🎓 Explain Mode',
+    debug:    '🐛 Debug Mode',
+    generate: '⚙️ Generate Mode',
+    quiz:     '🧩 Quiz Mode'
   };
   showToast(labels[skill] || 'Skill mode changed', 'success');
 }
@@ -1288,12 +1297,29 @@ function wireEvents() {
     }
   });
 
-  // Skill mode buttons
+  // Feature tray tab switching
+  document.querySelectorAll('.tray-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tray = tab.dataset.tray;
+      document.querySelectorAll('.tray-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tray-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      document.getElementById('tray-' + tray)?.classList.add('active');
+    });
+  });
+
+  // Skill mode buttons (inside tray-skills panel)
   document.querySelectorAll('.skill-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.skill === state.skillMode);
     btn.addEventListener('click', () => setSkillMode(btn.dataset.skill));
   });
-  // Initialize quick prompts for the current skill (no toast on load)
+  // Set initial skill description and quick prompts (no toast on load)
+  const descEl = document.getElementById('skill-desc');
+  if (descEl) descEl.textContent = SKILL_DESCRIPTIONS[state.skillMode] || '';
   updateQuickPrompts(state.skillMode);
 
   // Settings gear button

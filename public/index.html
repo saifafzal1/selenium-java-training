@@ -235,23 +235,68 @@
         • <strong>Generate</strong> test code for your scenarios<br>
         • <strong>Debug</strong> your errors — paste them here<br>
         • <strong>Review</strong> your code and suggest improvements<br><br>
-        Pick a model from the dropdown above:<br>
-        <strong>☁️ Groq</strong> — free &amp; fast cloud models<br>
-        <strong>🤖 Claude</strong> — Anthropic's models (needs API key)<br>
-        <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)
+        Pick a model above, choose a <strong>Skill</strong> below, then ask away!
       </div>
     </div>
+
+    <!-- ── Feature Tray ──────────────────────────────────────── -->
+    <div id="feature-tray">
+      <div class="tray-tabs" role="tablist">
+        <button class="tray-tab active" data-tray="skills"  role="tab" aria-selected="true">✨ Skills</button>
+        <button class="tray-tab"        data-tray="agent"   role="tab" aria-selected="false">🤖 Agent</button>
+        <button class="tray-tab"        data-tray="mcp"     role="tab" aria-selected="false">🔧 MCP</button>
+        <button class="tray-tab"        data-tray="context" role="tab" aria-selected="false">📄 Context</button>
+      </div>
+
+      <!-- Skills panel -->
+      <div class="tray-panel active" id="tray-skills" role="tabpanel">
+        <div class="skill-row">
+          <button class="skill-btn active" data-skill="explain"  title="Patient tutor — explains with analogies and simple code">🎓 Explain</button>
+          <button class="skill-btn"        data-skill="debug"    title="Expert debugger — root cause + corrected code">🐛 Debug</button>
+          <button class="skill-btn"        data-skill="generate" title="Senior engineer — production-ready POM code">⚙️ Generate</button>
+          <button class="skill-btn"        data-skill="quiz"     title="Quiz master — tests your knowledge with 3 questions">🧩 Quiz</button>
+        </div>
+        <div id="skill-desc" class="skill-desc">🎓 Patient tutor — explains with analogies &amp; simple code</div>
+      </div>
+
+      <!-- Agent panel (placeholder) -->
+      <div class="tray-panel" id="tray-agent" role="tabpanel">
+        <div class="tray-placeholder">
+          <div class="placeholder-icon">🤖</div>
+          <div class="placeholder-content">
+            <div class="placeholder-title">Agent Mode <span class="placeholder-badge">Coming soon</span></div>
+            <div class="placeholder-desc">Multi-step AI chains — Refine → Answer → Review. Each step uses a specialised model for higher quality responses.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MCP panel (placeholder) -->
+      <div class="tray-panel" id="tray-mcp" role="tabpanel">
+        <div class="tray-placeholder">
+          <div class="placeholder-icon">🔧</div>
+          <div class="placeholder-content">
+            <div class="placeholder-title">MCP Tools <span class="placeholder-badge">Coming soon</span></div>
+            <div class="placeholder-desc">Connect real tools — code runner, web search, Selenium docs lookup. Tools will appear here once connected.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Context panel (placeholder) -->
+      <div class="tray-panel" id="tray-context" role="tabpanel">
+        <div class="tray-placeholder">
+          <div class="placeholder-icon">📄</div>
+          <div class="placeholder-content">
+            <div class="placeholder-title">Context &amp; MD Files <span class="placeholder-badge">Coming soon</span></div>
+            <div class="placeholder-desc">Upload a custom CLAUDE.md or project instructions to shape every AI response for your specific codebase.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /feature-tray -->
+
     <div id="chat-input-area">
       <div class="chat-context-pill" id="context-pill">📍 No lesson selected</div>
-      <!-- AI Persona / Skill Mode selector -->
-      <div id="skill-mode-bar">
-        <button class="skill-btn active" data-skill="explain" title="Patient tutor — explains with analogies and simple code">🎓 Explain</button>
-        <button class="skill-btn" data-skill="debug"   title="Expert debugger — root cause + corrected code">🐛 Debug</button>
-        <button class="skill-btn" data-skill="generate" title="Senior engineer — production-ready POM code">⚙️ Generate</button>
-        <button class="skill-btn" data-skill="quiz"    title="Quiz master — tests your knowledge with 3 questions">🧩 Quiz</button>
-      </div>
       <div class="quick-prompts" id="quick-prompts">
-        <!-- populated dynamically by updateQuickPrompts() based on skill mode -->
+        <!-- populated dynamically by updateQuickPrompts() -->
       </div>
       <div id="chat-input-row">
         <textarea id="chat-input" rows="1" placeholder="Ask anything about Selenium or Java…" maxlength="3000"></textarea>
