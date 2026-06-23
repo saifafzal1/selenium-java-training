@@ -8,24 +8,199 @@ let state = {
   currentLessonContext: '',
   serverMode: false,   // true when Node server is reachable
   smartMode: false,    // Qwen→model chain mode
-  projectFolder: ''    // saved code destination
+  webMode: false,      // Groq compound web search mode
+  skillMode: 'explain', // AI persona: explain | debug | generate | quiz
+  projectFolder: '',   // saved code destination
+  activeCourse: 'selenium'  // 'selenium' | 'playwright'
 };
+
+// ── Skill Prompts (AI Persona Modes) ───────────────────────────
+const SKILL_PROMPTS = {
+  explain: (ctx, course) =>
+    `You are a patient, encouraging tutor teaching ${course} to a complete beginner.
+Your teaching style:
+- Break every concept into simple numbered steps
+- Use real-world analogies (e.g. "WebDriver is like a remote control for the browser")
+- Always end with a short, runnable code example
+- Never assume prior knowledge; explain jargon before using it
+- Keep answers concise but complete
+${ctx ? `\nYou are currently teaching this lesson:\n${ctx}` : ''}`,
+
+  debug: (ctx, course) =>
+    `You are an expert ${course} debugger and problem-solver.
+When given an error, stack trace, or broken code:
+1. Identify the ROOT CAUSE precisely (be specific)
+2. Explain WHY it happened in plain English
+3. Show the CORRECTED code with inline comments on each fix
+4. Add one "Pro Tip" to prevent this class of error in future
+Use code blocks for all code. Be technically precise.
+${ctx ? `\nCurrent lesson context:\n${ctx}` : ''}`,
+
+  generate: (ctx, course) =>
+    `You are a senior ${course} test automation engineer writing production-ready code.
+Every piece of code you produce:
+- Follows Page Object Model pattern (separate page classes from tests)
+- Uses explicit waits ONLY — never Thread.sleep() or hardcoded delays
+- Has meaningful assertions with clear failure messages
+- Includes JavaDoc/JSDoc comments on public methods
+- Uses TestNG @Test annotations (Java) or describe/it blocks (JS/TS)
+- Is COMPLETE and immediately runnable — no placeholder stubs
+${ctx ? `\nCurrent lesson context:\n${ctx}` : ''}`,
+
+  quiz: (ctx, course) =>
+    `You are an engaging ${course} quiz master testing the student's knowledge.
+When asked about a topic, generate EXACTLY 3 questions:
+  Q1: A conceptual "why/what" question
+  Q2: A "read this code snippet, what happens?" question (include a real snippet)
+  Q3: A practical scenario question ("Given X situation, how would you...")
+Format each question clearly numbered. After the student answers, give enthusiastic, detailed feedback with the correct answer.
+${ctx ? `\nLesson being studied:\n${ctx}` : ''}`
+};
+
+const QUICK_PROMPTS_BY_SKILL = {
+  explain: [
+    { label: 'Explain lesson',    prompt: 'Explain this lesson concept simply, with a real-world analogy' },
+    { label: 'Show code',         prompt: 'Show me a simple, runnable code example for this topic' },
+    { label: 'Why does it exist?',prompt: 'Why do we need this concept? What problem does it solve?' },
+    { label: 'Summarize',         prompt: 'Summarize the key takeaways of this lesson in 5 bullet points' }
+  ],
+  debug: [
+    { label: 'Debug my error',   prompt: 'Here is my error — please diagnose and fix it:\n\n```\n[paste error here]\n```' },
+    { label: 'Common mistakes',  prompt: 'What are the most common mistakes beginners make with this topic?' },
+    { label: 'Why does it fail?',prompt: 'Walk me through common failure points for this type of code' },
+    { label: 'Review my code',   prompt: 'Review this code for bugs and issues:\n\n```java\n[paste code here]\n```' }
+  ],
+  generate: [
+    { label: 'Generate example', prompt: 'Generate a complete, production-ready code example for this topic' },
+    { label: 'POM version',      prompt: 'Generate a full Page Object Model implementation for this scenario' },
+    { label: 'Add proper waits', prompt: 'Rewrite this to use explicit waits correctly — no Thread.sleep' },
+    { label: 'Full test class',  prompt: 'Generate a complete TestNG test class with @BeforeMethod and @AfterMethod' }
+  ],
+  quiz: [
+    { label: 'Quiz me',          prompt: 'Quiz me on this lesson topic with 3 questions' },
+    { label: 'Check my answer',  prompt: 'Is my understanding correct? Here is my explanation:' },
+    { label: 'Interview Qs',     prompt: 'What interview questions could be asked about this topic? Include model answers' },
+    { label: 'Challenge me',     prompt: 'Give me a harder, practical exercise to really test my understanding' }
+  ]
+};
+
+// ── Active curriculum helpers ───────────────────────────────────
+function getActiveCurriculum() {
+  return state.activeCourse === 'playwright' ? PLAYWRIGHT_CURRICULUM : CURRICULUM;
+}
+function getActiveLabs() {
+  return state.activeCourse === 'playwright' ? PLAYWRIGHT_LABS : CURRICULUM_LABS;
+}
+function getProgressKey() {
+  return state.activeCourse === 'playwright'
+    ? 'playwright-training-progress'
+    : 'selenium-training-progress';
+}
+
+// ── Course Switcher ─────────────────────────────────────────────
+function switchCourse(course) {
+  if (state.activeCourse === course) return;
+
+  // Save current progress before switching
+  lsSave(state.progress, state.activeCourse === 'playwright'
+    ? 'playwright-training-progress' : 'selenium-training-progress');
+
+  state.activeCourse = course;
+  localStorage.setItem('activeCourse', course);
+
+  // Update button states
+  document.getElementById('btn-selenium').classList.toggle('active', course === 'selenium');
+  document.getElementById('btn-playwright').classList.toggle('active', course === 'playwright');
+
+  // Update welcome screen content
+  const isPlaywright = course === 'playwright';
+  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : '🚀';
+  document.getElementById('welcome-title').innerHTML = isPlaywright
+    ? 'Playwright —<br><em>From Zero to Expert</em>'
+    : 'Selenium with Java —<br><em>From Zero to Expert</em>';
+  document.getElementById('welcome-desc').textContent = isPlaywright
+    ? 'Modern, fast, and built-in API testing. Learn Playwright from scratch with hands-on exercises, the Request Builder pattern, and CI/CD. The AI assistant is here to help.'
+    : 'Hands-on, practical training with real exercises. Pick a lesson from the sidebar to begin. The AI assistant on the right can explain concepts, debug your code, and generate examples.';
+
+  // Update certificate content
+  document.getElementById('cert-course-title').innerHTML = isPlaywright
+    ? 'Playwright<br><span>Test Automation Training</span>'
+    : 'Selenium with Java<br><span>Test Automation Training</span>';
+  document.getElementById('cert-lessons').textContent = isPlaywright
+    ? '18 Lessons · ~9 Hours'
+    : '17 Lessons · ~8 Hours';
+  document.getElementById('cert-topics').textContent = isPlaywright
+    ? 'JavaScript · Node.js · POM · Fixtures · API Testing · Hybrid Tests · CI/CD · GitHub Actions'
+    : 'Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD';
+
+  // Update chat placeholder
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) chatInput.placeholder = isPlaywright
+    ? 'Ask anything about Playwright or JavaScript…'
+    : 'Ask anything about Selenium or Java…';
+
+  // Update first chat message
+  const firstMsg = document.querySelector('#chat-messages .msg.assistant');
+  if (firstMsg) firstMsg.innerHTML = isPlaywright
+    ? `👋 Hi! I'm your AI coding assistant for Playwright. I can:<br><br>
+      • <strong>Explain</strong> any Playwright/JavaScript concept<br>
+      • <strong>Generate</strong> test code and fixtures<br>
+      • <strong>Debug</strong> your errors — paste them here<br>
+      • <strong>Review</strong> your POM and request builders<br><br>
+      Pick a model above and start asking!`
+    : `👋 Hi! I'm your AI coding assistant. I can:<br><br>
+      • <strong>Explain</strong> any Selenium/Java concept<br>
+      • <strong>Generate</strong> test code for your scenarios<br>
+      • <strong>Debug</strong> your errors — paste them here<br>
+      • <strong>Review</strong> your code and suggest improvements<br><br>
+      Pick a model from the dropdown above:<br>
+      <strong>☁️ Groq</strong> — free &amp; fast cloud models<br>
+      <strong>🤖 Claude</strong> — Anthropic's models (needs API key)<br>
+      <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)`;
+
+  // Load progress for the new course
+  const key = isPlaywright ? 'playwright-training-progress' : 'selenium-training-progress';
+  try { state.progress = JSON.parse(localStorage.getItem(key)) || { completedLessons: [], lastVisited: null, notes: {} }; }
+  catch { state.progress = { completedLessons: [], lastVisited: null, notes: {} }; }
+
+  // Rebuild everything
+  state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
+  state.currentLesson = null;
+  state.currentModule = null;
+
+  document.getElementById('welcome-screen').style.display = '';
+  document.getElementById('lesson-view').style.display    = 'none';
+  document.getElementById('context-pill').textContent     = '📍 No lesson selected';
+
+  buildSidebar();
+  updateProgressUI();
+
+  document.getElementById('stat-total').textContent = state.allLessons.length;
+  document.getElementById('stat-done').textContent  = state.progress.completedLessons.length;
+  const pct = state.allLessons.length
+    ? Math.round(state.progress.completedLessons.length / state.allLessons.length * 100) : 0;
+  document.getElementById('stat-pct').textContent = pct + '%';
+}
 
 // ── Storage helpers (server + localStorage fallback) ──────────
 const LS_KEY = 'selenium-training-progress';
 
-function lsLoad() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || { completedLessons: [], lastVisited: null, notes: {} }; }
+function lsLoad(key) {
+  const k = key || LS_KEY;
+  try { return JSON.parse(localStorage.getItem(k)) || { completedLessons: [], lastVisited: null, notes: {} }; }
   catch { return { completedLessons: [], lastVisited: null, notes: {} }; }
 }
-function lsSave(p) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(p)); } catch {}
+function lsSave(p, key) {
+  const k = key || LS_KEY;
+  try { localStorage.setItem(k, JSON.stringify(p)); } catch {}
 }
 
 // ── Init ───────────────────────────────────────────────────────
 async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
+  state.webMode      = localStorage.getItem('webMode') === 'true';
+  state.skillMode    = localStorage.getItem('skillMode') || 'explain';
   state.projectFolder = localStorage.getItem('projectFolder') || '';
 
   // Detect file:// mode and show banner
@@ -35,10 +210,16 @@ async function init() {
     document.getElementById('app').style.marginTop = '32px';
   }
 
-  // Flatten all lessons
-  state.allLessons = CURRICULUM.flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
+  // Restore active course from localStorage
+  state.activeCourse = localStorage.getItem('activeCourse') || 'selenium';
+  document.getElementById('btn-selenium').classList.toggle('active', state.activeCourse === 'selenium');
+  document.getElementById('btn-playwright').classList.toggle('active', state.activeCourse === 'playwright');
+
+  // Flatten all lessons for active course
+  state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
 
   // Load progress — try server first, fall back to localStorage
+  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : LS_KEY;
   try {
     const res = await fetch('api/progress', { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -46,7 +227,7 @@ async function init() {
       state.serverMode = true;
     } else { throw new Error('not ok'); }
   } catch {
-    state.progress = lsLoad();
+    state.progress = lsLoad(progressKey);
     state.serverMode = false;
   }
 
@@ -81,7 +262,7 @@ function buildSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
 
-  CURRICULUM.forEach(module => {
+  getActiveCurriculum().forEach(module => {
     const group = document.createElement('div');
     group.className = 'module-group';
     group.dataset.moduleId = module.id;
@@ -116,7 +297,7 @@ function buildSidebar() {
     sidebar.appendChild(group);
 
     // Auto-open first module
-    if (module === CURRICULUM[0]) toggleModule(hdr, list);
+    if (module === getActiveCurriculum()[0]) toggleModule(hdr, list);
   });
 }
 
@@ -150,9 +331,14 @@ function showLesson(lesson, module) {
   // Populate header
   document.getElementById('lesson-title').textContent = lesson.title;
   const meta = document.getElementById('lesson-meta');
+  const diffTag = lesson.difficulty
+    ? `<span class="meta-tag diff-${lesson.difficulty}">${lesson.difficulty}</span>` : '';
+  const labTag = lesson.type === 'lab'
+    ? `<span class="meta-tag lab-badge">🔬 Lab Exercise</span>` : '';
   meta.innerHTML = `
     <span class="meta-tag">${module.icon} ${module.title}</span>
-    <span class="meta-tag ${lesson.type === 'practical' ? 'practical' : 'theory'}">${lesson.type}</span>
+    ${labTag || `<span class="meta-tag ${lesson.type === 'practical' ? 'practical' : 'theory'}">${lesson.type}</span>`}
+    ${diffTag}
     <span class="meta-tag">⏱ ${lesson.duration}</span>`;
 
   // Render "What You'll Learn" section if lesson has it
@@ -171,6 +357,14 @@ function showLesson(lesson, module) {
 
   // Render affiliate resources panel
   renderAffiliatePanel(lesson, module);
+
+  // Show/hide Evaluate tab and render rubric for lab lessons
+  const evaluateTab = document.querySelector('.lab-tab[data-tab="evaluate"]');
+  if (evaluateTab) {
+    const isLab = lesson.type === 'lab';
+    evaluateTab.style.display = isLab ? '' : 'none';
+    if (isLab) renderLabEvaluation(lesson);
+  }
 
   // Load notes
   const noteArea = document.getElementById('notes-area');
@@ -362,6 +556,125 @@ function renderExercise(lesson) {
     </p>`;
 }
 
+// ── Lab Evaluation / Rubric ───────────────────────────────────
+function renderLabEvaluation(lesson) {
+  const container = document.getElementById('evaluate-content');
+  if (!lesson.rubric) { container.innerHTML = ''; return; }
+
+  const rubric = lesson.rubric;
+  const savedKey = 'rubric_' + lesson.id;
+  const saved = JSON.parse(localStorage.getItem(savedKey) || '{}');
+
+  // Compute score from saved checks
+  function computeScore(checks) {
+    return rubric.criteria.reduce((sum, c) => sum + (checks[c.id] ? c.points : 0), 0);
+  }
+
+  function levelBadge(pct) {
+    if (pct >= 90) return { label: '🏆 Expert',        cls: 'level-expert' };
+    if (pct >= 80) return { label: '🥇 Advanced',      cls: 'level-advanced' };
+    if (pct >= 60) return { label: '⚡ Intermediate',  cls: 'level-intermediate' };
+    if (pct >= 40) return { label: '📈 Developing',    cls: 'level-developing' };
+    return             { label: '🌱 Beginner',         cls: 'level-beginner' };
+  }
+
+  function renderPanel(checks) {
+    const score = computeScore(checks);
+    const pct   = Math.round(score / rubric.totalPoints * 100);
+    const { label, cls } = levelBadge(pct);
+
+    // Capstone totals across all labs
+    const labIds = ['lab1','lab2','lab3','lab4','lab5'];
+    const labTotals = { lab1:20, lab2:20, lab3:25, lab4:20, lab5:30 };
+    let totalEarned = 0, totalPossible = 0;
+    labIds.forEach(id => {
+      const k = JSON.parse(localStorage.getItem('rubric_' + id) || '{}');
+      const lab = CURRICULUM.find(m => m.id === 'module-7')
+                            ?.lessons.find(l => l.id === id);
+      if (!lab || !lab.rubric) return;
+      totalPossible += lab.rubric.totalPoints;
+      totalEarned   += lab.rubric.criteria.reduce((s, c) => s + (k[c.id] ? c.points : 0), 0);
+    });
+    const overallPct = totalPossible > 0 ? Math.round(totalEarned / totalPossible * 100) : 0;
+    const overall    = levelBadge(overallPct);
+
+    container.innerHTML = `
+      <div class="eval-wrap">
+
+        <div class="eval-header">
+          <div>
+            <div class="eval-title">🏆 Self-Assessment Rubric</div>
+            <div class="eval-sub">${lesson.title}</div>
+          </div>
+          <div class="eval-score-badge ${cls}">${label}</div>
+        </div>
+
+        <div class="eval-score-bar-wrap">
+          <div class="eval-score-bar-track">
+            <div class="eval-score-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="eval-score-text">${score} / ${rubric.totalPoints} pts &nbsp;(${pct}%)</div>
+        </div>
+
+        <p class="eval-instruction">Check each criterion you have <strong>fully met</strong> in your implementation. Be honest — this is for your own learning.</p>
+
+        <div class="eval-criteria">
+          ${rubric.criteria.map(c => `
+            <label class="eval-criterion ${checks[c.id] ? 'checked' : ''}" data-id="${c.id}">
+              <input type="checkbox" class="eval-cb" data-id="${c.id}" data-pts="${c.points}" ${checks[c.id] ? 'checked' : ''}/>
+              <div class="eval-criterion-body">
+                <span class="eval-criterion-label">${escHtml(c.label)}</span>
+                <span class="eval-pts-badge">+${c.points} pts</span>
+              </div>
+            </label>`).join('')}
+        </div>
+
+        <div class="eval-divider"></div>
+
+        <div class="eval-overall">
+          <div class="eval-overall-title">📊 Capstone Overall Progress</div>
+          <div class="eval-overall-bar-wrap">
+            <div class="eval-overall-bar-track">
+              <div class="eval-overall-bar-fill" style="width:${overallPct}%"></div>
+            </div>
+            <div class="eval-score-text">${totalEarned} / ${totalPossible} pts across all labs &nbsp;(${overallPct}%)</div>
+          </div>
+          <div class="eval-overall-badge ${overall.cls}">${overall.label}</div>
+          <div class="eval-level-legend">
+            <span class="lvl level-beginner">🌱 Beginner &lt;40%</span>
+            <span class="lvl level-developing">📈 Developing 40–59%</span>
+            <span class="lvl level-intermediate">⚡ Intermediate 60–79%</span>
+            <span class="lvl level-advanced">🥇 Advanced 80–89%</span>
+            <span class="lvl level-expert">🏆 Expert 90–100%</span>
+          </div>
+        </div>
+
+        <div class="eval-footer">
+          <button class="btn btn-ghost eval-reset-btn" onclick="resetLabRubric('${lesson.id}')">↺ Reset Checklist</button>
+          <span style="color:var(--text3);font-size:12px">Scores saved in your browser · Ask the AI to review your code for deeper feedback</span>
+        </div>
+      </div>`;
+
+    // Attach checkbox listeners after render
+    container.querySelectorAll('.eval-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id  = cb.dataset.id;
+        checks[id] = cb.checked;
+        localStorage.setItem(savedKey, JSON.stringify(checks));
+        renderPanel(checks);          // re-render with updated scores
+      });
+    });
+  }
+
+  renderPanel({ ...saved });
+}
+
+window.resetLabRubric = function(lessonId) {
+  localStorage.removeItem('rubric_' + lessonId);
+  const lesson = state.currentLesson;
+  if (lesson && lesson.id === lessonId) renderLabEvaluation(lesson);
+};
+
 // ── Affiliate Resources Panel ──────────────────────────────────
 function renderAffiliatePanel(lesson, module) {
   // Remove existing panel if any
@@ -491,7 +804,7 @@ async function saveProgress(payload) {
   if (payload.note) state.progress.notes[payload.note.lessonId] = payload.note.text;
 
   // Always persist to localStorage as backup
-  lsSave(state.progress);
+  lsSave(state.progress, getProgressKey());
 
   // Also try server if available
   if (state.serverMode) {
@@ -504,7 +817,7 @@ async function saveProgress(payload) {
       if (res.ok) {
         const data = await res.json();
         state.progress = data.progress;
-        lsSave(state.progress);
+        lsSave(state.progress, getProgressKey());
       }
     } catch { state.serverMode = false; }
   }
@@ -524,8 +837,33 @@ function navigateRelative(delta) {
 let chatHistory = [];
 let isChatting  = false;
 
+// ── Client-side guards (fixes #4 + #5) ───────────────────────
+const CHAT_MAX_CHARS    = 3000;   // max chars per message
+const CHAT_SESSION_WARN = 20;     // warn after this many messages
+const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString(); // resets daily
+
+function getChatCount()  { return parseInt(localStorage.getItem(CHAT_SESSION_KEY) || '0', 10); }
+function incChatCount()  { localStorage.setItem(CHAT_SESSION_KEY, getChatCount() + 1); }
+
 async function sendMessage(userText) {
   if (!userText.trim() || isChatting) return;
+
+  // Fix #4 — hard cap on message length
+  if (userText.length > CHAT_MAX_CHARS) {
+    appendMessage('assistant',
+      `⚠️ Your message is **${userText.length} characters** — the limit is ${CHAT_MAX_CHARS}.\n\nPlease shorten your message. For large code pastes, paste only the relevant section and describe the rest.`
+    );
+    return;
+  }
+
+  // Fix #5 — per-session counter with warning
+  const count = getChatCount();
+  if (count >= CHAT_SESSION_WARN && count % 10 === 0) {
+    appendMessage('assistant',
+      `💡 **Heads-up:** You've sent **${count} messages** today. The server allows up to 30 per hour per user.\n\nFor unlimited usage, switch to a **local Ollama model** in the ⚙️ settings.`
+    );
+  }
+
   isChatting = true;
 
   const sendBtn = document.getElementById('chat-send');
@@ -535,19 +873,26 @@ async function sendMessage(userText) {
   document.getElementById('chat-input').value = '';
   autoResizeTextarea(document.getElementById('chat-input'));
 
-  // Build system prompt with lesson context
-  const systemPrompt = `You are an expert Selenium with Java tutor. You help beginners learn test automation step by step.
-Be concise, practical, and always include runnable Java code examples when relevant.
-Use code blocks with java syntax highlighting.
-${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
+  // Build system prompt using active skill persona
+  const course = state.activeCourse === 'playwright'
+    ? 'Playwright (TypeScript/JavaScript)'
+    : 'Selenium with Java';
+  const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
+  const systemPrompt = skillFn(state.currentLessonContext, course);
 
   chatHistory.push({ role: 'user', content: userText });
 
   const model = document.getElementById('model-select').value;
 
-  // Smart Mode status message (shown before answer)
+  // Status message (Smart Mode or Web Mode)
   let chainStatusEl = null;
-  if (state.smartMode) {
+  if (state.webMode) {
+    chainStatusEl = document.createElement('div');
+    chainStatusEl.className = 'msg assistant chain-status';
+    chainStatusEl.innerHTML = '🌐 <em>Searching the web for current information…</em>';
+    document.getElementById('chat-messages').appendChild(chainStatusEl);
+    scrollChat();
+  } else if (state.smartMode) {
     chainStatusEl = document.createElement('div');
     chainStatusEl.className = 'msg assistant chain-status';
     chainStatusEl.innerHTML = '🔄 <em>Refining your question with Qwen…</em>';
@@ -569,6 +914,7 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
       body: JSON.stringify({
         model,
         chainMode: state.smartMode,
+        webMode: state.webMode,
         messages: [
           { role: 'system', content: systemPrompt },
           ...chatHistory.slice(-10)
@@ -587,9 +933,11 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
 
     const data = await res.json();
 
-    // Update chain status with refined question (or remove it)
+    // Update status message
     if (chainStatusEl) {
-      if (data.refinedQuestion) {
+      if (data.webSearchUsed) {
+        chainStatusEl.innerHTML = `🌐 <strong>Web searched</strong> — answer includes real-time data`;
+      } else if (data.refinedQuestion) {
         chainStatusEl.innerHTML = `🔍 <strong>Refined:</strong> <em>${escHtml(data.refinedQuestion)}</em>`;
       } else {
         chainStatusEl.remove();
@@ -602,6 +950,7 @@ ${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
       msgEl.className = 'msg error';
       msgEl.innerHTML = '⚠️ ' + escHtml(data.error);
     } else {
+      incChatCount(); // fix #5 — only count successful responses
       const assistantText = data.content || '';
       chatHistory.push({ role: 'assistant', content: assistantText });
       const msgEl = appendMessage('assistant', '');
@@ -829,6 +1178,38 @@ function toggleSmartMode(on) {
   if (btn) btn.classList.toggle('active', on);
 }
 
+// ── Skill Mode ─────────────────────────────────────────────────
+function setSkillMode(skill) {
+  state.skillMode = skill;
+  localStorage.setItem('skillMode', skill);
+  document.querySelectorAll('.skill-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.skill === skill)
+  );
+  updateQuickPrompts(skill);
+  const labels = {
+    explain:  '🎓 Explain Mode — patient tutor',
+    debug:    '🐛 Debug Mode — root cause + fix',
+    generate: '⚙️ Generate Mode — production code',
+    quiz:     '🧩 Quiz Mode — test your knowledge'
+  };
+  showToast(labels[skill] || 'Skill mode changed', 'success');
+}
+
+function updateQuickPrompts(skill) {
+  const container = document.getElementById('quick-prompts');
+  if (!container) return;
+  const prompts = QUICK_PROMPTS_BY_SKILL[skill] || QUICK_PROMPTS_BY_SKILL.explain;
+  container.innerHTML = prompts.map(p =>
+    `<div class="quick-prompt" data-prompt="${escHtml(p.prompt)}">${escHtml(p.label)}</div>`
+  ).join('');
+  container.querySelectorAll('.quick-prompt').forEach(qp => {
+    qp.addEventListener('click', () => {
+      const lessonSuffix = state.currentLessonContext ? ` (Lesson: ${state.currentLesson?.title})` : '';
+      sendMessage(qp.dataset.prompt + lessonSuffix);
+    });
+  });
+}
+
 // ── Wire Events ────────────────────────────────────────────────
 function wireEvents() {
   // Tab clicks
@@ -864,7 +1245,7 @@ function wireEvents() {
   document.getElementById('reset-btn').addEventListener('click', async () => {
     if (!confirm('Reset all progress? This cannot be undone.')) return;
     state.progress = { completedLessons: [], lastVisited: null, notes: {} };
-    lsSave(state.progress);
+    lsSave(state.progress, getProgressKey());
     if (state.serverMode) {
       await fetch('api/progress', {
         method: 'POST',
@@ -896,15 +1277,24 @@ function wireEvents() {
     }
   });
 
-  document.getElementById('chat-input').addEventListener('input', e => autoResizeTextarea(e.target));
-
-  // Quick prompts
-  document.querySelectorAll('.quick-prompt').forEach(qp => {
-    qp.addEventListener('click', () => {
-      const prompt = qp.dataset.prompt + (state.currentLessonContext ? ` (Lesson: ${state.currentLesson?.title})` : '');
-      sendMessage(prompt);
-    });
+  document.getElementById('chat-input').addEventListener('input', e => {
+    autoResizeTextarea(e.target);
+    // Fix #4 — live character counter
+    const len     = e.target.value.length;
+    const counter = document.getElementById('chat-char-counter');
+    if (counter) {
+      counter.textContent = `${len} / ${CHAT_MAX_CHARS}`;
+      counter.style.color = len > CHAT_MAX_CHARS * 0.9 ? '#e74c3c' : '#9BA8BB';
+    }
   });
+
+  // Skill mode buttons
+  document.querySelectorAll('.skill-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.skill === state.skillMode);
+    btn.addEventListener('click', () => setSkillMode(btn.dataset.skill));
+  });
+  // Initialize quick prompts for the current skill (no toast on load)
+  updateQuickPrompts(state.skillMode);
 
   // Settings gear button
   document.getElementById('settings-btn').addEventListener('click', openSettings);
@@ -920,6 +1310,18 @@ function wireEvents() {
       const cb = document.getElementById('smart-mode-checkbox');
       if (cb) { cb.checked = state.smartMode; document.getElementById('smart-mode-status-text').textContent = state.smartMode ? 'On' : 'Off'; }
       showToast(state.smartMode ? '⚡ Smart Mode ON — Qwen will refine your questions' : '⚡ Smart Mode OFF', state.smartMode ? 'success' : 'info');
+    });
+  }
+
+  // Web Mode header button
+  const webBtn = document.getElementById('web-mode-btn');
+  if (webBtn) {
+    webBtn.classList.toggle('active', state.webMode);
+    webBtn.addEventListener('click', () => {
+      state.webMode = !state.webMode;
+      localStorage.setItem('webMode', state.webMode);
+      webBtn.classList.toggle('active', state.webMode);
+      showToast(state.webMode ? '🌐 Web Mode ON — answers will use real-time search' : '🌐 Web Mode OFF', state.webMode ? 'success' : 'info');
     });
   }
 
