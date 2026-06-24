@@ -9,8 +9,79 @@ let state = {
   serverMode: false,   // true when Node server is reachable
   smartMode: false,    // Qwen→model chain mode
   webMode: false,      // Groq compound web search mode
+  skillMode: 'explain', // AI persona: explain | debug | generate | quiz
   projectFolder: '',   // saved code destination
   activeCourse: 'selenium'  // 'selenium' | 'playwright'
+};
+
+// ── Skill Prompts (AI Persona Modes) ───────────────────────────
+const SKILL_PROMPTS = {
+  explain: (ctx, course) =>
+    `You are a patient, encouraging tutor teaching ${course} to a complete beginner.
+Your teaching style:
+- Break every concept into simple numbered steps
+- Use real-world analogies (e.g. "WebDriver is like a remote control for the browser")
+- Always end with a short, runnable code example
+- Never assume prior knowledge; explain jargon before using it
+- Keep answers concise but complete
+${ctx ? `\nYou are currently teaching this lesson:\n${ctx}` : ''}`,
+
+  debug: (ctx, course) =>
+    `You are an expert ${course} debugger and problem-solver.
+When given an error, stack trace, or broken code:
+1. Identify the ROOT CAUSE precisely (be specific)
+2. Explain WHY it happened in plain English
+3. Show the CORRECTED code with inline comments on each fix
+4. Add one "Pro Tip" to prevent this class of error in future
+Use code blocks for all code. Be technically precise.
+${ctx ? `\nCurrent lesson context:\n${ctx}` : ''}`,
+
+  generate: (ctx, course) =>
+    `You are a senior ${course} test automation engineer writing production-ready code.
+Every piece of code you produce:
+- Follows Page Object Model pattern (separate page classes from tests)
+- Uses explicit waits ONLY — never Thread.sleep() or hardcoded delays
+- Has meaningful assertions with clear failure messages
+- Includes JavaDoc/JSDoc comments on public methods
+- Uses TestNG @Test annotations (Java) or describe/it blocks (JS/TS)
+- Is COMPLETE and immediately runnable — no placeholder stubs
+${ctx ? `\nCurrent lesson context:\n${ctx}` : ''}`,
+
+  quiz: (ctx, course) =>
+    `You are an engaging ${course} quiz master testing the student's knowledge.
+When asked about a topic, generate EXACTLY 3 questions:
+  Q1: A conceptual "why/what" question
+  Q2: A "read this code snippet, what happens?" question (include a real snippet)
+  Q3: A practical scenario question ("Given X situation, how would you...")
+Format each question clearly numbered. After the student answers, give enthusiastic, detailed feedback with the correct answer.
+${ctx ? `\nLesson being studied:\n${ctx}` : ''}`
+};
+
+const QUICK_PROMPTS_BY_SKILL = {
+  explain: [
+    { label: 'Explain lesson',    prompt: 'Explain this lesson concept simply, with a real-world analogy' },
+    { label: 'Show code',         prompt: 'Show me a simple, runnable code example for this topic' },
+    { label: 'Why does it exist?',prompt: 'Why do we need this concept? What problem does it solve?' },
+    { label: 'Summarize',         prompt: 'Summarize the key takeaways of this lesson in 5 bullet points' }
+  ],
+  debug: [
+    { label: 'Debug my error',   prompt: 'Here is my error — please diagnose and fix it:\n\n```\n[paste error here]\n```' },
+    { label: 'Common mistakes',  prompt: 'What are the most common mistakes beginners make with this topic?' },
+    { label: 'Why does it fail?',prompt: 'Walk me through common failure points for this type of code' },
+    { label: 'Review my code',   prompt: 'Review this code for bugs and issues:\n\n```java\n[paste code here]\n```' }
+  ],
+  generate: [
+    { label: 'Generate example', prompt: 'Generate a complete, production-ready code example for this topic' },
+    { label: 'POM version',      prompt: 'Generate a full Page Object Model implementation for this scenario' },
+    { label: 'Add proper waits', prompt: 'Rewrite this to use explicit waits correctly — no Thread.sleep' },
+    { label: 'Full test class',  prompt: 'Generate a complete TestNG test class with @BeforeMethod and @AfterMethod' }
+  ],
+  quiz: [
+    { label: 'Quiz me',          prompt: 'Quiz me on this lesson topic with 3 questions' },
+    { label: 'Check my answer',  prompt: 'Is my understanding correct? Here is my explanation:' },
+    { label: 'Interview Qs',     prompt: 'What interview questions could be asked about this topic? Include model answers' },
+    { label: 'Challenge me',     prompt: 'Give me a harder, practical exercise to really test my understanding' }
+  ]
 };
 
 // ── Active curriculum helpers ───────────────────────────────────
@@ -26,7 +97,7 @@ function getProgressKey() {
     : 'selenium-training-progress';
 }
 
-// ── Course Switcher ───────────────────────────────────────────
+// ── Course Switcher ─────────────────────────────────────────────
 function switchCourse(course) {
   if (state.activeCourse === course) return;
 
@@ -111,7 +182,7 @@ function switchCourse(course) {
   document.getElementById('stat-pct').textContent = pct + '%';
 }
 
-// ── Storage helpers (server + localStorage fallback) ────────────
+// ── Storage helpers (server + localStorage fallback) ──────────
 const LS_KEY = 'selenium-training-progress';
 
 function lsLoad(key) {
@@ -129,6 +200,7 @@ async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
   state.webMode      = localStorage.getItem('webMode') === 'true';
+  state.skillMode    = localStorage.getItem('skillMode') || 'explain';
   state.projectFolder = localStorage.getItem('projectFolder') || '';
 
   // Detect file:// mode and show banner
@@ -332,7 +404,7 @@ function renderWhatYoullLearn(lesson) {
   lessonContent.parentNode.insertBefore(panel, lessonContent);
 }
 
-// ── Quiz ────────────────────────────────────────────────────
+// ── Quiz ──────────────────────────────────────────────────────
 function renderQuiz(lesson) {
   const container = document.getElementById('quiz-content');
   if (!lesson.quiz || !lesson.quiz.length) {
@@ -484,7 +556,7 @@ function renderExercise(lesson) {
     </p>`;
 }
 
-// ── Lab Evaluation / Rubric ────────────────────────────────────
+// ── Lab Evaluation / Rubric ───────────────────────────────────
 function renderLabEvaluation(lesson) {
   const container = document.getElementById('evaluate-content');
   if (!lesson.rubric) { container.innerHTML = ''; return; }
@@ -765,7 +837,7 @@ function navigateRelative(delta) {
 let chatHistory = [];
 let isChatting  = false;
 
-// ── Client-side guards (fixes #4 + #5) ─────────────────────
+// ── Client-side guards (fixes #4 + #5) ───────────────────────
 const CHAT_MAX_CHARS    = 3000;   // max chars per message
 const CHAT_SESSION_WARN = 20;     // warn after this many messages
 const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString(); // resets daily
@@ -801,11 +873,12 @@ async function sendMessage(userText) {
   document.getElementById('chat-input').value = '';
   autoResizeTextarea(document.getElementById('chat-input'));
 
-  // Build system prompt with lesson context
-  const systemPrompt = `You are an expert Selenium with Java tutor. You help beginners learn test automation step by step.
-Be concise, practical, and always include runnable Java code examples when relevant.
-Use code blocks with java syntax highlighting.
-${state.currentLessonContext ? '\n' + state.currentLessonContext : ''}`;
+  // Build system prompt using active skill persona
+  const course = state.activeCourse === 'playwright'
+    ? 'Playwright (TypeScript/JavaScript)'
+    : 'Selenium with Java';
+  const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
+  const systemPrompt = skillFn(state.currentLessonContext, course);
 
   chatHistory.push({ role: 'user', content: userText });
 
@@ -926,7 +999,7 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Health & Provider Status ───────────────────────────────
+// ── Health & Provider Status ──────────────────────────────────
 async function checkHealth() {
   const dot = document.getElementById('ollama-status');
   try {
@@ -970,7 +1043,7 @@ function autoResizeTextarea(el) {
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ── Toast Notifications ──────────────────────────────────────────
+// ── Toast Notifications ────────────────────────────────────────
 function showToast(message, type = 'success', action = null) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -1038,7 +1111,7 @@ async function saveToProject(code) {
   }
 }
 
-// ── Settings Panel ──────────────────────────────────────────────────
+// ── Settings Panel ─────────────────────────────────────────────
 function openSettings() {
   const panel   = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
@@ -1105,7 +1178,107 @@ function toggleSmartMode(on) {
   if (btn) btn.classList.toggle('active', on);
 }
 
-// ── Wire Events ──────────────────────────────────────────────────────
+// ── Skill Mode ─────────────────────────────────────────────────
+const SKILL_DESCRIPTIONS = {
+  explain:  '🎓 Patient tutor — explains with analogies & simple code',
+  debug:    '🐛 Expert debugger — root cause analysis + corrected code',
+  generate: '⚙️ Senior engineer — production-ready POM code',
+  quiz:     '🧩 Quiz master — tests your knowledge with 3 questions'
+};
+
+// Help anchors for each skill mode in help.html
+const SKILL_HELP_ANCHORS = {
+  explain:  '#skill-explain',
+  debug:    '#skill-debug',
+  generate: '#skill-generate',
+  quiz:     '#skill-quiz'
+};
+
+// Intro messages shown in chat when a skill is activated
+const SKILL_INTRO_MESSAGES = {
+  explain: `🎓 **Explain Mode** activated!
+
+I'll act as your patient tutor — breaking concepts into simple steps, using real-world analogies, and always ending with a working code example.
+
+**Try asking:**
+- *"Explain WebDriver waits with a real example"*
+- *"What is Page Object Model and why use it?"*
+- *"Walk me through how locators work in Selenium"*
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-explain)`,
+
+  debug: `🐛 **Debug Mode** activated!
+
+I'll act as your expert debugger — finding the root cause of errors, explaining *why* they happen, and giving you corrected code with inline comments.
+
+**Try asking:**
+- *"Fix this error: NoSuchElementException on findElement"*
+- *"My test passes locally but fails in CI — why?"*
+- Paste any stack trace or broken code and I'll diagnose it
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-debug)`,
+
+  generate: `⚙️ **Generate Mode** activated!
+
+I'll act as a senior engineer — writing production-ready, POM-structured Selenium code you can drop straight into your framework.
+
+**Try asking:**
+- *"Generate a LoginPage class using Page Object Model"*
+- *"Write a DriverFactory with ChromeOptions for headless mode"*
+- *"Create a TestNG data provider test for a login form"*
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-generate)`,
+
+  quiz: `🧩 **Quiz Mode** activated!
+
+I'll test your knowledge with 3 targeted questions on the current lesson — multiple choice or short answer. Answer them and I'll give you feedback and explanations.
+
+**Try asking:**
+- *"Quiz me on WebDriver locators"*
+- *"Test my understanding of explicit vs implicit waits"*
+- *"Give me 3 questions on Page Object Model"*
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-quiz)`
+};
+
+function setSkillMode(skill) {
+  state.skillMode = skill;
+  localStorage.setItem('skillMode', skill);
+  document.querySelectorAll('.skill-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.skill === skill)
+  );
+  const desc = document.getElementById('skill-desc');
+  if (desc) desc.textContent = SKILL_DESCRIPTIONS[skill] || '';
+  updateQuickPrompts(skill);
+  const labels = {
+    explain:  '🎓 Explain Mode',
+    debug:    '🐛 Debug Mode',
+    generate: '⚙️ Generate Mode',
+    quiz:     '🧩 Quiz Mode'
+  };
+  showToast(labels[skill] || 'Skill mode changed', 'success');
+
+  // Show contextual intro message in chat with help link
+  const intro = SKILL_INTRO_MESSAGES[skill];
+  if (intro) appendMessage('assistant', intro);
+}
+
+function updateQuickPrompts(skill) {
+  const container = document.getElementById('quick-prompts');
+  if (!container) return;
+  const prompts = QUICK_PROMPTS_BY_SKILL[skill] || QUICK_PROMPTS_BY_SKILL.explain;
+  container.innerHTML = prompts.map(p =>
+    `<div class="quick-prompt" data-prompt="${escHtml(p.prompt)}">${escHtml(p.label)}</div>`
+  ).join('');
+  container.querySelectorAll('.quick-prompt').forEach(qp => {
+    qp.addEventListener('click', () => {
+      const lessonSuffix = state.currentLessonContext ? ` (Lesson: ${state.currentLesson?.title})` : '';
+      sendMessage(qp.dataset.prompt + lessonSuffix);
+    });
+  });
+}
+
+// ── Wire Events ────────────────────────────────────────────────
 function wireEvents() {
   // Tab clicks
   document.querySelectorAll('.tab').forEach(tab => {
@@ -1183,13 +1356,35 @@ function wireEvents() {
     }
   });
 
-  // Quick prompts
-  document.querySelectorAll('.quick-prompt').forEach(qp => {
-    qp.addEventListener('click', () => {
-      const prompt = qp.dataset.prompt + (state.currentLessonContext ? ` (Lesson: ${state.currentLesson?.title})` : '');
-      sendMessage(prompt);
+  // Feature tray tab switching
+  document.querySelectorAll('.tray-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tray = tab.dataset.tray;
+      document.querySelectorAll('.tray-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tray-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      document.getElementById('tray-' + tray)?.classList.add('active');
     });
   });
+
+  // Skill mode buttons (inside tray-skills panel)
+  document.querySelectorAll('.skill-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.skill === state.skillMode);
+    btn.addEventListener('click', () => setSkillMode(btn.dataset.skill));
+  });
+  // Set initial skill description and quick prompts (no toast on load)
+  const descEl = document.getElementById('skill-desc');
+  if (descEl) descEl.textContent = SKILL_DESCRIPTIONS[state.skillMode] || '';
+  updateQuickPrompts(state.skillMode);
+
+  // Feedback button
+  const feedbackBtn = document.getElementById('feedback-btn');
+  if (feedbackBtn) feedbackBtn.addEventListener('click', openFeedback);
+  wireFeedbackStars();
 
   // Settings gear button
   document.getElementById('settings-btn').addEventListener('click', openSettings);
@@ -1340,5 +1535,83 @@ function highlightJava() {
   });
 }
 
-// ── Boot ──────────────────────────────────────────────────────────
+// ── Feedback Modal ─────────────────────────────────────────────
+let feedbackRating = 0;
+
+const RATING_LABELS = ['', 'Poor 😕', 'Fair 😐', 'Good 🙂', 'Great 😊', 'Excellent! 🤩'];
+
+function openFeedback() {
+  feedbackRating = 0;
+  document.getElementById('feedback-comment').value = '';
+  document.getElementById('feedback-char-count').textContent = '0 / 500';
+  document.getElementById('feedback-rating-label').textContent = 'Tap a star to rate';
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('selected', 'hovered'));
+  document.getElementById('feedback-submit-btn').disabled = true;
+  document.getElementById('feedback-overlay').style.display = 'block';
+  document.getElementById('feedback-modal').style.display = 'block';
+}
+
+function closeFeedback() {
+  document.getElementById('feedback-overlay').style.display = 'none';
+  document.getElementById('feedback-modal').style.display  = 'none';
+}
+
+function wireFeedbackStars() {
+  const stars = document.querySelectorAll('.star-btn');
+  stars.forEach(btn => {
+    const val = Number(btn.dataset.value);
+
+    btn.addEventListener('mouseover', () => {
+      stars.forEach(b => b.classList.toggle('hovered', Number(b.dataset.value) <= val));
+    });
+    btn.addEventListener('mouseout', () => {
+      stars.forEach(b => b.classList.remove('hovered'));
+    });
+    btn.addEventListener('click', () => {
+      feedbackRating = val;
+      stars.forEach(b => b.classList.toggle('selected', Number(b.dataset.value) <= val));
+      document.getElementById('feedback-rating-label').textContent = RATING_LABELS[val] || '';
+      document.getElementById('feedback-submit-btn').disabled = false;
+    });
+  });
+
+  document.getElementById('feedback-comment').addEventListener('input', e => {
+    const len = e.target.value.length;
+    document.getElementById('feedback-char-count').textContent = `${len} / 500`;
+  });
+}
+
+async function submitFeedback() {
+  if (!feedbackRating) return;
+  const btn = document.getElementById('feedback-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const payload = {
+    rating:      feedbackRating,
+    comment:     document.getElementById('feedback-comment').value.trim(),
+    lessonTitle: state.currentLesson?.title || null,
+    lessonId:    state.currentLesson?.id    || null,
+    skillMode:   state.skillMode,
+    model:       document.getElementById('model-select')?.value || 'unknown'
+  };
+
+  try {
+    const res = await fetch('/api/feedback', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    closeFeedback();
+    showToast('⭐ Thanks for your feedback!', 'success');
+  } catch (err) {
+    showToast(`❌ Feedback failed: ${err.message}`, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Send Feedback';
+  }
+}
+
+// ── Boot ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', init);

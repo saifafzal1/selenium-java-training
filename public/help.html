@@ -216,6 +216,7 @@
     <div class="quick-links">
       <a href="#getting-started" class="quick-link">🚀 Getting Started</a>
       <a href="#ai-chat" class="quick-link">🤖 AI Chat</a>
+      <a href="#skill-modes" class="quick-link">✨ Skill Modes</a>
       <a href="#vscode" class="quick-link">💻 VSCode Workflow</a>
       <a href="#rag" class="quick-link">📚 Local RAG</a>
       <a href="#models" class="quick-link">⚙️ AI Models</a>
@@ -231,6 +232,11 @@
       <a href="#getting-started">Getting Started</a>
       <a href="#course-structure">Course Structure</a>
       <a href="#ai-chat">AI Chat Assistant</a>
+      <a href="#skill-modes">✨ Skill Modes</a>
+      <a href="#skill-explain">&nbsp;&nbsp;↳ Explain</a>
+      <a href="#skill-debug">&nbsp;&nbsp;↳ Debug</a>
+      <a href="#skill-generate">&nbsp;&nbsp;↳ Generate</a>
+      <a href="#skill-quiz">&nbsp;&nbsp;↳ Quiz</a>
       <a href="#vscode">VSCode Integration</a>
       <a href="#rag">Local RAG (Offline AI)</a>
       <a href="#models">Choosing an AI Model</a>
@@ -370,6 +376,295 @@ node server.js
           <div class="callout-icon">💬</div>
           <div class="callout-body">
             <p><strong>Pro tip:</strong> Paste your code into the chat and say <em>"review this"</em> or <em>"why doesn't this work?"</em>. The AI will debug it and suggest fixes. You can also ask it to rewrite with better practices after each lesson.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Skill Modes ────────────────────────────────── -->
+      <section class="section" id="skill-modes">
+        <div class="section-label">Section 3.5</div>
+        <h2>✨ AI Skill Modes</h2>
+        <p class="section-intro">Skill Modes let you switch the AI's persona to match exactly what you need — a patient tutor, an expert debugger, a code generator, or a quiz master. Select a skill in the <strong>Skills</strong> tray below the chat.</p>
+
+        <div class="cards" style="margin-bottom:32px">
+          <div class="card" style="border-left:3px solid var(--accent)">
+            <div class="card-icon">🎓</div>
+            <h3><a href="#skill-explain" style="color:inherit;text-decoration:none">Explain Mode</a></h3>
+            <p>Patient tutor that breaks concepts into numbered steps, uses analogies, and always ends with a working code example.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #ef4444">
+            <div class="card-icon">🐛</div>
+            <h3><a href="#skill-debug" style="color:inherit;text-decoration:none">Debug Mode</a></h3>
+            <p>Expert debugger that finds root causes, explains why errors happen, and shows corrected code with inline comments.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #10b981">
+            <div class="card-icon">⚙️</div>
+            <h3><a href="#skill-generate" style="color:inherit;text-decoration:none">Generate Mode</a></h3>
+            <p>Senior engineer that writes production-ready, POM-structured Selenium code ready to drop into your framework.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #f59e0b">
+            <div class="card-icon">🧩</div>
+            <h3><a href="#skill-quiz" style="color:inherit;text-decoration:none">Quiz Mode</a></h3>
+            <p>Quiz master that tests your understanding with 3 targeted questions and gives detailed feedback on your answers.</p>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>How to switch:</strong> Open the AI Chat panel → click the <strong>Skills</strong> tab → click any skill button. A message appears in chat with example prompts and a direct link back to this guide.</p>
+          </div>
+        </div>
+
+        <!-- ── Explain ── -->
+        <h3 id="skill-explain" style="margin:40px 0 16px;font-size:20px;scroll-margin-top:80px">🎓 Explain Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: understanding a new concept, getting a plain-English definition, seeing how something works with analogies.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Explain Mode</h3>
+              <p>Open the chat panel → <strong>Skills</strong> tab → click <strong>🎓 Explain</strong>. A welcome message appears with suggested prompts.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Ask about any concept</h3>
+              <p>Type naturally — no special syntax needed. Examples:</p>
+              <pre>"Explain WebDriver implicit vs explicit waits with examples"
+"What is Page Object Model and why should I use it?"
+"Walk me through how XPath locators work"
+"Explain TestNG annotations — @Test, @BeforeMethod, @AfterMethod"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Read the explanation + code</h3>
+              <p>The AI responds with a numbered explanation, a real-world analogy, and a short runnable Java code block. For example, asking about waits returns something like:</p>
+              <pre>// ❌ Implicit wait — applies globally, fragile
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+// ✅ Explicit wait — waits for a specific condition
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+WebElement btn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("submit"))
+);
+btn.click();</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Follow up or go deeper</h3>
+              <p>Ask follow-up questions in the same chat — the AI remembers context. Try: <em>"Can you show me a more complex example?"</em> or <em>"What happens if the element never appears?"</em></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Debug ── -->
+        <h3 id="skill-debug" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🐛 Debug Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: fixing errors, understanding why a test fails, getting corrected code with explanations.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Debug Mode</h3>
+              <p>Skills tab → click <strong>🐛 Debug</strong>. The AI now acts as an expert debugger focused on root cause analysis.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Paste your error or broken code</h3>
+              <p>Copy the full stack trace from your terminal or IDE and paste it into the chat:</p>
+              <pre>Fix this error:
+
+org.openqa.selenium.NoSuchElementException: no such element:
+Unable to locate element: {"method":"id","selector":"submit-btn"}
+  at LoginTest.testLogin(LoginTest.java:34)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Get root cause + corrected code</h3>
+              <p>Debug Mode always gives you 4 things:</p>
+              <ul style="margin-top:8px">
+                <li><strong>Root Cause</strong> — exactly what went wrong</li>
+                <li><strong>Why it happened</strong> — in plain English</li>
+                <li><strong>Corrected code</strong> — with inline comments on every fix</li>
+                <li><strong>Pro Tip</strong> — how to prevent this class of error in future</li>
+              </ul>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Paste code for review</h3>
+              <p>You can also paste working code and ask: <em>"Review this for bugs or bad practices"</em> — Debug Mode will flag issues before they become failures:</p>
+              <pre>"Review this code and flag any potential issues:
+
+public void clickLogin() {
+    driver.findElement(By.id("login")).click();
+    Thread.sleep(3000); // waiting for page
+}"</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Generate ── -->
+        <h3 id="skill-generate" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">⚙️ Generate Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: creating new Java files, scaffolding framework components, writing POM classes and TestNG tests.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Generate Mode</h3>
+              <p>Skills tab → click <strong>⚙️ Generate</strong>. The AI now acts as a senior automation engineer focused on production-quality code.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Describe what you want to build</h3>
+              <p>Be specific — mention the page, actions, and pattern you want:</p>
+              <pre>"Generate a LoginPage class using Page Object Model.
+The page at https://example.com/login has:
+- Username field (id: 'username')
+- Password field (id: 'password')
+- Submit button (id: 'login-btn')
+- Error message (class: 'error-msg')"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Get a complete, ready-to-use Java file</h3>
+              <p>Generate Mode returns a full class — proper package declaration, imports, WebDriverWait, and all methods:</p>
+              <pre>package com.selenium.pages;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.*;
+import org.openqa.selenium.support.ui.*;
+
+public class LoginPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @FindBy(id = "username")    private WebElement usernameField;
+    @FindBy(id = "password")    private WebElement passwordField;
+    @FindBy(id = "login-btn")   private WebElement loginButton;
+    @FindBy(css = ".error-msg") private WebElement errorMessage;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+        PageFactory.initElements(driver, this);
+    }
+
+    public void login(String username, String password) {
+        wait.until(ExpectedConditions.visibilityOf(usernameField));
+        usernameField.clear();
+        usernameField.sendKeys(username);
+        passwordField.sendKeys(password);
+        loginButton.click();
+    }
+
+    public String getErrorMessage() {
+        wait.until(ExpectedConditions.visibilityOf(errorMessage));
+        return errorMessage.getText();
+    }
+}</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Save to your project folder</h3>
+              <p>Click <strong>💾 Save to Project</strong> below the code block. The file is written directly to your Maven project's <code>src/test/java</code> folder. Click the toast to open it in VS Code instantly.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h3>More things you can generate</h3>
+              <ul style="margin-top:4px">
+                <li>"Generate a <code>DriverFactory</code> with Chrome and Firefox support"</li>
+                <li>"Write a <code>BasePage</code> class with common wait utilities"</li>
+                <li>"Create a TestNG data provider test for the login page"</li>
+                <li>"Generate a <code>testng.xml</code> suite for parallel execution"</li>
+                <li>"Write a <code>ConfigReader</code> to read <code>config.properties</code>"</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Quiz ── -->
+        <h3 id="skill-quiz" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🧩 Quiz Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: testing your knowledge before moving to the next lesson, interview prep, reinforcing concepts you just read.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Quiz Mode</h3>
+              <p>Skills tab → click <strong>🧩 Quiz</strong>. The AI switches into quiz master mode — focused on testing your understanding.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Request a quiz on any topic</h3>
+              <pre>"Quiz me on WebDriver locators"
+"Test my understanding of explicit waits"
+"Give me 3 questions on Page Object Model"
+"Quiz me on what I just read" (uses the current lesson as context)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Answer the questions</h3>
+              <p>The AI gives you 3 questions — a mix of multiple-choice and short-answer. Type your answers directly in the chat. Example exchange:</p>
+              <pre>AI: Q1. What is the difference between findElement() and findElements()?
+
+You: findElement returns one element, findElements returns a list.
+     findElement throws an exception if not found.
+
+AI: ✅ Correct! findElement() returns a single WebElement and throws
+    NoSuchElementException if not found. findElements() returns a
+    List&lt;WebElement&gt; — an empty list if nothing matches (no exception).
+    Score: 1/3...</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Get your score and explanations</h3>
+              <p>After all 3 questions, the AI gives a final score and a detailed explanation for any answer you got wrong — so you learn from mistakes, not just which answer was right.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h3>Use it for interview prep</h3>
+              <p>Quiz Mode is perfect for interview preparation:</p>
+              <pre>"Give me 3 Selenium interview questions at a mid-level difficulty"
+"Quiz me on common TestNG interview questions"
+"Ask me advanced questions on WebDriver architecture"</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top:24px">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>Best workflow:</strong> Read the lesson → switch to <strong>Explain</strong> to clarify anything → switch to <strong>Quiz</strong> to test yourself → do the exercise → switch to <strong>Generate</strong> to scaffold your solution → switch to <strong>Debug</strong> if anything breaks. Rinse and repeat!</p>
           </div>
         </div>
       </section>
