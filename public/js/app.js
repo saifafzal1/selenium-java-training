@@ -1322,6 +1322,11 @@ function wireEvents() {
   if (descEl) descEl.textContent = SKILL_DESCRIPTIONS[state.skillMode] || '';
   updateQuickPrompts(state.skillMode);
 
+  // Feedback button
+  const feedbackBtn = document.getElementById('feedback-btn');
+  if (feedbackBtn) feedbackBtn.addEventListener('click', openFeedback);
+  wireFeedbackStars();
+
   // Settings gear button
   document.getElementById('settings-btn').addEventListener('click', openSettings);
 
@@ -1469,6 +1474,84 @@ function highlightJava() {
       pre.appendChild(saveBtn);
     }
   });
+}
+
+// ── Feedback Modal ─────────────────────────────────────────────
+let feedbackRating = 0;
+
+const RATING_LABELS = ['', 'Poor 😕', 'Fair 😐', 'Good 🙂', 'Great 😊', 'Excellent! 🤩'];
+
+function openFeedback() {
+  feedbackRating = 0;
+  document.getElementById('feedback-comment').value = '';
+  document.getElementById('feedback-char-count').textContent = '0 / 500';
+  document.getElementById('feedback-rating-label').textContent = 'Tap a star to rate';
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('selected', 'hovered'));
+  document.getElementById('feedback-submit-btn').disabled = true;
+  document.getElementById('feedback-overlay').style.display = 'block';
+  document.getElementById('feedback-modal').style.display = 'block';
+}
+
+function closeFeedback() {
+  document.getElementById('feedback-overlay').style.display = 'none';
+  document.getElementById('feedback-modal').style.display  = 'none';
+}
+
+function wireFeedbackStars() {
+  const stars = document.querySelectorAll('.star-btn');
+  stars.forEach(btn => {
+    const val = Number(btn.dataset.value);
+
+    btn.addEventListener('mouseover', () => {
+      stars.forEach(b => b.classList.toggle('hovered', Number(b.dataset.value) <= val));
+    });
+    btn.addEventListener('mouseout', () => {
+      stars.forEach(b => b.classList.remove('hovered'));
+    });
+    btn.addEventListener('click', () => {
+      feedbackRating = val;
+      stars.forEach(b => b.classList.toggle('selected', Number(b.dataset.value) <= val));
+      document.getElementById('feedback-rating-label').textContent = RATING_LABELS[val] || '';
+      document.getElementById('feedback-submit-btn').disabled = false;
+    });
+  });
+
+  document.getElementById('feedback-comment').addEventListener('input', e => {
+    const len = e.target.value.length;
+    document.getElementById('feedback-char-count').textContent = `${len} / 500`;
+  });
+}
+
+async function submitFeedback() {
+  if (!feedbackRating) return;
+  const btn = document.getElementById('feedback-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const payload = {
+    rating:      feedbackRating,
+    comment:     document.getElementById('feedback-comment').value.trim(),
+    lessonTitle: state.currentLesson?.title || null,
+    lessonId:    state.currentLesson?.id    || null,
+    skillMode:   state.skillMode,
+    model:       document.getElementById('model-select')?.value || 'unknown'
+  };
+
+  try {
+    const res = await fetch('/api/feedback', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    closeFeedback();
+    showToast('⭐ Thanks for your feedback!', 'success');
+  } catch (err) {
+    showToast(`❌ Feedback failed: ${err.message}`, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Send Feedback';
+  }
 }
 
 // ── Boot ───────────────────────────────────────────────────────

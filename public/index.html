@@ -201,6 +201,7 @@
       <div class="chat-header-actions">
         <button id="smart-mode-btn" class="smart-mode-btn" title="Smart Mode: Qwen refines your question before sending to selected model">⚡ Smart</button>
         <button id="web-mode-btn" class="smart-mode-btn" title="Web Mode: uses Groq Compound to search the web for real-time information">🌐 Web</button>
+        <button id="feedback-btn" class="feedback-header-btn" title="Rate this lesson">⭐ Feedback</button>
         <button id="settings-btn" class="settings-gear-btn" title="Settings">⚙️</button>
       </div>
       <select id="model-select">
@@ -370,6 +371,31 @@
       <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
       <button class="btn btn-primary" onclick="document.getElementById('cert-modal').style.display='none'">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- ── Feedback Modal ─────────────────────────────────────── -->
+<div id="feedback-overlay" style="display:none" onclick="closeFeedback()"></div>
+<div id="feedback-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+  <div class="feedback-header">
+    <span id="feedback-title">⭐ Rate this Lesson</span>
+    <button class="feedback-close-btn" onclick="closeFeedback()" aria-label="Close">✕</button>
+  </div>
+  <div class="feedback-body">
+    <div class="feedback-stars" id="feedback-stars" role="group" aria-label="Star rating">
+      <button class="star-btn" data-value="1" aria-label="1 star">★</button>
+      <button class="star-btn" data-value="2" aria-label="2 stars">★</button>
+      <button class="star-btn" data-value="3" aria-label="3 stars">★</button>
+      <button class="star-btn" data-value="4" aria-label="4 stars">★</button>
+      <button class="star-btn" data-value="5" aria-label="5 stars">★</button>
+    </div>
+    <div id="feedback-rating-label" class="feedback-rating-label">Tap a star to rate</div>
+    <textarea id="feedback-comment" class="feedback-textarea" placeholder="Any comments? (optional)" maxlength="500" rows="3"></textarea>
+    <div class="feedback-char-count" id="feedback-char-count">0 / 500</div>
+  </div>
+  <div class="feedback-footer">
+    <button class="btn btn-ghost" onclick="closeFeedback()">Cancel</button>
+    <button class="btn btn-primary" id="feedback-submit-btn" onclick="submitFeedback()" disabled>Send Feedback</button>
   </div>
 </div>
 
