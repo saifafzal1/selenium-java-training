@@ -669,6 +669,44 @@ AI: ✅ Correct! findElement() returns a single WebElement and throws
             <p><strong>Best workflow:</strong> Read the lesson → switch to <strong>Explain</strong> to clarify anything → switch to <strong>Quiz</strong> to test yourself → do the exercise → switch to <strong>Generate</strong> to scaffold your solution → switch to <strong>Debug</strong> if anything breaks. Rinse and repeat!</p>
           </div>
         </div>
+
+        <h3 style="margin:40px 0 16px;font-size:20px">When to use Skills</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Skills change <em>how</em> the AI responds — same model, different persona. Use them when you know exactly what type of help you need and want a fast answer.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Learning a new concept</h3>
+              <p>You're on the <strong>OOP: Classes &amp; Inheritance</strong> lesson and want it explained clearly. Pick <strong>🎓 Explain</strong> — the AI gives you a numbered breakdown with a real-world analogy and a Java code example.</p>
+              <pre>"Explain method overriding in Java with a Selenium example"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Fixing a failing test</h3>
+              <p>Your <code>WebDriverWait</code> is throwing <code>TimeoutException</code>. Paste the stack trace and pick <strong>🐛 Debug</strong> — the AI identifies the root cause and returns corrected code with inline comments.</p>
+              <pre>"My test fails with TimeoutException on line 42 — [paste error]"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Scaffolding boilerplate</h3>
+              <p>You understand Page Object Model and just need the code. Pick <strong>⚙️ Generate</strong> — the AI writes a production-ready POM class with WebDriverWait and meaningful method names, ready to paste into your project.</p>
+              <pre>"Generate a LoginPage POM class for a site with email, password and submit fields"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Checking your understanding</h3>
+              <p>You've just finished the <strong>TestNG Annotations</strong> lesson. Pick <strong>🧩 Quiz</strong> — the AI asks you 3 targeted questions and gives detailed feedback on your answers before moving on.</p>
+              <pre>"Quiz me on @BeforeMethod, @AfterMethod and @DataProvider"</pre>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ── Agent Mode ───────────────────────────────────── -->
@@ -738,6 +776,51 @@ AI: ✅ Correct! findElement() returns a single WebElement and throws
               <h3>Use the final reviewed answer</h3>
               <p>The Review step is the one to act on — it has been validated or improved by a second model. You can still ask follow-up questions; each one runs the full chain again.</p>
             </div>
+          </div>
+        </div>
+
+        <h3 style="margin:40px 0 16px;font-size:20px">When to use Agent Mode</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Agent Mode changes <em>who</em> processes your question — three models in sequence. Use it when quality matters more than speed, or when your question is vague and you need help sharpening it first.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>You can't quite articulate the question</h3>
+              <p>You're stuck on Selenium Fluent Wait but don't know how to ask. Agent's <strong>🔍 Refine step</strong> rewrites your vague prompt into a precise, contextual question before it's answered — so you get a better answer even with a rough starting point.</p>
+              <pre>"something wrong with my wait, page loads but element not found"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Generating framework code you'll actually run</h3>
+              <p>You need a full reusable <code>DriverFactory</code> class for your project submission. Agent's <strong>✅ Review step</strong> acts as a senior engineer second opinion — catching missing thread safety, unclosed drivers, or non-best-practice patterns before the answer reaches you.</p>
+              <pre>"Write a thread-safe DriverFactory using ThreadLocal for parallel test execution"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Critical concepts you need to get right</h3>
+              <p>You're learning Page Object Model for the first time and want confidence the explanation is accurate. The Scout review model validates the answer and flags anything incomplete or misleading — you get a quality score and a bonus tip.</p>
+              <pre>"Explain the Page Object Model pattern and show a complete real-world example"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <h3>Pre-submission framework review</h3>
+              <p>Before submitting your Selenium framework for review, paste your code and ask Agent Mode to assess it. The three-model chain catches more issues than a single model — covering architecture, naming, waits strategy, and TestNG setup.</p>
+              <pre>"Review my Selenium framework for best practices before I submit — [paste code]"</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top:24px">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>Rule of thumb:</strong> Use <strong>Skills</strong> during active learning as you move through lessons — fast and focused. Switch to <strong>Agent Mode</strong> when you're stuck, generating code you'll run, or when getting the answer right matters more than getting it fast.</p>
           </div>
         </div>
 
