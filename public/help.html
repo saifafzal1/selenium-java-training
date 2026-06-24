@@ -217,6 +217,7 @@
       <a href="#getting-started" class="quick-link">🚀 Getting Started</a>
       <a href="#ai-chat" class="quick-link">🤖 AI Chat</a>
       <a href="#skill-modes" class="quick-link">✨ Skill Modes</a>
+      <a href="#agent-mode" class="quick-link">🤖 Agent Mode</a>
       <a href="#vscode" class="quick-link">💻 VSCode Workflow</a>
       <a href="#rag" class="quick-link">📚 Local RAG</a>
       <a href="#models" class="quick-link">⚙️ AI Models</a>
@@ -237,6 +238,7 @@
       <a href="#skill-debug">&nbsp;&nbsp;↳ Debug</a>
       <a href="#skill-generate">&nbsp;&nbsp;↳ Generate</a>
       <a href="#skill-quiz">&nbsp;&nbsp;↳ Quiz</a>
+      <a href="#agent-mode">🤖 Agent Mode</a>
       <a href="#vscode">VSCode Integration</a>
       <a href="#rag">Local RAG (Offline AI)</a>
       <a href="#models">Choosing an AI Model</a>
@@ -665,6 +667,84 @@ AI: ✅ Correct! findElement() returns a single WebElement and throws
           <div class="callout-icon">💡</div>
           <div class="callout-body">
             <p><strong>Best workflow:</strong> Read the lesson → switch to <strong>Explain</strong> to clarify anything → switch to <strong>Quiz</strong> to test yourself → do the exercise → switch to <strong>Generate</strong> to scaffold your solution → switch to <strong>Debug</strong> if anything breaks. Rinse and repeat!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Agent Mode ───────────────────────────────────── -->
+      <section class="section" id="agent-mode">
+        <div class="section-label">Section 3.6</div>
+        <h2>🤖 Agent Mode — 3-Step AI Chain</h2>
+        <p class="section-intro">Agent Mode upgrades every question you ask into a multi-step reasoning pipeline. Instead of one model answering directly, three specialised models work in sequence — refining your question, answering it, then reviewing and improving the result.</p>
+
+        <div class="cards" style="margin-bottom:32px">
+          <div class="card" style="border-left:3px solid #7c3aed">
+            <div class="card-icon">🔍</div>
+            <h3>Step 1 — Refine</h3>
+            <p><strong>Qwen 3 32B</strong> rewrites and sharpens your question, adding technical context so the next model gets the best possible input.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #0891b2">
+            <div class="card-icon">💬</div>
+            <h3>Step 2 — Answer</h3>
+            <p><strong>Llama 3.3 70B</strong> generates a detailed, expert answer with code examples based on the refined question.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #059669">
+            <div class="card-icon">✅</div>
+            <h3>Step 3 — Review</h3>
+            <p><strong>Llama 4 Scout</strong> reads the answer and either validates it or improves it — catching gaps, fixing code, and adding clarity.</p>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>How to enable:</strong> Open the AI Chat panel → click the <strong>🤖 Agent</strong> tab → toggle <em>Agent Mode</em> ON. The toggle turns blue and the status line shows the active chain. Each response streams in three colour-coded messages — purple for Refine, teal for Answer, green for Review.</p>
+          </div>
+        </div>
+
+        <h3 style="margin:40px 0 16px;font-size:20px">Step-by-Step Example</h3>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Enable Agent Mode</h3>
+              <p>Open the chat panel → click the <strong>🤖 Agent</strong> tab → click the toggle. Status changes to <em>"On — 🔍 Qwen refines → 💬 Llama answers → ✅ Scout reviews"</em>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Ask your question normally</h3>
+              <p>No special syntax — just ask as you normally would. For example:</p>
+              <pre>"How do I implement the Page Object Model in Selenium with Java?"
+"My test throws StaleElementReferenceException — how do I fix it?"
+"Write a reusable wait utility for my Selenium framework"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Watch the chain run</h3>
+              <p>Three messages appear in sequence, each with a coloured left border and a step label chip:</p>
+              <pre>🔍 REFINING  — "Sharpening your question..."  (purple)
+💬 ANSWERING — full answer with code           (teal)
+✅ REVIEWING — critique + final improvements   (green)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Use the final reviewed answer</h3>
+              <p>The Review step is the one to act on — it has been validated or improved by a second model. You can still ask follow-up questions; each one runs the full chain again.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout warning" style="margin-top:24px">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <p><strong>Agent Mode takes longer</strong> — three sequential API calls means roughly 3× the response time of a single model. Use it when answer quality matters more than speed, such as generating framework code or debugging complex issues.</p>
           </div>
         </div>
       </section>

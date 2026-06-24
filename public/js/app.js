@@ -9,6 +9,7 @@ let state = {
   serverMode: false,   // true when Node server is reachable
   smartMode: false,    // Qwen→model chain mode
   webMode: false,      // Groq compound web search mode
+  agentMode: false,    // multi-step chain: Refine → Answer → Review
   skillMode: 'explain', // AI persona: explain | debug | generate | quiz
   projectFolder: '',   // saved code destination
   activeCourse: 'selenium'  // 'selenium' | 'playwright'
@@ -200,6 +201,7 @@ async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
   state.webMode      = localStorage.getItem('webMode') === 'true';
+  state.agentMode    = localStorage.getItem('agentMode') === 'true';
   state.skillMode    = localStorage.getItem('skillMode') || 'explain';
   state.projectFolder = localStorage.getItem('projectFolder') || '';
 
@@ -884,6 +886,20 @@ async function sendMessage(userText) {
 
   const model = document.getElementById('model-select').value;
 
+  // ── Agent Mode: run 3-step chain instead of normal chat ─────
+  if (state.agentMode) {
+    const course = state.activeCourse === 'playwright'
+      ? 'Playwright (TypeScript/JavaScript)'
+      : 'Selenium with Java';
+    try {
+      await runAgentChain(userText, state.currentLessonContext, course);
+    } finally {
+      isChatting = false;
+      sendBtn.disabled = false;
+    }
+    return;
+  }
+
   // Status message (Smart Mode or Web Mode)
   let chainStatusEl = null;
   if (state.webMode) {
@@ -1241,6 +1257,114 @@ I'll test your knowledge with 3 targeted questions on the current lesson — mul
 📖 [See full examples & tips in the Help Guide →](/help.html#skill-quiz)`
 };
 
+// ── Agent Mode ────────────────────────────────────────────────
+function setAgentMode(on) {
+  state.agentMode = on;
+  localStorage.setItem('agentMode', on);
+  const btn = document.getElementById('agent-toggle-btn');
+  if (btn) btn.setAttribute('aria-pressed', String(on));
+  const status = document.getElementById('agent-status');
+  if (status) status.textContent = on
+    ? 'On — 🔍 Qwen refines → 💬 Llama answers → ✅ Scout reviews'
+    : 'Off — using selected model directly';
+  showToast(on ? '🤖 Agent Mode ON' : '🤖 Agent Mode OFF', on ? 'success' : 'info');
+
+  if (on) {
+    appendMessage('assistant',
+      `🤖 **Agent Mode is ON** — your questions now run through a 3-step AI chain:\n\n` +
+      `**🔍 Refine** (Qwen 3 32B) → **💬 Answer** (Llama 3.3 70B) → **✅ Review** (Llama 4 Scout)\n\n` +
+      `Each step streams into chat with a colour-coded border. Responses take a bit longer but are higher quality.\n\n` +
+      `📖 [Learn more about Agent Mode →](/help.html#agent-mode)`
+    );
+  }
+}
+
+// Agent step helper: call /api/chat with a specific model + system prompt
+async function agentStep(model, systemPrompt, userMessage) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userMessage  }
+      ],
+      stream: false
+    })
+  });
+  if (!res.ok) throw new Error(`Step failed: HTTP ${res.status}`);
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || data.content || '';
+}
+
+// Run 3-step agent chain and stream steps into chat
+async function runAgentChain(userText, lessonCtx, course) {
+  const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
+  const skillPrompt = skillFn(lessonCtx, course);
+
+  // ── Step 1: Refine ──────────────────────────────────────────
+  const refineEl = appendMessage('assistant', '');
+  refineEl.classList.add('agent-refine');
+  refineEl.innerHTML = '<span class="agent-step-label">🔍 REFINING</span><br><em>Sharpening your question…</em>';
+
+  let refinedQ;
+  try {
+    refinedQ = await agentStep(
+      'qwen/qwen3-32b',
+      `You are a question refiner for a ${course} automation training platform.
+Rewrite the user's question to be precise, specific, and richly contextual for a Selenium/Java learner.
+Return ONLY the refined question — no preamble, no explanation.`,
+      userText
+    );
+    refineEl.innerHTML = `<span class="agent-step-label">🔍 REFINED QUESTION</span>\n\n${marked.parse(refinedQ)}`;
+  } catch (err) {
+    refineEl.innerHTML = `<span class="agent-step-label">🔍 REFINE</span> ⚠️ ${err.message} — using original question`;
+    refinedQ = userText;
+  }
+
+  // ── Step 2: Answer ─────────────────────────────────────────
+  const answerEl = appendMessage('assistant', '');
+  answerEl.classList.add('agent-answer');
+  answerEl.innerHTML = '<span class="agent-step-label">💬 ANSWERING</span><br><em>Generating detailed answer…</em>';
+
+  let answer;
+  try {
+    answer = await agentStep(
+      'llama-3.3-70b-versatile',
+      skillPrompt,
+      refinedQ
+    );
+    answerEl.innerHTML = `<span class="agent-step-label">💬 ANSWER</span>\n\n${marked.parse(answer)}`;
+  } catch (err) {
+    answerEl.innerHTML = `<span class="agent-step-label">💬 ANSWER</span> ⚠️ ${err.message}`;
+    answer = '';
+  }
+
+  // ── Step 3: Review ─────────────────────────────────────────
+  const reviewEl = appendMessage('assistant', '');
+  reviewEl.classList.add('agent-review');
+  reviewEl.innerHTML = '<span class="agent-step-label">✅ REVIEWING</span><br><em>Checking quality…</em>';
+
+  try {
+    const review = await agentStep(
+      'meta-llama/llama-4-scout-17b-16e-instruct',
+      `You are a senior ${course} automation engineer reviewing an AI-generated answer for a learner.
+Check the answer below for: accuracy, completeness, and best practices.
+Then provide:
+1. ✅ What's good
+2. 🔧 Any corrections or missing info
+3. 💡 One bonus tip
+4. ⭐ Quality score (1-5)
+Be concise — learner-friendly tone.`,
+      `Original question: ${userText}\n\nAnswer to review:\n${answer}`
+    );
+    reviewEl.innerHTML = `<span class="agent-step-label">✅ REVIEW</span>\n\n${marked.parse(review)}`;
+  } catch (err) {
+    reviewEl.innerHTML = `<span class="agent-step-label">✅ REVIEW</span> ⚠️ ${err.message}`;
+  }
+}
+
 function setSkillMode(skill) {
   state.skillMode = skill;
   localStorage.setItem('skillMode', skill);
@@ -1401,6 +1525,17 @@ function wireEvents() {
       if (cb) { cb.checked = state.smartMode; document.getElementById('smart-mode-status-text').textContent = state.smartMode ? 'On' : 'Off'; }
       showToast(state.smartMode ? '⚡ Smart Mode ON — Qwen will refine your questions' : '⚡ Smart Mode OFF', state.smartMode ? 'success' : 'info');
     });
+  }
+
+  // Agent Mode toggle
+  const agentToggleBtn = document.getElementById('agent-toggle-btn');
+  if (agentToggleBtn) {
+    agentToggleBtn.setAttribute('aria-pressed', String(state.agentMode));
+    const agentStatus = document.getElementById('agent-status');
+    if (agentStatus) agentStatus.textContent = state.agentMode
+      ? 'On — 🔍 Qwen refines → 💬 Llama answers → ✅ Scout reviews'
+      : 'Off — using selected model directly';
+    agentToggleBtn.addEventListener('click', () => setAgentMode(!state.agentMode));
   }
 
   // Web Mode header button
