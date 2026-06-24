@@ -894,6 +894,7 @@ async function sendMessage(userText) {
     try {
       await runAgentChain(userText, state.currentLessonContext, course);
     } finally {
+      isChatting = false;
       sendBtn.disabled = false;
     }
     return;
@@ -1267,6 +1268,15 @@ function setAgentMode(on) {
     ? 'On — 🔍 Qwen refines → 💬 Llama answers → ✅ Scout reviews'
     : 'Off — using selected model directly';
   showToast(on ? '🤖 Agent Mode ON' : '🤖 Agent Mode OFF', on ? 'success' : 'info');
+
+  if (on) {
+    appendMessage('assistant',
+      `🤖 **Agent Mode is ON** — your questions now run through a 3-step AI chain:\n\n` +
+      `**🔍 Refine** (Qwen 3 32B) → **💬 Answer** (Llama 3.3 70B) → **✅ Review** (Llama 4 Scout)\n\n` +
+      `Each step streams into chat with a colour-coded border. Responses take a bit longer but are higher quality.\n\n` +
+      `📖 [Learn more about Agent Mode →](/help.html#agent-mode)`
+    );
+  }
 }
 
 // Agent step helper: call /api/chat with a specific model + system prompt
