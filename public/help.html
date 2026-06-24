@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Help & User Guide — Automation AI Lab</title>
+  <meta name="description" content="Complete guide to using Automation AI Lab — AI chat, VSCode integration, local RAG, and submitting your project for review."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:      #ffffff;
+      --bg2:     #f4f7ff;
+      --bg3:     #eef1fb;
+      --bg4:     #e5eaf8;
+      --bg5:     #dbe1f5;
+      --border:  #dde3f0;
+      --border2: #c8d0e8;
+      --accent:  #4361EE;
+      --accent2: #3350D9;
+      --accent-dim: rgba(67,97,238,.1);
+      --text:    #1a1a2e;
+      --text2:   #4a5568;
+      --text3:   #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Header ───────────────────────────────────────────── */
+    .top-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-size: 20px; font-weight: 800; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .top-links { display: flex; gap: 8px; }
+    .top-links a {
+      padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      text-decoration: none; color: var(--text2); border: 1px solid var(--border);
+      transition: all .2s;
+    }
+    .top-links a:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
+    .top-links a.active { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .page { max-width: 980px; margin: 0 auto; padding: 48px 32px 80px; }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero { text-align: center; margin-bottom: 56px; }
+    .hero h1 { font-size: 42px; font-weight: 800; line-height: 1.15; margin-bottom: 16px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 18px; color: var(--text2); max-width: 600px; margin: 0 auto 32px; }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .quick-link {
+      padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600;
+      text-decoration: none; border: 1px solid var(--border2);
+      color: var(--text2); background: var(--bg3); transition: all .2s;
+    }
+    .quick-link:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+    /* ── Section ──────────────────────────────────────────── */
+    .section { margin-bottom: 64px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .section h2 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .section .section-intro { color: var(--text2); margin-bottom: 28px; font-size: 16px; }
+
+    /* ── Steps ────────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color .2s;
+    }
+    .step:hover { border-color: var(--border2); }
+    .step-num {
+      min-width: 40px; height: 40px; border-radius: 50%;
+      background: var(--accent-dim); border: 2px solid var(--accent);
+      color: var(--accent); font-weight: 800; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .step-body p { color: var(--text2); font-size: 14px; }
+    .step-body p + p { margin-top: 6px; }
+
+    /* ── Cards grid ───────────────────────────────────────── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card-icon { font-size: 28px; margin-bottom: 12px; }
+    .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .card p { font-size: 14px; color: var(--text2); }
+
+    /* ── Code block ───────────────────────────────────────── */
+    pre {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px; overflow-x: auto;
+      font-family: var(--mono); font-size: 13px; line-height: 1.7;
+      color: #a8d4ff; margin: 16px 0;
+    }
+    code { font-family: var(--mono); font-size: 13px; }
+    p code, li code {
+      background: var(--bg4); border: 1px solid var(--border2);
+      border-radius: 4px; padding: 2px 6px; color: var(--accent);
+    }
+
+    /* ── Info callout ─────────────────────────────────────── */
+    .callout {
+      border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .callout.tip  { background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.25); }
+    .callout.warn { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25); }
+    .callout.info { background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.25); }
+    .callout-icon { font-size: 20px; min-width: 24px; }
+    .callout-body p { font-size: 14px; color: var(--text2); }
+    .callout-body strong { color: var(--text); }
+
+    /* ── Table ────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th {
+      text-align: left; padding: 10px 16px;
+      background: var(--bg4); color: var(--text2);
+      font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border2);
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:hover td { background: var(--bg3); }
+    td:first-child { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+    /* ── Screenshot placeholder ───────────────────────────── */
+    .screenshot {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg3); padding: 40px 20px; text-align: center;
+      color: var(--text3); font-size: 13px; margin: 16px 0;
+    }
+
+    /* ── Badge ────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    }
+    .badge-green  { background: rgba(52,211,153,.15); color: #34d399; border: 1px solid rgba(52,211,153,.3); }
+    .badge-orange { background: rgba(67,97,238,.12); color: var(--accent); border: 1px solid rgba(67,97,238,.3); }
+    .badge-blue   { background: rgba(56,189,248,.15); color: #38bdf8; border: 1px solid rgba(56,189,248,.3); }
+
+    /* ── TOC sidebar ──────────────────────────────────────── */
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+    .toc { position: sticky; top: 80px; }
+    .toc h4 { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; }
+    .toc a {
+      display: block; padding: 6px 12px; border-radius: 6px;
+      text-decoration: none; font-size: 13px; color: var(--text2);
+      border-left: 2px solid transparent; transition: all .15s;
+    }
+    .toc a:hover { color: var(--text); border-left-color: var(--border2); background: var(--bg3); }
+    .toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
+
+    /* ── ol/ul ────────────────────────────────────────────── */
+    ol, ul { padding-left: 24px; }
+    ol li, ul li { margin-bottom: 6px; color: var(--text2); font-size: 14px; }
+    ol li strong, ul li strong { color: var(--text); }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .site-footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 40px 32px; text-align: center; color: var(--text3); font-size: 13px;
+    }
+    .site-footer a { color: var(--text2); text-decoration: none; }
+    .site-footer a:hover { color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+      .hero h1 { font-size: 28px; }
+      .page { padding: 32px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top Bar ─────────────────────────────────────────────── -->
+<div class="top-bar">
+  <a href="/" class="logo">▶ Automation <span>AI-Lab</span></a>
+  <div class="top-links">
+    <a href="/">🎓 Course</a>
+    <a href="/blog/">📝 Blog</a>
+    <a href="/help.html" class="active">❓ Help</a>
+  </div>
+</div>
+
+<!-- ── Hero ───────────────────────────────────────────────── -->
+<div class="page">
+  <div class="hero">
+    <div class="section-label">User Guide</div>
+    <h1>How to Use <span>Automation AI Lab</span> Training</h1>
+    <p>Everything you need to know — from first login to submitting your finished automation framework for AI review.</p>
+    <div class="quick-links">
+      <a href="#getting-started" class="quick-link">🚀 Getting Started</a>
+      <a href="#ai-chat" class="quick-link">🤖 AI Chat</a>
+      <a href="#skill-modes" class="quick-link">✨ Skill Modes</a>
+      <a href="#vscode" class="quick-link">💻 VSCode Workflow</a>
+      <a href="#rag" class="quick-link">📚 Local RAG</a>
+      <a href="#models" class="quick-link">⚙️ AI Models</a>
+      <a href="#submit" class="quick-link">🎯 Submit Project</a>
+      <a href="#faq" class="quick-link">❓ FAQ</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- TOC -->
+    <nav class="toc">
+      <h4>On this page</h4>
+      <a href="#getting-started">Getting Started</a>
+      <a href="#course-structure">Course Structure</a>
+      <a href="#ai-chat">AI Chat Assistant</a>
+      <a href="#skill-modes">✨ Skill Modes</a>
+      <a href="#skill-explain">&nbsp;&nbsp;↳ Explain</a>
+      <a href="#skill-debug">&nbsp;&nbsp;↳ Debug</a>
+      <a href="#skill-generate">&nbsp;&nbsp;↳ Generate</a>
+      <a href="#skill-quiz">&nbsp;&nbsp;↳ Quiz</a>
+      <a href="#vscode">VSCode Integration</a>
+      <a href="#rag">Local RAG (Offline AI)</a>
+      <a href="#models">Choosing an AI Model</a>
+      <a href="#smart-mode">Smart Mode</a>
+      <a href="#submit">Submit for Review</a>
+      <a href="#certificate">Certificate</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <!-- Main content -->
+    <main>
+
+      <!-- ── 1. Getting Started ──────────────────────────── -->
+      <section class="section" id="getting-started">
+        <div class="section-label">Section 1</div>
+        <h2>🚀 Getting Started</h2>
+        <p class="section-intro">Two ways to run the app — pick the one that fits your setup.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">A</div>
+            <div class="step-body">
+              <h3>Online / Cloud Mode <span class="badge badge-blue">No install</span></h3>
+              <p>Visit the live URL and use a Groq API key (free at <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a>). Set your key in the <strong>Settings</strong> panel or as an environment variable. The AI will answer using Groq's cloud models — no local setup needed.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">B</div>
+            <div class="step-body">
+              <h3>Local Mode <span class="badge badge-green">Fully offline</span></h3>
+              <p>Clone the repo, run <code>npm install && node server.js</code>, then open <code>http://localhost:3000</code>. Install <a href="https://ollama.com" target="_blank" style="color:var(--accent)">Ollama</a> for local AI models. No internet required after setup.</p>
+              <pre>git clone https://github.com/saifafzal1/selenium-java-training
+cd selenium-training
+npm install
+node server.js
+# Open http://localhost:3000</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top:20px">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>Recommended for beginners:</strong> Start with Online Mode (Groq) to avoid setup friction. Switch to Local Mode later when you want to build your project with AI-generated code saved directly to your machine.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 2. Course Structure ─────────────────────────── -->
+      <section class="section" id="course-structure">
+        <div class="section-label">Section 2</div>
+        <h2>📖 Course Structure</h2>
+        <p class="section-intro">30 lessons across 6 modules, designed to take a manual tester to automation expert.</p>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">0️⃣</div>
+            <h3>Module 0 — Before You Start</h3>
+            <p>What is automation testing? Java basics for testers, tool setup (JDK, Maven, IDE).</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">☕</div>
+            <h3>Module 1 — Java for Testers</h3>
+            <p>Variables, conditionals, loops, OOP, collections — only what you need for Selenium.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🌐</div>
+            <h3>Module 2 — Selenium WebDriver</h3>
+            <p>Browser setup, locators, waits, element interactions, file uploads, alerts.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🏗️</div>
+            <h3>Module 3 — Design Patterns</h3>
+            <p>Page Object Model, factory pattern, fluent interface — industry-standard framework structure.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🧪</div>
+            <h3>Module 4 — TestNG</h3>
+            <p>Annotations, data providers, groups, listeners, parallel execution, reporting.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🚀</div>
+            <h3>Module 5 — CI/CD & Real Projects</h3>
+            <p>Maven, Jenkins, GitHub Actions, cross-browser testing, a complete framework from scratch.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:24px">
+          <h3 style="margin-bottom:12px;font-size:16px">How each lesson works</h3>
+          <ol>
+            <li><strong>Read</strong> the concept explanation with code examples</li>
+            <li><strong>Ask the AI</strong> anything you don't understand via the chat panel</li>
+            <li><strong>Try the exercise</strong> — real coding tasks to practice the concept</li>
+            <li><strong>Take the quiz</strong> to confirm understanding before moving on</li>
+            <li><strong>Save code</strong> to your project folder in VS Code with one click</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ── 3. AI Chat ──────────────────────────────────── -->
+      <section class="section" id="ai-chat">
+        <div class="section-label">Section 3</div>
+        <h2>🤖 AI Chat Assistant</h2>
+        <p class="section-intro">Your personal Selenium tutor — ask anything, get real code examples.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Open the chat panel</h3>
+              <p>Click <strong>💬 AI Chat</strong> in the top-right header, or use the chat button in the lesson panel. The panel slides in from the right.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Ask naturally</h3>
+              <p>You don't need to write perfect prompts. Just describe what you need:</p>
+              <ul style="margin-top:10px">
+                <li>"Why does my WebDriver throw a NoSuchElementException?"</li>
+                <li>"Write a Page Object for a login page with username, password, and submit button"</li>
+                <li>"Explain the difference between implicit and explicit waits with examples"</li>
+                <li>"Debug this code — my TestNG test always fails on the second run"</li>
+              </ul>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Save code to your project</h3>
+              <p>When the AI generates Java code, a <strong>💾 Save to Project</strong> button appears. Click it to write the file directly into your VS Code project folder. The file opens automatically in VS Code.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout info" style="margin-top:20px">
+          <div class="callout-icon">💬</div>
+          <div class="callout-body">
+            <p><strong>Pro tip:</strong> Paste your code into the chat and say <em>"review this"</em> or <em>"why doesn't this work?"</em>. The AI will debug it and suggest fixes. You can also ask it to rewrite with better practices after each lesson.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Skill Modes ────────────────────────────────── -->
+      <section class="section" id="skill-modes">
+        <div class="section-label">Section 3.5</div>
+        <h2>✨ AI Skill Modes</h2>
+        <p class="section-intro">Skill Modes let you switch the AI's persona to match exactly what you need — a patient tutor, an expert debugger, a code generator, or a quiz master. Select a skill in the <strong>Skills</strong> tray below the chat.</p>
+
+        <div class="cards" style="margin-bottom:32px">
+          <div class="card" style="border-left:3px solid var(--accent)">
+            <div class="card-icon">🎓</div>
+            <h3><a href="#skill-explain" style="color:inherit;text-decoration:none">Explain Mode</a></h3>
+            <p>Patient tutor that breaks concepts into numbered steps, uses analogies, and always ends with a working code example.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #ef4444">
+            <div class="card-icon">🐛</div>
+            <h3><a href="#skill-debug" style="color:inherit;text-decoration:none">Debug Mode</a></h3>
+            <p>Expert debugger that finds root causes, explains why errors happen, and shows corrected code with inline comments.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #10b981">
+            <div class="card-icon">⚙️</div>
+            <h3><a href="#skill-generate" style="color:inherit;text-decoration:none">Generate Mode</a></h3>
+            <p>Senior engineer that writes production-ready, POM-structured Selenium code ready to drop into your framework.</p>
+          </div>
+          <div class="card" style="border-left:3px solid #f59e0b">
+            <div class="card-icon">🧩</div>
+            <h3><a href="#skill-quiz" style="color:inherit;text-decoration:none">Quiz Mode</a></h3>
+            <p>Quiz master that tests your understanding with 3 targeted questions and gives detailed feedback on your answers.</p>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>How to switch:</strong> Open the AI Chat panel → click the <strong>Skills</strong> tab → click any skill button. A message appears in chat with example prompts and a direct link back to this guide.</p>
+          </div>
+        </div>
+
+        <!-- ── Explain ── -->
+        <h3 id="skill-explain" style="margin:40px 0 16px;font-size:20px;scroll-margin-top:80px">🎓 Explain Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: understanding a new concept, getting a plain-English definition, seeing how something works with analogies.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Explain Mode</h3>
+              <p>Open the chat panel → <strong>Skills</strong> tab → click <strong>🎓 Explain</strong>. A welcome message appears with suggested prompts.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Ask about any concept</h3>
+              <p>Type naturally — no special syntax needed. Examples:</p>
+              <pre>"Explain WebDriver implicit vs explicit waits with examples"
+"What is Page Object Model and why should I use it?"
+"Walk me through how XPath locators work"
+"Explain TestNG annotations — @Test, @BeforeMethod, @AfterMethod"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Read the explanation + code</h3>
+              <p>The AI responds with a numbered explanation, a real-world analogy, and a short runnable Java code block. For example, asking about waits returns something like:</p>
+              <pre>// ❌ Implicit wait — applies globally, fragile
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+// ✅ Explicit wait — waits for a specific condition
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+WebElement btn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("submit"))
+);
+btn.click();</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Follow up or go deeper</h3>
+              <p>Ask follow-up questions in the same chat — the AI remembers context. Try: <em>"Can you show me a more complex example?"</em> or <em>"What happens if the element never appears?"</em></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Debug ── -->
+        <h3 id="skill-debug" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🐛 Debug Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: fixing errors, understanding why a test fails, getting corrected code with explanations.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Debug Mode</h3>
+              <p>Skills tab → click <strong>🐛 Debug</strong>. The AI now acts as an expert debugger focused on root cause analysis.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Paste your error or broken code</h3>
+              <p>Copy the full stack trace from your terminal or IDE and paste it into the chat:</p>
+              <pre>Fix this error:
+
+org.openqa.selenium.NoSuchElementException: no such element:
+Unable to locate element: {"method":"id","selector":"submit-btn"}
+  at LoginTest.testLogin(LoginTest.java:34)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Get root cause + corrected code</h3>
+              <p>Debug Mode always gives you 4 things:</p>
+              <ul style="margin-top:8px">
+                <li><strong>Root Cause</strong> — exactly what went wrong</li>
+                <li><strong>Why it happened</strong> — in plain English</li>
+                <li><strong>Corrected code</strong> — with inline comments on every fix</li>
+                <li><strong>Pro Tip</strong> — how to prevent this class of error in future</li>
+              </ul>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Paste code for review</h3>
+              <p>You can also paste working code and ask: <em>"Review this for bugs or bad practices"</em> — Debug Mode will flag issues before they become failures:</p>
+              <pre>"Review this code and flag any potential issues:
+
+public void clickLogin() {
+    driver.findElement(By.id("login")).click();
+    Thread.sleep(3000); // waiting for page
+}"</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Generate ── -->
+        <h3 id="skill-generate" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">⚙️ Generate Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: creating new Java files, scaffolding framework components, writing POM classes and TestNG tests.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Generate Mode</h3>
+              <p>Skills tab → click <strong>⚙️ Generate</strong>. The AI now acts as a senior automation engineer focused on production-quality code.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Describe what you want to build</h3>
+              <p>Be specific — mention the page, actions, and pattern you want:</p>
+              <pre>"Generate a LoginPage class using Page Object Model.
+The page at https://example.com/login has:
+- Username field (id: 'username')
+- Password field (id: 'password')
+- Submit button (id: 'login-btn')
+- Error message (class: 'error-msg')"</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Get a complete, ready-to-use Java file</h3>
+              <p>Generate Mode returns a full class — proper package declaration, imports, WebDriverWait, and all methods:</p>
+              <pre>package com.selenium.pages;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.*;
+import org.openqa.selenium.support.ui.*;
+
+public class LoginPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @FindBy(id = "username")    private WebElement usernameField;
+    @FindBy(id = "password")    private WebElement passwordField;
+    @FindBy(id = "login-btn")   private WebElement loginButton;
+    @FindBy(css = ".error-msg") private WebElement errorMessage;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+        PageFactory.initElements(driver, this);
+    }
+
+    public void login(String username, String password) {
+        wait.until(ExpectedConditions.visibilityOf(usernameField));
+        usernameField.clear();
+        usernameField.sendKeys(username);
+        passwordField.sendKeys(password);
+        loginButton.click();
+    }
+
+    public String getErrorMessage() {
+        wait.until(ExpectedConditions.visibilityOf(errorMessage));
+        return errorMessage.getText();
+    }
+}</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Save to your project folder</h3>
+              <p>Click <strong>💾 Save to Project</strong> below the code block. The file is written directly to your Maven project's <code>src/test/java</code> folder. Click the toast to open it in VS Code instantly.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h3>More things you can generate</h3>
+              <ul style="margin-top:4px">
+                <li>"Generate a <code>DriverFactory</code> with Chrome and Firefox support"</li>
+                <li>"Write a <code>BasePage</code> class with common wait utilities"</li>
+                <li>"Create a TestNG data provider test for the login page"</li>
+                <li>"Generate a <code>testng.xml</code> suite for parallel execution"</li>
+                <li>"Write a <code>ConfigReader</code> to read <code>config.properties</code>"</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Quiz ── -->
+        <h3 id="skill-quiz" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🧩 Quiz Mode — Step-by-Step Examples</h3>
+        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: testing your knowledge before moving to the next lesson, interview prep, reinforcing concepts you just read.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Activate Quiz Mode</h3>
+              <p>Skills tab → click <strong>🧩 Quiz</strong>. The AI switches into quiz master mode — focused on testing your understanding.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Request a quiz on any topic</h3>
+              <pre>"Quiz me on WebDriver locators"
+"Test my understanding of explicit waits"
+"Give me 3 questions on Page Object Model"
+"Quiz me on what I just read" (uses the current lesson as context)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Answer the questions</h3>
+              <p>The AI gives you 3 questions — a mix of multiple-choice and short-answer. Type your answers directly in the chat. Example exchange:</p>
+              <pre>AI: Q1. What is the difference between findElement() and findElements()?
+
+You: findElement returns one element, findElements returns a list.
+     findElement throws an exception if not found.
+
+AI: ✅ Correct! findElement() returns a single WebElement and throws
+    NoSuchElementException if not found. findElements() returns a
+    List&lt;WebElement&gt; — an empty list if nothing matches (no exception).
+    Score: 1/3...</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Get your score and explanations</h3>
+              <p>After all 3 questions, the AI gives a final score and a detailed explanation for any answer you got wrong — so you learn from mistakes, not just which answer was right.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h3>Use it for interview prep</h3>
+              <p>Quiz Mode is perfect for interview preparation:</p>
+              <pre>"Give me 3 Selenium interview questions at a mid-level difficulty"
+"Quiz me on common TestNG interview questions"
+"Ask me advanced questions on WebDriver architecture"</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top:24px">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>Best workflow:</strong> Read the lesson → switch to <strong>Explain</strong> to clarify anything → switch to <strong>Quiz</strong> to test yourself → do the exercise → switch to <strong>Generate</strong> to scaffold your solution → switch to <strong>Debug</strong> if anything breaks. Rinse and repeat!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 4. VSCode Integration ───────────────────────── -->
+      <section class="section" id="vscode">
+        <div class="section-label">Section 4</div>
+        <h2>💻 VSCode Integration Workflow</h2>
+        <p class="section-intro">The recommended way to build your automation framework — AI generates code in the browser, you run and iterate in VS Code.</p>
+
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <p><strong>Requires local mode.</strong> VSCode file integration only works when the app is running via <code>node server.js</code> on localhost — not on the hosted Vercel URL.</p>
+          </div>
+        </div>
+
+        <h3 style="margin:24px 0 12px;font-size:17px">Step-by-step workflow</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Create your Maven project in VS Code</h3>
+              <p>Open VS Code's terminal and scaffold a Maven project:</p>
+              <pre>mvn archetype:generate \
+  -DgroupId=com.selenium.training \
+  -DartifactId=my-selenium-framework \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DinteractiveMode=false
+
+cd my-selenium-framework
+code .   # opens in VS Code</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Set the Project Folder in Automation AI Lab</h3>
+              <p>Click ⚙️ (Settings gear) in the bottom-left of the app. Under <strong>Project Folder</strong>, paste the path to your Java sources:</p>
+              <pre>/Users/yourname/my-selenium-framework/src/test/java</pre>
+              <p>Click <strong>Save Path</strong> then <strong>Test Connection</strong> — you should see a green confirmation.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Ask the AI to generate code</h3>
+              <p>In the chat panel, ask for a Java file — for example:</p>
+              <pre>"Generate a LoginPage class using Page Object Model
+for a login form at https://example.com/login"</pre>
+              <p>The AI responds with a complete Java class. A <strong>💾 Save to Project</strong> button appears below the code block.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Save → VS Code opens the file</h3>
+              <p>Click Save. The file is written to your project folder. A toast notification appears — click it to jump directly to the file in VS Code (uses the <code>vscode://file/</code> URL scheme).</p>
+              <div class="callout tip" style="margin-top:12px">
+                <div class="callout-icon">💡</div>
+                <div class="callout-body"><p>Enable <strong>Open in VS Code</strong> in Settings to make the toast clickable. Requires VS Code installed with the default URL handler.</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h3>Run & debug in VS Code</h3>
+              <p>Back in VS Code, run your test with:</p>
+              <pre>mvn test -Dtest=LoginTest</pre>
+              <p>If you see errors, copy the stack trace and paste it back into the Automation AI Lab chat: <em>"Fix this error:"</em> — the AI will diagnose and provide corrected code.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+              <h3>Push to GitHub after each module</h3>
+              <p>Commit your working code after each module. This builds your portfolio and is required for the AI code review at the end.</p>
+              <pre>git add .
+git commit -m "Module 3: Page Object Model complete"
+git push origin main</pre>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin:32px 0 16px;font-size:17px">Recommended VS Code extensions</h3>
+        <table>
+          <thead><tr><th>Extension</th><th>What it does</th><th>Why you need it</th></tr></thead>
+          <tbody>
+            <tr><td>Extension Pack for Java</td><td>Java language support, Maven, debugger</td><td>Required — core Java development</td></tr>
+            <tr><td>Test Runner for Java</td><td>Run TestNG tests with green/red icons</td><td>See test results inline</td></tr>
+            <tr><td>GitLens</td><td>Git blame, history, diff tools</td><td>Track your progress per file</td></tr>
+            <tr><td>Prettier / Checkstyle</td><td>Auto-format Java code</td><td>Keeps your code clean</td></tr>
+            <tr><td>Thunder Client</td><td>HTTP client (like Postman)</td><td>Test REST APIs you'll automate later</td></tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin:28px 0 12px;font-size:17px">Recommended project structure</h3>
+        <pre>my-selenium-framework/
+├── src/
+│   ├── main/java/com/selenium/
+│   │   └── utils/          ← DriverFactory, ConfigReader
+│   └── test/java/com/selenium/
+│       ├── pages/          ← Page Object classes (LoginPage, HomePage…)
+│       ├── tests/          ← TestNG test classes
+│       └── listeners/      ← TestNG listeners for reporting
+├── resources/
+│   └── config.properties   ← Base URL, browser, credentials
+├── pom.xml                 ← Maven dependencies
+└── testng.xml             ← Test suite configuration</pre>
+      </section>
+
+      <!-- ── 5. Local RAG ────────────────────────────────── -->
+      <section class="section" id="rag">
+        <div class="section-label">Section 5</div>
+        <h2>📚 Local RAG — Offline AI with Real Docs</h2>
+        <p class="section-intro">RAG (Retrieval-Augmented Generation) syncs real Selenium documentation to your machine so the AI gives accurate answers even when fully offline.</p>
+
+        <div class="cards" style="margin-bottom:24px">
+          <div class="card">
+            <div class="card-icon">🔒</div>
+            <h3>Fully Private</h3>
+            <p>Your questions and documentation never leave your machine. Everything runs through Ollama locally.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">✈️</div>
+            <h3>Works Offline</h3>
+            <p>Sync once when you have internet. After that, the AI answers from local embeddings — no connection needed.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🎯</div>
+            <h3>More Accurate</h3>
+            <p>Answers grounded in real Selenium, TestNG, and Java docs — not just model training data.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom:16px;font-size:17px">Setup (one-time)</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Install Ollama</h3>
+              <p>Download from <a href="https://ollama.com" target="_blank" style="color:var(--accent)">ollama.com</a> and run:</p>
+              <pre>ollama serve</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Pull the embedding model</h3>
+              <pre>ollama pull nomic-embed-text:latest</pre>
+              <p>This is a 274MB model used to convert text into vectors. It's not a chat model — it runs silently in the background.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Pull a chat model</h3>
+              <pre>ollama pull qwen2.5-coder:14b    # best for code (8GB)
+# or
+ollama pull llama3.2:3b           # lighter option (2GB)</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Sync documentation</h3>
+              <p>Open ⚙️ Settings → click <strong>📥 Sync Docs</strong>. A progress bar shows each of the 7 documentation sources being fetched and embedded:</p>
+              <ul style="margin-top:8px">
+                <li>Selenium WebDriver API</li>
+                <li>Element interactions &amp; locators</li>
+                <li>Explicit &amp; implicit waits</li>
+                <li>User interactions (Actions API)</li>
+                <li>Best practices guide</li>
+                <li>TestNG documentation</li>
+                <li>Selenium Grid</li>
+              </ul>
+              <p style="margin-top:8px">The RAG badge turns <span class="badge badge-green">● Synced</span> when done.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top:20px">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>How it works:</strong> Every message you send to a local Ollama model is first converted to a vector. The app finds the 3 most relevant documentation chunks (cosine similarity), and injects them into the AI's context window. The AI then answers using real docs — not just memorized training data.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 6. Models ───────────────────────────────────── -->
+      <section class="section" id="models">
+        <div class="section-label">Section 6</div>
+        <h2>⚙️ Choosing an AI Model</h2>
+        <p class="section-intro">The app supports three AI providers. Pick based on your setup and needs.</p>
+
+        <table>
+          <thead>
+            <tr><th>Model</th><th>Provider</th><th>Best For</th><th>Requires</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>llama-3.3-70b-versatile</td>
+              <td><span class="badge badge-blue">Groq Cloud</span></td>
+              <td>General questions, fast responses</td>
+              <td>GROQ_API_KEY (free)</td>
+            </tr>
+            <tr>
+              <td>qwen2.5-coder:14b</td>
+              <td><span class="badge badge-green">Ollama Local</span></td>
+              <td>Code generation, debugging</td>
+              <td>Ollama + 8GB RAM</td>
+            </tr>
+            <tr>
+              <td>qwen2.5:7b</td>
+              <td><span class="badge badge-green">Ollama Local</span></td>
+              <td>Balanced — good code on lighter hardware</td>
+              <td>Ollama + 4GB RAM</td>
+            </tr>
+            <tr>
+              <td>llama3.2:3b</td>
+              <td><span class="badge badge-green">Ollama Local</span></td>
+              <td>Fast answers, minimal resources</td>
+              <td>Ollama + 2GB RAM</td>
+            </tr>
+            <tr>
+              <td>claude-sonnet-4-5</td>
+              <td><span class="badge badge-orange">Anthropic</span></td>
+              <td>Complex code review, architecture</td>
+              <td>ANTHROPIC_API_KEY</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <p><strong>Recommended setup:</strong> Use <strong>llama-3.3-70b-versatile</strong> (Groq) for lesson questions and <strong>qwen2.5-coder:14b</strong> (local Ollama) for code generation tasks. The coder model with RAG enabled gives the most accurate Selenium code.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 7. Smart Mode ───────────────────────────────── -->
+      <section class="section" id="smart-mode">
+        <div class="section-label">Section 7</div>
+        <h2>⚡ Smart Mode</h2>
+        <p class="section-intro">Smart Mode chains two AI models — a fast model refines your question first, then the selected model gives a better answer.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <div class="card">
+            <h3 style="color:var(--text2);margin-bottom:8px">Smart Mode OFF</h3>
+            <p>Your message → AI model → answer.</p>
+            <p style="margin-top:8px">Fast, direct. Good for simple questions.</p>
+          </div>
+          <div class="card" style="border-color:var(--accent)">
+            <h3 style="color:var(--accent);margin-bottom:8px">Smart Mode ON ⚡</h3>
+            <p>Your message → Qwen refines → selected model answers with improved context.</p>
+            <p style="margin-top:8px">Slower (one extra call) but noticeably better for complex coding tasks.</p>
+          </div>
+        </div>
+
+        <p style="color:var(--text2);font-size:14px">Enable in ⚙️ Settings → Smart Mode toggle. Best used when generating full framework files or debugging complex issues.</p>
+      </section>
+
+      <!-- ── 8. Submit Project ───────────────────────────── -->
+      <section class="section" id="submit">
+        <div class="section-label">Section 8</div>
+        <h2>🎯 Submit Your Project for AI Review</h2>
+        <p class="section-intro">When you complete all 30 lessons, submit your GitHub repository and get a detailed structured code review from AI.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3>Complete all lessons</h3>
+              <p>Finish all 30 lessons (quiz included). Your progress bar reaches 100% and the Submit panel appears on the welcome screen.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3>Push your code to GitHub</h3>
+              <p>Your repo must be public and contain <code>.java</code> files. The review works best with a proper Maven project structure.</p>
+              <pre>git push origin main</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3>Paste your GitHub URL and click Review</h3>
+              <p>Example: <code>https://github.com/yourname/selenium-framework</code></p>
+              <p>The app fetches up to 8 Java files from your repo and sends them to the AI for review.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3>Get your structured review</h3>
+              <p>The AI reviews your code across 6 dimensions:</p>
+              <ul style="margin-top:8px">
+                <li><strong>Overall Assessment</strong> — is it production-ready?</li>
+                <li><strong>What's Done Well</strong> — patterns and practices to keep</li>
+                <li><strong>Structure &amp; Design</strong> — POM, package organisation</li>
+                <li><strong>Selenium Best Practices</strong> — waits, locators, driver management</li>
+                <li><strong>TestNG Usage</strong> — annotations, groups, listeners</li>
+                <li><strong>Scored Rubric</strong> — Structure/10, Selenium/10, Code Quality/10</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout warn" style="margin-top:20px">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <p><strong>Your repo must be public</strong> — the review uses the GitHub public API with no authentication token, so private repos will return a 404 error.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 9. Certificate ──────────────────────────────── -->
+      <section class="section" id="certificate">
+        <div class="section-label">Section 9</div>
+        <h2>🏅 Certificate of Completion</h2>
+        <p class="section-intro">Earn a shareable certificate when you finish all lessons.</p>
+
+        <ol>
+          <li>Complete all 30 lessons including quizzes</li>
+          <li>Click the <strong>🏅 Certificate</strong> button that appears on the welcome screen</li>
+          <li>Type your name into the certificate</li>
+          <li>Click <strong>Print / Save PDF</strong> to download as a PDF</li>
+          <li>Share the PDF on LinkedIn or with employers as proof of completion</li>
+        </ol>
+      </section>
+
+      <!-- ── 10. FAQ ─────────────────────────────────────── -->
+      <section class="section" id="faq">
+        <div class="section-label">Section 10</div>
+        <h2>❓ Frequently Asked Questions</h2>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>I don't have a Groq API key. Can I still use the AI?</h3>
+              <p>Yes — install Ollama locally and use a free local model like <code>qwen2.5:7b</code> or <code>llama3.2:3b</code>. No API key needed. Groq also offers a free tier at <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>My progress disappeared. How do I restore it?</h3>
+              <p>Progress is saved in your browser's <code>localStorage</code>. If you cleared browser data, it will reset. When running in local mode (<code>node server.js</code>), progress is also saved to <code>data/progress.json</code> on disk — this persists across browser clears.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>The Save to Project button isn't working.</h3>
+              <p>This requires local mode (<code>node server.js</code>). Make sure you've set a valid project folder path in Settings → Project Folder, and clicked <strong>Test Connection</strong> to confirm the path exists.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>RAG sync fails with "Cannot reach Ollama".</h3>
+              <p>Make sure Ollama is running: <code>ollama serve</code>. Also ensure you've pulled the embedding model: <code>ollama pull nomic-embed-text:latest</code>. The RAG sync connects to <code>localhost:11434</code>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>How many lessons are there and how long does it take?</h3>
+              <p>30 lessons across 6 modules, approximately 8–12 hours total depending on how much time you spend on exercises. You can pause and resume at any time — progress is saved automatically.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>Can I use IntelliJ IDEA instead of VS Code?</h3>
+              <p>Yes — the Save to Project feature writes files to any folder you specify. The "Open in VS Code" one-click feature uses VS Code's URL scheme, so that part is VS Code only. For IntelliJ, simply point the project folder to your IntelliJ project's <code>src/test/java</code> directory and open the saved files manually.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <h3>Is my code sent to the cloud when I use local Ollama models?</h3>
+              <p>No. When using Ollama, all processing happens entirely on your machine. Nothing is sent externally. Only Groq and Anthropic models send data to their respective cloud APIs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Quick reference ─────────────────────────────── -->
+      <section class="section">
+        <div class="section-label">Reference</div>
+        <h2>⌨️ Keyboard Shortcuts & Tips</h2>
+        <table>
+          <thead><tr><th>Action</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>Send chat message</td><td>Press Enter (Shift+Enter for new line)</td></tr>
+            <tr><td>Open Settings</td><td>Click ⚙️ gear icon bottom-left of lesson panel</td></tr>
+            <tr><td>Toggle AI Chat</td><td>Click 💬 AI Chat in header</td></tr>
+            <tr><td>Previous / Next lesson</td><td>← Previous / Next → buttons in lesson footer</td></tr>
+            <tr><td>Reset all progress</td><td>↺ Reset button in header (confirms before clearing)</td></tr>
+            <tr><td>Copy a code block</td><td>Click the Copy button on any code block</td></tr>
+            <tr><td>Save AI code to project</td><td>💾 Save to Project button below code in chat</td></tr>
+            <tr><td>Clear RAG store</td><td>Settings → Clear Docs (then re-sync to refresh)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div><!-- /layout -->
+</div><!-- /page -->
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<div class="site-footer">
+  <p style="margin-bottom:8px">
+    <a href="/">🎓 Course</a> &nbsp;·&nbsp;
+    <a href="/blog/">📝 Blog</a> &nbsp;·&nbsp;
+    <a href="/help.html">❓ Help</a> &nbsp;·&nbsp;
+    <a href="https://github.com/saifafzal1/selenium-java-training" target="_blank">GitHub ↗</a>
+  </p>
+  <p>© 2025 Automation AI Lab · Free Selenium with Java Training</p>
+</div>
+
+<script>
+  // Highlight active TOC item on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

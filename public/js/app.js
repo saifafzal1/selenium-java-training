@@ -1186,6 +1186,61 @@ const SKILL_DESCRIPTIONS = {
   quiz:     '🧩 Quiz master — tests your knowledge with 3 questions'
 };
 
+// Help anchors for each skill mode in help.html
+const SKILL_HELP_ANCHORS = {
+  explain:  '#skill-explain',
+  debug:    '#skill-debug',
+  generate: '#skill-generate',
+  quiz:     '#skill-quiz'
+};
+
+// Intro messages shown in chat when a skill is activated
+const SKILL_INTRO_MESSAGES = {
+  explain: `🎓 **Explain Mode** activated!
+
+I'll act as your patient tutor — breaking concepts into simple steps, using real-world analogies, and always ending with a working code example.
+
+**Try asking:**
+- *"Explain WebDriver waits with a real example"*
+- *"What is Page Object Model and why use it?"*
+- *"Walk me through how locators work in Selenium"*
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-explain)`,
+
+  debug: `🐛 **Debug Mode** activated!
+
+I'll act as your expert debugger — finding the root cause of errors, explaining *why* they happen, and giving you corrected code with inline comments.
+
+**Try asking:**
+- *"Fix this error: NoSuchElementException on findElement"*
+- *"My test passes locally but fails in CI — why?"*
+- Paste any stack trace or broken code and I'll diagnose it
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-debug)`,
+
+  generate: `⚙️ **Generate Mode** activated!
+
+I'll act as a senior engineer — writing production-ready, POM-structured Selenium code you can drop straight into your framework.
+
+**Try asking:**
+- *"Generate a LoginPage class using Page Object Model"*
+- *"Write a DriverFactory with ChromeOptions for headless mode"*
+- *"Create a TestNG data provider test for a login form"*
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-generate)`,
+
+  quiz: `🧩 **Quiz Mode** activated!
+
+I'll test your knowledge with 3 targeted questions on the current lesson — multiple choice or short answer. Answer them and I'll give you feedback and explanations.
+
+**Try asking:**
+- *"Quiz me on WebDriver locators"*
+- *"Test my understanding of explicit vs implicit waits"*
+- *"Give me 3 questions on Page Object Model"*
+
+📖 [See full examples & tips in the Help Guide →](/help.html#skill-quiz)`
+};
+
 function setSkillMode(skill) {
   state.skillMode = skill;
   localStorage.setItem('skillMode', skill);
@@ -1202,6 +1257,10 @@ function setSkillMode(skill) {
     quiz:     '🧩 Quiz Mode'
   };
   showToast(labels[skill] || 'Skill mode changed', 'success');
+
+  // Show contextual intro message in chat with help link
+  const intro = SKILL_INTRO_MESSAGES[skill];
+  if (intro) appendMessage('assistant', intro);
 }
 
 function updateQuickPrompts(skill) {
