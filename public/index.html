@@ -260,13 +260,40 @@
         <div id="skill-desc" class="skill-desc">🎓 Patient tutor — explains with analogies &amp; simple code</div>
       </div>
 
-      <!-- Agent panel (placeholder) -->
+      <!-- Agent panel -->
       <div class="tray-panel" id="tray-agent" role="tabpanel">
-        <div class="tray-placeholder">
-          <div class="placeholder-icon">🤖</div>
-          <div class="placeholder-content">
-            <div class="placeholder-title">Agent Mode <span class="placeholder-badge">Coming soon</span></div>
-            <div class="placeholder-desc">Multi-step AI chains — Refine → Answer → Review. Each step uses a specialised model for higher quality responses.</div>
+        <div class="agent-header">
+          <div class="agent-toggle-row">
+            <span class="agent-label">🤖 Agent Mode</span>
+            <button id="agent-toggle-btn" class="agent-toggle" aria-pressed="false" title="Enable multi-step AI chain">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </button>
+          </div>
+          <div id="agent-status" class="agent-status">Off — using selected model directly</div>
+        </div>
+        <div class="agent-pipeline">
+          <div class="agent-step-card">
+            <div class="agent-step-icon step-refine">🔍</div>
+            <div class="agent-step-info">
+              <div class="agent-step-name">Refine</div>
+              <div class="agent-step-model">Qwen 3 32B</div>
+            </div>
+          </div>
+          <div class="agent-arrow">→</div>
+          <div class="agent-step-card">
+            <div class="agent-step-icon step-answer">💬</div>
+            <div class="agent-step-info">
+              <div class="agent-step-name">Answer</div>
+              <div class="agent-step-model">Llama 3.3 70B</div>
+            </div>
+          </div>
+          <div class="agent-arrow">→</div>
+          <div class="agent-step-card">
+            <div class="agent-step-icon step-review">✅</div>
+            <div class="agent-step-info">
+              <div class="agent-step-name">Review</div>
+              <div class="agent-step-model">Llama 4 Scout</div>
+            </div>
           </div>
         </div>
       </div>
