@@ -1,4 +1,4 @@
-// ── State ──────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────
 let state = {
   progress: { completedLessons: [], lastVisited: null, notes: {} },
   currentLesson: null,
@@ -195,7 +195,7 @@ function lsSave(p, key) {
   try { localStorage.setItem(k, JSON.stringify(p)); } catch {}
 }
 
-// ── Init ───────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────
 async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
@@ -257,7 +257,7 @@ async function init() {
   wireEvents();
 }
 
-// ── Sidebar ────────────────────────────────────────────────────
+// ── Sidebar ──────────────────────────────────────────────────────
 function buildSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
@@ -727,7 +727,7 @@ function renderAffiliatePanel(lesson, module) {
   document.getElementById('tab-lesson').appendChild(panel);
 }
 
-// ── Tabs ───────────────────────────────────────────────────────
+// ── Tabs ──────────────────────────────────────────────────────────
 function switchTab(tabId) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
   document.querySelectorAll('.tab-content').forEach(c => {
@@ -736,7 +736,7 @@ function switchTab(tabId) {
   });
 }
 
-// ── Progress ───────────────────────────────────────────────────
+// ── Progress ─────────────────────────────────────────────────────────
 function updateCompleteButtons(lessonId) {
   const done = state.progress.completedLessons.includes(lessonId);
   ['complete-btn', 'complete-btn-ex'].forEach(id => {
@@ -823,7 +823,7 @@ async function saveProgress(payload) {
   }
 }
 
-// ── Navigation ─────────────────────────────────────────────────
+// ── Navigation ────────────────────────────────────────────────────
 function navigateRelative(delta) {
   if (!state.currentLesson) return;
   const idx = state.allLessons.findIndex(l => l.id === state.currentLesson.id);
@@ -833,7 +833,7 @@ function navigateRelative(delta) {
   showLesson(next, mod);
 }
 
-// ── AI Chat ────────────────────────────────────────────────────
+// ── AI Chat ────────────────────────────────────────────────────────
 let chatHistory = [];
 let isChatting  = false;
 
@@ -1037,7 +1037,7 @@ async function checkHealth() {
   }
 }
 
-// ── Auto-resize textarea ───────────────────────────────────────
+// ── Auto-resize textarea ─────────────────────────────────────────
 function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -1427,7 +1427,7 @@ function wireEvents() {
   });
 }
 
-// ── Java Syntax Highlighter ────────────────────────────────────
+// ── Java Syntax Highlighter ────────────────────────────────────────
 // Works on raw text → HTML-escape → apply spans → set innerHTML
 // This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {

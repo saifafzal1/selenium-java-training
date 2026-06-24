@@ -1,37 +1,64 @@
 const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const cors    = require('cors');
+const fs      = require('fs');
+const path    = require('path');
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
 const PROGRESS_FILE = path.join(__dirname, 'data', 'progress.json');
 
-// ── Ollama / Qwen config (can be overridden via env vars) ──────────────────
-const OLLAMA_BASE    = process.env.OLLAMA_URL   || 'http://localhost:11434';
-const DEFAULT_MODEL  = process.env.QWEN_MODEL   || 'qwen3:latest';
+// ── Provider config ───────────────────────────────────────────
+const OLLAMA_BASE   = process.env.OLLAMA_URL    || 'http://localhost:11434';
+const GROQ_KEY      = process.env.GROQ_API_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+
+// Known Groq model names (anything else → try Ollama)
+const GROQ_MODELS = new Set([
+  'llama-3.3-70b-versatile',
+  'llama-3.1-8b-instant',
+  'llama-3.1-70b-versatile',
+  'qwen-qwq-32b',
+  'gemma2-9b-it',
+  'mixtral-8x7b-32768',
+  'deepseek-r1-distill-llama-70b',
+]);
+
+function getProvider(model = '') {
+  if (model.startsWith('claude-')) return 'anthropic';
+  if (GROQ_MODELS.has(model))       return 'groq';
+  return 'ollama';
+}
+
+
+// ── RAG modules (optional — graceful degradation if not present) ──────────
+let ragSearch, ragGetStatus, ragClearStore, ragIngestAll, RAG_SOURCES, ragEmbed;
+let ragEnabled = false;
+try {
+  ({ search: ragSearch, getStatus: ragGetStatus, clearStore: ragClearStore } = require('./rag/store'));
+  ({ ingestAll: ragIngestAll } = require('./rag/ingest'));
+  ({ SOURCES: RAG_SOURCES }   = require('./rag/sources'));
+  ({ embed:   ragEmbed }      = require('./rag/embed'));
+  ragEnabled = true;
+  console.log('📚 RAG module loaded — local knowledge base available');
+} catch (e) {
+  console.warn('⚠️  RAG modules not found:', e.message);
+}
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Progress API ──────────────────────────────────────────────────────────
+// ── Progress API ──────────────────────────────────────────────
 function readProgress() {
-  try {
-    return JSON.parse(fs.readFileSync(PROGRESS_FILE, 'utf8'));
-  } catch {
-    return { completedLessons: [], lastVisited: null, startedAt: null, notes: {} };
-  }
+  try { return JSON.parse(fs.readFileSync(PROGRESS_FILE, 'utf8')); }
+  catch { return { completedLessons: [], lastVisited: null, startedAt: null, notes: {} }; }
 }
-
 function writeProgress(data) {
   fs.writeFileSync(PROGRESS_FILE, JSON.stringify(data, null, 2));
 }
 
-app.get('/api/progress', (req, res) => {
-  res.json(readProgress());
-});
+app.get('/api/progress', (req, res) => res.json(readProgress()));
 
 app.post('/api/progress', (req, res) => {
   const current = readProgress();
@@ -41,87 +68,352 @@ app.post('/api/progress', (req, res) => {
     writeProgress({ completedLessons: [], lastVisited: null, startedAt: null, notes: {} });
     return res.json({ ok: true, progress: readProgress() });
   }
-
   if (update.completedLesson !== undefined) {
-    if (!current.completedLessons.includes(update.completedLesson)) {
+    if (!current.completedLessons.includes(update.completedLesson))
       current.completedLessons.push(update.completedLesson);
-    }
     if (!current.startedAt) current.startedAt = new Date().toISOString();
   }
-
-  if (update.removeLesson !== undefined) {
+  if (update.removeLesson !== undefined)
     current.completedLessons = current.completedLessons.filter(l => l !== update.removeLesson);
-  }
-
   if (update.lastVisited !== undefined) current.lastVisited = update.lastVisited;
-
-  if (update.note) {
-    current.notes[update.note.lessonId] = update.note.text;
-  }
+  if (update.note) current.notes[update.note.lessonId] = update.note.text;
 
   writeProgress(current);
   res.json({ ok: true, progress: current });
 });
 
-// ── Chat API (Ollama / Qwen proxy) ────────────────────────────────────────
-app.post('/api/chat', async (req, res) => {
-  const { messages, model } = req.body;
-  const selectedModel = model || DEFAULT_MODEL;
-
+// ── Qwen prompt refinement helper ────────────────────────────
+async function refineWithQwen(messages, groqKey, fetchFn) {
+  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+  if (!lastUserMsg || !groqKey) return null;
   try {
-    const { default: fetch } = await import('node-fetch');
+    const r = await fetchFn('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${groqKey}` },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        max_tokens: 300,
+        stream: false,
+        messages: [
+          { role: 'system', content: 'You are a prompt refinement engine for a Selenium with Java coding tutor. Rewrite the user\'s question to be precise, specific, and technical. Add any missing Java/Selenium context. Return ONLY the refined question — no preamble, no explanation, no markdown.' },
+          { role: 'user', content: lastUserMsg.content }
+        ]
+      }),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data.choices?.[0]?.message?.content?.trim() || null;
+  } catch { return null; }
+}
 
-    const ollamaRes = await fetch(`${OLLAMA_BASE}/api/chat`, {
+// ── RAG Endpoints ─────────────────────────────────────────────
+app.get('/api/rag/status', (req, res) => {
+  if (!ragEnabled) return res.json({ synced: false, count: 0, sources: [], available: false });
+  res.json({ ...ragGetStatus(), available: true });
+});
+
+app.post('/api/rag/clear', (req, res) => {
+  if (!ragEnabled) return res.json({ ok: false, error: 'RAG not available' });
+  ragClearStore();
+  res.json({ ok: true });
+});
+
+app.get('/api/rag/ingest', async (req, res) => {
+  res.setHeader('Content-Type',  'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection',    'keep-alive');
+  res.flushHeaders();
+  const send = (data) => { try { res.write(`data: ${JSON.stringify(data)}\n\n`); } catch {} };
+
+  if (!ragEnabled) {
+    send({ type: 'error', error: 'RAG modules not available on this deployment' });
+    return res.end();
+  }
+  const { default: fetch } = await import('node-fetch');
+  try {
+    const testR = await fetch(`${OLLAMA_BASE}/api/embed`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ model: 'nomic-embed-text:latest', input: 'test' }),
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!testR.ok) {
+      send({ type: 'error', error: 'nomic-embed-text model not found. Run: ollama pull nomic-embed-text:latest' });
+      return res.end();
+    }
+  } catch {
+    send({ type: 'error', error: 'Cannot reach Ollama. Start it with: ollama serve' });
+    return res.end();
+  }
+  try {
+    send({ type: 'start', total: RAG_SOURCES.length, sources: RAG_SOURCES.map(s => s.label) });
+    const results = await ragIngestAll(RAG_SOURCES, fetch, (evt) => send({ type: 'progress', ...evt }));
+    const totalAdded = results.reduce((s, r) => s + (r.chunksAdded || 0), 0);
+    send({ type: 'done', results, totalAdded, status: ragGetStatus() });
+  } catch (err) {
+    send({ type: 'error', error: err.message });
+  }
+  res.end();
+});
+
+// ── Chat API — multi-provider ─────────────────────────────────
+app.post('/api/chat', async (req, res) => {
+  const { messages, model, chainMode } = req.body;
+  const selectedModel = model || 'llama-3.3-70b-versatile';
+  const provider = getProvider(selectedModel);
+  const { default: fetch } = await import('node-fetch');
+
+  // Smart Mode: refine prompt with fast Groq model first
+  let workingMessages = messages;
+  let refinedQuestion = null;
+  if (chainMode) {
+    refinedQuestion = await refineWithQwen(messages, GROQ_KEY, fetch);
+    if (refinedQuestion) {
+      const lastUserIdx = messages.map((m, i) => m.role === 'user' ? i : -1).filter(i => i >= 0).pop();
+      workingMessages = messages.map((m, i) =>
+        i === lastUserIdx ? { ...m, content: refinedQuestion } : m
+      );
+    }
+  }
+
+  // ── Groq ──────────────────────────────────────────────────
+  if (provider === 'groq') {
+    if (!GROQ_KEY) return res.json({ error: 'GROQ_API_KEY is not set.\nAdd it to your environment: export GROQ_API_KEY=gsk_...' });
+    try {
+      const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
+        body: JSON.stringify({ model: selectedModel, messages: workingMessages, stream: false, max_tokens: 4096 }),
+        signal: AbortSignal.timeout(30000)
+      });
+      if (!r.ok) {
+        const txt = await r.text().catch(() => '');
+        if (r.status === 401) return res.json({ error: 'Invalid GROQ_API_KEY.' });
+        if (r.status === 429) return res.json({ error: 'Groq rate limit hit. Wait a moment and retry.' });
+        return res.json({ error: `Groq error ${r.status}: ${txt.slice(0, 200)}` });
+      }
+      const data = await r.json();
+      return res.json({ content: data.choices?.[0]?.message?.content || '', refinedQuestion });
+    } catch (err) {
+      return res.json({ error: `Groq request failed: ${err.message}` });
+    }
+  }
+
+  // ── Anthropic / Claude ────────────────────────────────────
+  if (provider === 'anthropic') {
+    if (!ANTHROPIC_KEY) return res.json({
+      error: 'ANTHROPIC_API_KEY is not set.\n\nTo use Claude:\n1. Get a key at console.anthropic.com\n2. Set it: export ANTHROPIC_API_KEY=sk-ant-...\n3. Restart the server'
+    });
+    try {
+      // Separate system message from conversation messages (Anthropic format)
+      const systemMsg = workingMessages.find(m => m.role === 'system');
+      const convoMsgs = workingMessages.filter(m => m.role !== 'system');
+      const body = {
+        model:      selectedModel,
+        max_tokens: 4096,
+        messages:   convoMsgs
+      };
+      if (systemMsg) body.system = systemMsg.content;
+
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':         ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60000)
+      });
+      if (!r.ok) {
+        const txt = await r.text().catch(() => '');
+        if (r.status === 401) return res.json({ error: 'Invalid ANTHROPIC_API_KEY.' });
+        if (r.status === 429) return res.json({ error: 'Claude rate limit hit. Wait a moment and retry.' });
+        return res.json({ error: `Claude error ${r.status}: ${txt.slice(0, 200)}` });
+      }
+      const data = await r.json();
+      const text = data.content?.find(b => b.type === 'text')?.text || '';
+      return res.json({ content: text, refinedQuestion });
+    } catch (err) {
+      return res.json({ error: `Claude request failed: ${err.message}` });
+    }
+  }
+
+  // ── Ollama (local) with RAG augmentation ─────────────────────────────
+  // When docs are synced, embed user query → find top-3 chunks → prepend as context
+  let ragMessages = [...workingMessages];
+  if (ragEnabled) {
+    try {
+      const status = ragGetStatus();
+      if (status.synced && status.count > 0) {
+        const lastUser = [...workingMessages].reverse().find(m => m.role === 'user');
+        if (lastUser) {
+          const queryVec = await ragEmbed(lastUser.content, fetch);
+          const chunks   = ragSearch(queryVec, 3, 0.25);
+          if (chunks.length > 0) {
+            const context = chunks.map((c, i) => `[${i+1}] (${c.source}) ${c.text}`).join('\n\n');
+            const ragSys  = `You are a Selenium with Java expert tutor. Use the following official documentation excerpts to answer accurately. If they aren't relevant, use your training knowledge.\n\nDOCUMENTATION CONTEXT:\n${context}`;
+            const hasSystem = ragMessages.find(m => m.role === 'system');
+            if (hasSystem) {
+              ragMessages = ragMessages.map(m => m.role === 'system' ? {...m, content: ragSys + '\n\n---\n\n' + m.content} : m);
+            } else {
+              ragMessages = [{ role: 'system', content: ragSys }, ...ragMessages];
+            }
+          }
+        }
+      }
+    } catch (ragErr) { /* RAG is optional — fail silently */ }
+  }
+
+  // ── Ollama (local) ────────────────────────────────────────
+  try {
+    const r = await fetch(`${OLLAMA_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: selectedModel, messages, stream: false })
+      body: JSON.stringify({ model: selectedModel, messages: ragMessages, stream: false }),
+      signal: AbortSignal.timeout(120000)
     });
-
-    if (!ollamaRes.ok) {
-      const hint = ollamaRes.status === 404
-        ? `Model not found. Run:  ollama pull ${selectedModel}`
-        : `Ollama error ${ollamaRes.status}: ${ollamaRes.statusText}`;
+    if (!r.ok) {
+      const hint = r.status === 404
+        ? `Model "${selectedModel}" not found locally.\nRun:  ollama pull ${selectedModel}`
+        : `Ollama error ${r.status}: ${r.statusText}`;
       return res.json({ error: hint });
     }
-
-    const data = await ollamaRes.json();
-    return res.json({ content: data.message?.content || '' });
-
+    const data = await r.json();
+    return res.json({ content: data.message?.content || '', refinedQuestion });
   } catch (err) {
-    return res.json({ error: `Cannot reach Ollama. Is it running?\n  ollama serve\n\nError: ${err.message}` });
+    return res.json({ error: `Cannot reach Ollama at ${OLLAMA_BASE}.\n\nFix: open a Terminal and run:\n  ollama serve\n\nError: ${err.message}` });
   }
 });
 
-// ── Config API ────────────────────────────────────────────────────────────
-app.get('/api/config', (req, res) => {
-  res.json({
-    ollamaUrl: OLLAMA_BASE,
-    defaultModel: DEFAULT_MODEL,
-    availableModels: ['qwen3:latest', 'qwen3:8b', 'qwen3:4b', 'qwen3:1.7b', 'qwen2.5-coder:latest', 'qwen2.5-coder:7b']
-  });
+// ── Save generated code to local project folder ───────────────
+app.post('/api/save-file', (req, res) => {
+  const { code, filename, folder } = req.body;
+  if (!code) return res.status(400).json({ error: 'No code provided' });
+
+  // Resolve target directory (default: generated-code/ inside project)
+  let targetDir;
+  try {
+    targetDir = path.resolve(folder || path.join(__dirname, 'generated-code'));
+  } catch {
+    return res.status(400).json({ error: 'Invalid folder path' });
+  }
+
+  // Create directory if it doesn't exist
+  try {
+    fs.mkdirSync(targetDir, { recursive: true });
+  } catch (e) {
+    return res.status(500).json({ error: `Cannot create folder: ${e.message}` });
+  }
+
+  // Auto-generate filename from Java class name if not provided
+  let fname = filename;
+  if (!fname) {
+    const match = code.match(/public\s+class\s+(\w+)/);
+    fname = match ? `${match[1]}.java` : `SeleniumCode_${Date.now()}.java`;
+  }
+
+  const fullPath = path.join(targetDir, fname);
+  try {
+    fs.writeFileSync(fullPath, code, 'utf8');
+    return res.json({ ok: true, path: fullPath, filename: fname });
+  } catch (e) {
+    return res.status(500).json({ error: `Cannot write file: ${e.message}` });
+  }
 });
 
-// ── Health check ──────────────────────────────────────────────────────────
-app.get('/api/health', async (req, res) => {
+
+// ── Submit Project for AI Code Review ─────────────────────────────────────
+app.post('/api/submit-review', async (req, res) => {
+  const { repoUrl, model } = req.body;
+  if (!repoUrl) return res.status(400).json({ error: 'repoUrl is required' });
+  const match = repoUrl.match(/github\.com\/([^/]+)\/([^/\s#?]+)/);
+  if (!match) return res.status(400).json({ error: 'Invalid GitHub URL. Expected: https://github.com/owner/repo' });
+  const [, owner, repo] = match;
+  const { default: fetch } = await import('node-fetch');
+  const ghHeaders = { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Automation AI Lab-Training/1.0' };
   try {
-    const { default: fetch } = await import('node-fetch');
+    const treeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`, { headers: ghHeaders, signal: AbortSignal.timeout(15000) });
+    if (!treeRes.ok) {
+      const msg = treeRes.status === 404 ? `Repo not found: ${owner}/${repo}. Make sure it exists and is public.` : `GitHub API error: ${treeRes.status}`;
+      return res.status(400).json({ error: msg });
+    }
+    const tree = await treeRes.json();
+    const javaFiles = (tree.tree || []).filter(f => f.type === 'blob' && f.path.endsWith('.java')).slice(0, 8);
+    if (!javaFiles.length) return res.json({ ok: false, error: 'No .java files found. Commit your Selenium test files first.' });
+    const fileContents = [];
+    for (const file of javaFiles) {
+      try {
+        const fc = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(file.path)}`, { headers: ghHeaders, signal: AbortSignal.timeout(10000) });
+        if (!fc.ok) continue;
+        const d = await fc.json();
+        if (d.content) fileContents.push({ path: file.path, content: Buffer.from(d.content, 'base64').toString('utf8').slice(0, 3000) });
+      } catch {}
+    }
+    if (!fileContents.length) return res.json({ ok: false, error: 'Could not read any Java files.' });
+    const filesText = fileContents.map(f => `### ${f.path}\n\`\`\`java\n${f.content}\n\`\`\`\n`).join('\n');
+    const reviewPrompt = `You are an expert Selenium with Java automation engineer reviewing code from a learner who completed the Automation AI Lab training course.\n\nRepository: ${owner}/${repo}\nFiles: ${fileContents.map(f=>f.path).join(', ')}\n\n${filesText}\n\nProvide a structured code review:\n## 🌟 Overall Assessment\n## ✅ What's Done Well\n## 📚 Structure & Design (POM, packages)\n## 🤖 Selenium Best Practices (waits, locators)\n## 🧪 TestNG Usage\n## 🔧 Areas for Improvement (with code examples)\n## 🏅 Score (table: Structure/10, Selenium/10, CodeQuality/10)\n\nBe encouraging and specific. This person is a beginner building their first automation framework.`;
+    const selectedModel = model || (GROQ_KEY ? 'llama-3.3-70b-versatile' : 'qwen2.5-coder:14b');
+    const provider = getProvider(selectedModel);
+    let reviewText = '';
+    if (provider === 'groq' && GROQ_KEY) {
+      const r = await fetch('https://api.groq.com/openai/v1/chat/completions', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`}, body:JSON.stringify({model:selectedModel,messages:[{role:'user',content:reviewPrompt}],max_tokens:3000,stream:false}), signal:AbortSignal.timeout(60000) });
+      const d = await r.json(); reviewText = d.choices?.[0]?.message?.content || 'Could not generate review.';
+    } else if (provider === 'anthropic' && ANTHROPIC_KEY) {
+      const r = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'}, body:JSON.stringify({model:selectedModel,max_tokens:3000,messages:[{role:'user',content:reviewPrompt}]}), signal:AbortSignal.timeout(60000) });
+      const d = await r.json(); reviewText = d.content?.find(b=>b.type==='text')?.text || 'Could not generate review.';
+    } else {
+      const r = await fetch(`${OLLAMA_BASE}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model:selectedModel,messages:[{role:'user',content:reviewPrompt}],stream:false}), signal:AbortSignal.timeout(180000) });
+      const d = await r.json(); reviewText = d.message?.content || 'Could not generate review.';
+    }
+    return res.json({ ok: true, review: reviewText, repo: `${owner}/${repo}`, filesReviewed: fileContents.map(f => f.path) });
+  } catch (err) {
+    return res.status(500).json({ error: `Review failed: ${err.message}` });
+  }
+});
+
+// ── Health check — all three providers ───────────────────────
+app.get('/api/health', async (req, res) => {
+  const { default: fetch } = await import('node-fetch');
+  const result = {
+    server:    'ok',
+    groq:      GROQ_KEY      ? 'key_set'  : 'no_key',
+    claude:    ANTHROPIC_KEY ? 'key_set'  : 'no_key',
+    ollama:    'offline',
+    ollamaModels: []
+  };
+
+  // Probe Ollama
+  try {
     const r = await fetch(`${OLLAMA_BASE}/api/tags`, { signal: AbortSignal.timeout(2000) });
     const data = await r.json();
-    res.json({ server: 'ok', ollama: 'ok', models: data.models?.map(m => m.name) || [] });
-  } catch {
-    res.json({ server: 'ok', ollama: 'offline', models: [] });
-  }
+    result.ollama       = 'ok';
+    const EMBED_ONLY = ['nomic-embed-text', 'mxbai-embed', 'all-minilm', 'snowflake-arctic-embed', 'bge-m3', 'bge-large'];
+    result.ollamaModels = (data.models || [])
+      .map(m => m.name)
+      .filter(n => !EMBED_ONLY.some(e => n.startsWith(e)));
+  } catch { /* offline */ }
+
+  if (ragEnabled) result.rag = { ...ragGetStatus(), available: true };
+  res.json(result);
 });
 
-// ── Serve SPA ─────────────────────────────────────────────────────────────
+// ── SPA catch-all ─────────────────────────────────────────────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 Selenium Training App running at http://localhost:${PORT}`);
-  console.log(`📚 Open your browser and start learning!\n`);
-  console.log(`💬 For AI chat, ensure Ollama is running:`);
-  console.log(`   ollama serve`);
-  console.log(`   ollama pull qwen3:latest\n`);
+  console.log(`\n🚀 Selenium Training App → http://localhost:${PORT}`);
+  console.log(`\n🤖 AI Providers:`);
+  console.log(`   Groq   : ${GROQ_KEY      ? '✅ key set' : '❌ set GROQ_API_KEY'}`);
+  console.log(`   Claude : ${ANTHROPIC_KEY ? '✅ key set' : '⚠️  set ANTHROPIC_API_KEY (optional)'}`);
+  console.log(`   Ollama : run "ollama serve" for local models`);
+  if (ragEnabled) {
+    const rs = ragGetStatus();
+    console.log(`\n📚 RAG Knowledge Base:`);
+    console.log(`   Status : ${rs.synced ? `✅ ${rs.count} chunks, ${rs.sources.length} sources` : '⏳ Not synced — open Settings → Sync Docs'}`);
+    if (!rs.synced) console.log(`   Setup  : ollama pull nomic-embed-text:latest`);
+  }
+  console.log('');
 });
