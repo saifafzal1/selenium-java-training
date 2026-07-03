@@ -691,7 +691,7 @@ function renderAffiliatePanel(lesson, module) {
       <span class="affiliate-sub">Curated tools &amp; courses to accelerate your learning</span>
     </div>
     <div class="affiliate-grid">
-      <a class="affiliate-card" href="https://www.udemy.com/course/selenium-webdriver-with-java-testng-and-log4j/?couponCode=LEARNNOWPLANS" target="_blank" rel="noopener">
+      <a class="affiliate-card" href="https://trk.udemy.com/PzBXKM" target="_blank" rel="noopener">
         <div class="aff-icon">🎓</div>
         <div class="aff-body">
           <div class="aff-name">Selenium WebDriver + Java</div>
