@@ -17,19 +17,19 @@
   <title>Automation AI Labs | Free Test Automation Training</title>
   <meta name="description" content="Free Selenium WebDriver with Java course. Learn test automation from scratch — WebDriver setup, Page Object Model, TestNG, Maven, and CI/CD. AI assistant included."/>
   <meta name="keywords" content="selenium with java, selenium webdriver tutorial, selenium java tutorial, test automation java, page object model selenium, testng tutorial, automation testing course free, selenium interview questions"/>
-  <meta name="author" content="Automation AI Labs"/>
+  <meta name="author" content="Automation AI Lab"/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://automation-labs-training-ai.vercel.app/"/>
 
   <!-- ── Open Graph ──────────────────────────────────────────── -->
   <meta property="og:type" content="website"/>
-  <meta property="og:title" content="Automation AI Labs | Free Test Automation Training"/>
+  <meta property="og:title" content="Selenium with Java — Free Test Automation Course"/>
   <meta property="og:description" content="Go from zero to Selenium expert. Free hands-on course with AI assistant, real exercises, and 17 lessons. No experience needed."/>
   <meta property="og:url" content="https://automation-labs-training-ai.vercel.app/"/>
 
   <!-- ── Twitter Card ────────────────────────────────────────── -->
   <meta name="twitter:card" content="summary"/>
-  <meta name="twitter:title" content="Automation AI Labs | Free Test Automation Training"/>
+  <meta name="twitter:title" content="Selenium with Java — Free Test Automation Course"/>
   <meta name="twitter:description" content="Free Selenium WebDriver with Java training. Hands-on exercises, AI assistant, from beginner to expert."/>
 
   <!-- ── Structured Data ────────────────────────────────────── -->
@@ -39,7 +39,7 @@
     "@type": "Course",
     "name": "Selenium with Java — Test Automation Training",
     "description": "Free hands-on Selenium WebDriver with Java course. Covers WebDriver setup, Page Object Model, TestNG, Maven, CI/CD pipelines.",
-    "provider": { "@type": "Organization", "name": "Automation AI Labs", "url": "https://automation-labs-training-ai.vercel.app" },
+    "provider": { "@type": "Organization", "name": "Automation AI Lab", "url": "https://automation-labs-training-ai.vercel.app" },
     "url": "https://automation-labs-training-ai.vercel.app",
     "hasCourseInstance": { "@type": "CourseInstance", "courseMode": "online", "price": "0", "priceCurrency": "USD" }
   }
@@ -56,33 +56,38 @@
 
 <!-- ── Header ──────────────────────────────────────────────── -->
 <header id="header">
-  <div class="logo">
-    <div class="logo-icon">▶</div>
-    Automation <span>AI-Lab</span>
+  <!-- Row 1: Logo + progress + utility buttons -->
+  <div class="header-row-1">
+    <div class="logo">
+      <div class="logo-icon">▶</div>
+      Automation <span>AI-Lab</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0 / 0 lessons</div>
+    <div class="header-right">
+      <a href="/blog/" class="btn btn-ghost" style="text-decoration:none">📝 Blog</a>
+      <a href="/help.html" class="btn btn-ghost" style="text-decoration:none">❓ Help</a>
+      <button class="btn btn-ghost" id="toggle-chat-btn">💬 AI Chat</button>
+      <button class="btn btn-ghost" id="feedback-btn" title="Rate this lesson">⭐ Feedback</button>
+      <button class="btn btn-ghost" id="reset-btn" title="Reset progress">↺ Reset</button>
+    </div>
   </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-  </div>
-  <div class="progress-text" id="progress-text">0 / 0 lessons</div>
-  <!-- Course Switcher -->
-  <div class="course-switcher" id="course-switcher">
-    <button class="course-switch-btn active" id="btn-selenium" onclick="switchCourse('selenium')">☕ Selenium/Java</button>
-    <button class="course-switch-btn" id="btn-playwright" onclick="switchCourse('playwright')">🎭 Playwright</button>
-    <button class="course-switch-btn" id="btn-api" onclick="switchCourse('api')">🔌 API Testing</button>
-    <button class="course-switch-btn" id="btn-e2e" onclick="switchCourse('e2e')">🔗 E2E Integration</button>
-    <button class="course-switch-btn" id="btn-jmeter" onclick="switchCourse('jmeter')">⚡ JMeter Performance</button>
-  </div>
-  <div class="header-right">
-    <a href="/blog/" class="btn btn-ghost" style="text-decoration:none">📝 Blog</a>
-    <a href="/help.html" class="btn btn-ghost" style="text-decoration:none">❓ Help</a>
-    <button class="btn btn-ghost" id="toggle-chat-btn">💬 AI Chat</button>
-    <button class="btn btn-ghost" id="feedback-btn" title="Rate this lesson">⭐ Feedback</button>
-    <button class="btn btn-ghost" id="reset-btn" title="Reset progress">↺ Reset</button>
+  <!-- Row 2: Course tabs -->
+  <div class="header-row-2">
+    <div class="course-switcher" id="course-switcher">
+      <button class="course-switch-btn active" id="btn-selenium" onclick="switchCourse('selenium')">☕ Selenium/Java</button>
+      <button class="course-switch-btn" id="btn-playwright" onclick="switchCourse('playwright')">🎭 Playwright</button>
+      <button class="course-switch-btn" id="btn-api" onclick="switchCourse('api')">🔌 API Testing</button>
+      <button class="course-switch-btn" id="btn-e2e" onclick="switchCourse('e2e')">🔗 E2E Integration</button>
+      <button class="course-switch-btn" id="btn-jmeter" onclick="switchCourse('jmeter')">⚡ JMeter Performance</button>
+    </div>
   </div>
 </header>
 
 <!-- Server-mode banner (hidden by default; shown if running via Node) -->
-<div id="file-mode-banner" style="display:none;background:#f59e0b;color:#000;font-size:13px;padding:8px 16px;text-align:center;position:fixed;top:56px;left:0;right:0;z-index:99">
+<div id="file-mode-banner" style="display:none">
   ⚠️ Running in file:// mode — progress saved to browser only. For full features: <code>cd selenium-training &amp;&amp; npm install &amp;&amp; npm start</code> → open <strong>http://localhost:3000</strong>
 </div>
 
@@ -437,7 +442,7 @@
 <script src="js/playwright-curriculum.js"></script>
 <script src="js/playwright-curriculum-labs.js"></script>
 <script src="js/api-curriculum.js"></script>
-<script src="js/api-curriculum-advanced.js"></script>
+    <script src="js/api-curriculum-advanced.js"></script>
 <script src="js/api-curriculum-labs.js"></script>
 <script src="js/e2e-curriculum.js"></script>
 <script src="js/e2e-curriculum-advanced.js"></script>
@@ -453,13 +458,13 @@
     <div style="font-weight:800;font-size:16px;color:#E8EDF5;margin-bottom:8px">▶ AUTOMATION<span style="color:#FF6B2B">AI LAB</span></div>
     <div>Free Selenium with Java training.</div>
     <div>From beginner to automation expert.</div>
-    <div style="margin-top:12px">© 2025 Automation AI Labs</div>
+    <div style="margin-top:12px">© 2025 Automation AI Lab</div>
   </div>
   <div>
     <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Course</div>
     <div style="line-height:2"><a href="/" style="color:#9BA8BB;text-decoration:none">All Lessons</a></div>
     <div style="line-height:2"><a href="/blog/" style="color:#9BA8BB;text-decoration:none">Blog</a></div>
-    <div style="line-height:2"><a href="/help.html" style="color:#9BA8BB;text-decoration:none">Help &amp; Guide</a></div>
+    <div style="line-height:2"><a href="/help.html" style="color:#9BA8BB;text-decoration:none">Help & Guide</a></div>
     <div style="line-height:2"><a href="/blog/selenium-interview-questions-answers" style="color:#9BA8BB;text-decoration:none">Interview Prep</a></div>
   </div>
   <div>
