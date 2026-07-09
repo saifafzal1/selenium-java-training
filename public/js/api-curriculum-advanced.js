@@ -199,8 +199,8 @@ public void getAllBookingsReturnsArray() {
         .get("/booking")
     .then()
         .statusCode(200)
-        .body("$", not(empty()))              // Array is not empty
-        .body("bookingid", everyItem(notNullValue())); // Every item has bookingid
+        .body("$", not(empty()))
+        .body("bookingid", everyItem(notNullValue()));
 }
 \`\`\`
 
@@ -221,7 +221,7 @@ public void pingRespondsFast() {
             .get("/ping")
         .then()
             .statusCode(201)
-            .time(lessThan(3000L), MILLISECONDS);   // Under 3 seconds
+            .time(lessThan(3000L), MILLISECONDS);
 }
 \`\`\`
 
@@ -234,14 +234,14 @@ src/
 └── test/
     └── java/
         ├── base/
-        │   └── BaseTest.java       ← @BeforeClass setup (baseURI, logging)
+        │   └── BaseTest.java
         ├── tests/
         │   ├── HealthCheckTest.java
         │   ├── BookingReadTests.java
         │   ├── BookingWriteTests.java
         │   └── AuthTests.java
         └── utils/
-            └── TestDataBuilder.java  ← Builds request body objects
+            └── TestDataBuilder.java
 \`\`\`
 `,
         exercise: {
@@ -317,9 +317,7 @@ GET requests read data. The real test coverage comes from writing data — creat
 
 ### 📦 Building a Request Body
 
-You can pass a request body in two ways:
-
-**Option 1: String (simple, quick)**
+**Option 1: String**
 \`\`\`java
 String body = """
     {
@@ -330,8 +328,7 @@ String body = """
         "bookingdates": {
             "checkin": "2026-03-01",
             "checkout": "2026-03-07"
-        },
-        "additionalneeds": "Dinner"
+        }
     }
     """;
 \`\`\`
@@ -348,7 +345,6 @@ booking.put("lastname", "Smith");
 booking.put("totalprice", 250);
 booking.put("depositpaid", false);
 booking.put("bookingdates", bookingDates);
-booking.put("additionalneeds", "Dinner");
 \`\`\`
 
 ---
@@ -363,12 +359,11 @@ public void createBookingReturnsCorrectData() {
     bookingDates.put("checkout", "2026-03-07");
 
     Map<String, Object> booking = new HashMap<>();
-    booking.put("firstname",      "Sally");
-    booking.put("lastname",       "Smith");
-    booking.put("totalprice",     250);
-    booking.put("depositpaid",    false);
-    booking.put("bookingdates",   bookingDates);
-    booking.put("additionalneeds","Dinner");
+    booking.put("firstname",    "Sally");
+    booking.put("lastname",     "Smith");
+    booking.put("totalprice",   250);
+    booking.put("depositpaid",  false);
+    booking.put("bookingdates", bookingDates);
 
     given()
         .header("Content-Type", "application/json")
@@ -378,14 +373,9 @@ public void createBookingReturnsCorrectData() {
         .post("/booking")
     .then()
         .statusCode(200)
-        .body("bookingid",            notNullValue())
-        .body("booking.firstname",    equalTo("Sally"))
-        .body("booking.lastname",     equalTo("Smith"))
-        .body("booking.totalprice",   equalTo(250))
-        .body("booking.depositpaid",  equalTo(false))
-        .body("booking.bookingdates.checkin",  equalTo("2026-03-01"))
-        .body("booking.bookingdates.checkout", equalTo("2026-03-07"))
-        .body("booking.additionalneeds",       equalTo("Dinner"));
+        .body("bookingid",           notNullValue())
+        .body("booking.firstname",   equalTo("Sally"))
+        .body("booking.totalprice",  equalTo(250));
 }
 \`\`\`
 
@@ -396,7 +386,6 @@ public void createBookingReturnsCorrectData() {
 \`\`\`java
 int bookingId = given()
         .header("Content-Type", "application/json")
-        .header("Accept",       "application/json")
         .body(booking)
     .when()
         .post("/booking")
@@ -433,33 +422,17 @@ String token = given()
 ### 🔄 PUT — Replace a Booking Entirely
 
 \`\`\`java
-@Test
-public void updateBookingReplacesAllFields() {
-    Map<String, Object> updatedDates = new HashMap<>();
-    updatedDates.put("checkin",  "2026-06-01");
-    updatedDates.put("checkout", "2026-06-10");
-
-    Map<String, Object> updatedBooking = new HashMap<>();
-    updatedBooking.put("firstname",      "James");
-    updatedBooking.put("lastname",       "Brown");
-    updatedBooking.put("totalprice",     500);
-    updatedBooking.put("depositpaid",    true);
-    updatedBooking.put("bookingdates",   updatedDates);
-    updatedBooking.put("additionalneeds","Lunch");
-
-    given()
-        .header("Content-Type", "application/json")
-        .header("Accept",       "application/json")
-        .header("Cookie",       "token=" + token)
-        .body(updatedBooking)
-    .when()
-        .put("/booking/" + bookingId)
-    .then()
-        .statusCode(200)
-        .body("firstname",  equalTo("James"))
-        .body("lastname",   equalTo("Brown"))
-        .body("totalprice", equalTo(500));
-}
+given()
+    .header("Content-Type", "application/json")
+    .header("Accept",       "application/json")
+    .header("Cookie",       "token=" + token)
+    .body(updatedBooking)
+.when()
+    .put("/booking/" + bookingId)
+.then()
+    .statusCode(200)
+    .body("firstname",  equalTo("James"))
+    .body("totalprice", equalTo(500));
 \`\`\`
 
 ---
@@ -467,20 +440,16 @@ public void updateBookingReplacesAllFields() {
 ### 📝 PATCH — Update One Field Only
 
 \`\`\`java
-@Test
-public void partialUpdateChangesOnlyPrice() {
-    given()
-        .header("Content-Type", "application/json")
-        .header("Accept",       "application/json")
-        .header("Cookie",       "token=" + token)
-        .body("{ \\"totalprice\\": 999 }")
-    .when()
-        .patch("/booking/" + bookingId)
-    .then()
-        .statusCode(200)
-        .body("totalprice", equalTo(999))
-        .body("firstname",  equalTo("James"));
-}
+given()
+    .header("Content-Type", "application/json")
+    .header("Cookie",       "token=" + token)
+    .body("{ \\"totalprice\\": 999 }")
+.when()
+    .patch("/booking/" + bookingId)
+.then()
+    .statusCode(200)
+    .body("totalprice", equalTo(999))
+    .body("firstname",  equalTo("James"));
 \`\`\`
 
 ---
@@ -488,22 +457,20 @@ public void partialUpdateChangesOnlyPrice() {
 ### 🗑️ DELETE — Remove a Booking
 
 \`\`\`java
-@Test
-public void deleteBookingRemovesIt() {
-    given()
-        .header("Cookie", "token=" + token)
-    .when()
-        .delete("/booking/" + bookingId)
-    .then()
-        .statusCode(201);
+// 1. Delete
+given()
+    .header("Cookie", "token=" + token)
+.when()
+    .delete("/booking/" + bookingId)
+.then()
+    .statusCode(201);
 
-    given()
-        .header("Accept", "application/json")
-    .when()
-        .get("/booking/" + bookingId)
-    .then()
-        .statusCode(404);
-}
+// 2. Verify it's gone
+given()
+.when()
+    .get("/booking/" + bookingId)
+.then()
+    .statusCode(404);
 \`\`\`
 
 ---
@@ -511,21 +478,12 @@ public void deleteBookingRemovesIt() {
 ### ⚙️ Base Test Class
 
 \`\`\`java
-package base;
-
-import io.restassured.RestAssured;
-import org.testng.annotations.BeforeClass;
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-
 public class BaseTest {
-
     protected String token;
 
     @BeforeClass
     public void setUp() {
         RestAssured.baseURI = "https://restful-booker.herokuapp.com";
-
         token = given()
                     .header("Content-Type", "application/json")
                     .body("{ \\"username\\": \\"admin\\", \\"password\\": \\"password123\\" }")
@@ -608,19 +566,11 @@ Run with mvn test and screenshot all 6 tests passing.`,
         content: `
 ## 🔐 Authentication Patterns in REST Assured
 
-Most real APIs require authentication — you need to prove who you are before you can read or change data. There are three patterns you'll encounter in every QA role.
+Most real APIs require authentication. There are three patterns you'll encounter in every QA role.
 
 ---
 
 ### 1️⃣ Basic Authentication
-
-**How it works:** Username and password encoded in Base64, sent in the Authorization header.
-
-\`\`\`
-Authorization: Basic YWRtaW46cGFzc3dvcmQxMjM=
-\`\`\`
-
-**In REST Assured:**
 
 \`\`\`java
 given()
@@ -648,10 +598,6 @@ public void invalidCredentialsReturn401() {
 
 ### 2️⃣ Bearer Token (Most Common in Modern APIs)
 
-**How it works:**
-1. Login with credentials → server returns a token
-2. Every subsequent request includes the token in the Authorization header
-
 \`\`\`java
 String token = given()
         .contentType("application/json")
@@ -671,6 +617,16 @@ given()
     .body("email", equalTo("user@test.com"));
 \`\`\`
 
+On Restful-Booker the token goes in a Cookie header:
+\`\`\`java
+given()
+    .header("Cookie", "token=" + token)
+.when()
+    .delete("/booking/" + id)
+.then()
+    .statusCode(201);
+\`\`\`
+
 ---
 
 ### 3️⃣ OAuth2 — Token via Client Credentials
@@ -678,8 +634,8 @@ given()
 \`\`\`java
 String accessToken = given()
         .contentType("application/x-www-form-urlencoded")
-        .formParam("grant_type", "client_credentials")
-        .formParam("client_id",  "my-client-id")
+        .formParam("grant_type",    "client_credentials")
+        .formParam("client_id",     "my-client-id")
         .formParam("client_secret", "my-client-secret")
     .when()
         .post("https://auth.myapp.com/oauth/token")
@@ -700,59 +656,14 @@ given()
 ### 🏗️ RequestSpecification — Avoid Repeating Auth Setup
 
 \`\`\`java
-import io.restassured.specification.RequestSpecification;
-import io.restassured.builder.RequestSpecBuilder;
+requestSpec = new RequestSpecBuilder()
+    .addHeader("Content-Type", "application/json")
+    .addHeader("Accept",       "application/json")
+    .addHeader("Cookie",       "token=" + token)
+    .build();
 
-public class BaseTest {
-
-    protected static RequestSpecification requestSpec;
-    protected static String token;
-
-    @BeforeClass
-    public static void setUp() {
-        RestAssured.baseURI = "https://restful-booker.herokuapp.com";
-
-        token = given()
-                    .contentType("application/json")
-                    .body("{ \\"username\\": \\"admin\\", \\"password\\": \\"password123\\" }")
-                .when()
-                    .post("/auth")
-                .then()
-                    .statusCode(200)
-                    .extract().path("token");
-
-        requestSpec = new RequestSpecBuilder()
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Accept",       "application/json")
-            .addHeader("Cookie",       "token=" + token)
-            .build();
-    }
-}
-\`\`\`
-
-Use it with \`given(requestSpec)\`:
-
-\`\`\`java
-@Test
-public void updateWithAuthSucceeds() {
-    given(requestSpec)
-        .body(updatedBooking)
-    .when()
-        .put("/booking/" + bookingId)
-    .then()
-        .statusCode(200);
-}
-
-@Test
-public void updateWithoutAuthFails() {
-    given()
-        .contentType("application/json")
-        .body(updatedBooking)
-    .when()
-        .put("/booking/" + bookingId)
-    .then()
-        .statusCode(403);
-}
+// Use it with given(requestSpec):
+given(requestSpec).body(updated).when().put("/booking/" + id).then().statusCode(200);
 \`\`\`
 
 ---
@@ -771,17 +682,17 @@ public void updateWithoutAuthFails() {
           title: 'Test All Auth Scenarios for Restful-Booker',
           task: `Write an AuthTests.java class with 5 test methods:
 
-1. validCredentialsReturnToken() — POST /auth with correct credentials, assert token is returned and is a non-empty string
-2. invalidPasswordReturnsError() — POST /auth with wrong password, assert response indicates failure
-3. updateWithValidTokenSucceeds() — PUT /booking/{id} with token in Cookie header, assert 200
-4. updateWithoutTokenFails() — PUT /booking/{id} with NO Cookie header, assert 403
-5. deleteWithValidTokenSucceeds() — DELETE /booking/{id} with token, then GET to verify 404
+1. validCredentialsReturnToken()
+2. invalidPasswordReturnsError()
+3. updateWithValidTokenSucceeds()
+4. updateWithoutTokenFails()
+5. deleteWithValidTokenSucceeds()
 
-Extend BaseTest so the token is obtained in @BeforeClass. Run mvn test and screenshot all 5 passing.`,
+Run mvn test and screenshot all 5 passing.`,
           hints: [
-            'Restful-Booker returns { "reason": "Bad credentials" } for invalid auth — you can assert that too',
-            'Test 4 is important: it proves unauthorised access is blocked — a security test disguised as a functional test',
-            'You need a valid bookingId for tests 3, 4, 5 — create one in @BeforeClass as well'
+            'Restful-Booker returns { "reason": "Bad credentials" } for invalid auth',
+            'Test 4 proves unauthorised access is blocked — a security test disguised as a functional test',
+            'You need a valid bookingId for tests 3, 4, 5 — create one in @BeforeClass'
           ]
         },
         quiz: [
@@ -836,8 +747,6 @@ Extend BaseTest so the token is obtained in @BeforeClass. Run mvn test and scree
         content: `
 ## 📊 Data-Driven API Testing with TestNG DataProvider
 
-Imagine you need to test the Create Booking endpoint with 10 different guest names, price ranges, and date combinations. Writing 10 separate test methods would be repetitive and hard to maintain.
-
 **Data-driven testing** lets you write ONE test method that runs with multiple datasets automatically.
 
 ---
@@ -845,76 +754,20 @@ Imagine you need to test the Create Booking endpoint with 10 different guest nam
 ### 🔁 @DataProvider Basics
 
 \`\`\`java
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-public class BookingDataDrivenTest extends BaseTest {
-
-    @DataProvider(name = "bookingData")
-    public Object[][] getBookingData() {
-        return new Object[][] {
-            // firstname, lastname, price, depositPaid, checkin,       checkout
-            { "Alice",   "Johnson", 100,   true,  "2026-01-01", "2026-01-07" },
-            { "Bob",     "Smith",   250,   false, "2026-02-15", "2026-02-20" },
-            { "Charlie", "Brown",   500,   true,  "2026-03-10", "2026-03-17" },
-            { "Diana",   "Prince",  75,    false, "2026-04-05", "2026-04-06" },
-        };
-    }
-
-    @Test(dataProvider = "bookingData")
-    public void createBookingWithVariousData(
-            String firstName, String lastName, int price,
-            boolean depositPaid, String checkin, String checkout) {
-
-        Map<String, Object> dates = new HashMap<>();
-        dates.put("checkin",  checkin);
-        dates.put("checkout", checkout);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("firstname",    firstName);
-        body.put("lastname",     lastName);
-        body.put("totalprice",   price);
-        body.put("depositpaid",  depositPaid);
-        body.put("bookingdates", dates);
-
-        given()
-            .contentType("application/json")
-            .accept("application/json")
-            .body(body)
-        .when()
-            .post("/booking")
-        .then()
-            .statusCode(200)
-            .body("bookingid",         notNullValue())
-            .body("booking.firstname", equalTo(firstName))
-            .body("booking.lastname",  equalTo(lastName))
-            .body("booking.totalprice",equalTo(price));
-    }
-}
-\`\`\`
-
-TestNG runs this test **4 times** — once per row in the DataProvider.
-
----
-
-### ❌ Testing Invalid Inputs
-
-\`\`\`java
-@DataProvider(name = "invalidBookingData")
-public Object[][] getInvalidBookingData() {
+@DataProvider(name = "bookingData")
+public Object[][] getBookingData() {
     return new Object[][] {
-        // description,            firstname, lastname, price, checkin,       checkout,       expectedStatus
-        { "Missing firstname",     null,      "Smith",  100,   "2026-01-01", "2026-01-07",  500 },
-        { "Empty lastname",        "John",    "",       100,   "2026-01-01", "2026-01-07",  500 },
-        { "Negative price",        "John",    "Smith",  -50,   "2026-01-01", "2026-01-07",  200 },
-        { "Checkout before checkin","John",   "Smith",  100,   "2026-01-07", "2026-01-01",  200 },
+        { "Alice",   "Johnson", 100,  true,  "2026-01-01", "2026-01-07" },
+        { "Bob",     "Smith",   250,  false, "2026-02-15", "2026-02-20" },
+        { "Charlie", "Brown",   500,  true,  "2026-03-10", "2026-03-17" },
+        { "Diana",   "Prince",  75,   false, "2026-04-05", "2026-04-06" },
     };
 }
 
-@Test(dataProvider = "invalidBookingData")
-public void createBookingWithInvalidData(
-        String description, String firstName, String lastName,
-        int price, String checkin, String checkout, int expectedStatus) {
+@Test(dataProvider = "bookingData")
+public void createBookingWithVariousData(
+        String firstName, String lastName, int price,
+        boolean depositPaid, String checkin, String checkout) {
 
     Map<String, Object> dates = new HashMap<>();
     dates.put("checkin",  checkin);
@@ -924,7 +777,7 @@ public void createBookingWithInvalidData(
     body.put("firstname",    firstName);
     body.put("lastname",     lastName);
     body.put("totalprice",   price);
-    body.put("depositpaid",  false);
+    body.put("depositpaid",  depositPaid);
     body.put("bookingdates", dates);
 
     given()
@@ -933,9 +786,30 @@ public void createBookingWithInvalidData(
     .when()
         .post("/booking")
     .then()
-        .statusCode(expectedStatus);
+        .statusCode(200)
+        .body("booking.firstname", equalTo(firstName))
+        .body("booking.totalprice", equalTo(price));
 }
 \`\`\`
+
+TestNG runs this test **4 times** — once per row.
+
+---
+
+### ❌ Testing Invalid Inputs
+
+\`\`\`java
+@DataProvider(name = "invalidBookingData")
+public Object[][] getInvalidBookingData() {
+    return new Object[][] {
+        { "Missing firstname", null,   "Smith", 100, "2026-01-01", "2026-01-07", 500 },
+        { "Empty lastname",    "John", "",      100, "2026-01-01", "2026-01-07", 500 },
+        { "Negative price",    "John", "Smith", -50, "2026-01-01", "2026-01-07", 200 },
+    };
+}
+\`\`\`
+
+> When the API accepts invalid data (negative price), that itself is a bug worth reporting.
 
 ---
 
@@ -945,22 +819,17 @@ public void createBookingWithInvalidData(
 @DataProvider(name = "csvBookingData")
 public Object[][] getBookingDataFromCsv() throws IOException {
     List<Object[]> data = new ArrayList<>();
-
     try (BufferedReader reader = new BufferedReader(new FileReader(
             "src/test/resources/booking-test-data.csv"))) {
-
         String line;
-        reader.readLine(); // Skip header row
-
+        reader.readLine(); // skip header
         while ((line = reader.readLine()) != null) {
             String[] cols = line.split(",");
             data.add(new Object[] {
-                cols[0],
-                cols[1],
+                cols[0], cols[1],
                 Integer.parseInt(cols[2]),
                 Boolean.parseBoolean(cols[3]),
-                cols[4],
-                cols[5]
+                cols[4], cols[5]
             });
         }
     }
@@ -973,30 +842,26 @@ public Object[][] getBookingDataFromCsv() throws IOException {
 ### 📊 TestNG Data-Driven Results
 
 \`\`\`
-Tests run: 4, Failures: 0, Errors: 0
-
-  ✅ createBookingWithVariousData[0] — Alice Johnson  £100   PASSED (312ms)
-  ✅ createBookingWithVariousData[1] — Bob Smith      £250   PASSED (198ms)
-  ✅ createBookingWithVariousData[2] — Charlie Brown  £500   PASSED (245ms)
-  ✅ createBookingWithVariousData[3] — Diana Prince   £75    PASSED (187ms)
+✅ createBookingWithVariousData[0] — Alice Johnson  £100   PASSED
+✅ createBookingWithVariousData[1] — Bob Smith      £250   PASSED
+✅ createBookingWithVariousData[2] — Charlie Brown  £500   PASSED
+✅ createBookingWithVariousData[3] — Diana Prince   £75    PASSED
 \`\`\`
-
-If one dataset fails, only that row is marked as failed — the others still pass.
 `,
         exercise: {
           title: 'Build a Data-Driven Booking Test Suite',
           task: `Create a BookingDataDrivenTest class with two DataProviders:
 
-1. "validBookings" — 5 different guest/price/date combinations. Run createBooking with each and assert all fields match.
-2. "searchFilters" — test GET /booking with query parameters: ?firstname=Bob, ?lastname=Smith, ?checkin=2026-01-01, ?checkout=2026-01-07. For each, assert status 200 and the response is an array.
+1. "validBookings" — 5 different guest/price/date combinations
+2. "searchFilters" — test GET /booking with various query parameters
 
-Also create a CSV file with at least 3 bookings and write a 3rd DataProvider that reads from it.
+Also create a CSV file with at least 3 bookings and a DataProvider that reads from it.
 
-Run all tests with mvn test and screenshot showing the parameterised test names in the results.`,
+Run all tests with mvn test and screenshot the parameterised test names.`,
           hints: [
-            'For query parameters in REST Assured, use .queryParam("firstname", value) in the given() section',
-            'The CSV DataProvider needs the file in src/test/resources/ — make sure this folder exists',
-            'TestNG names parameterised tests as methodName[row-index] — check the output to see them'
+            'For query parameters in REST Assured, use .queryParam("firstname", value)',
+            'The CSV file goes in src/test/resources/',
+            'TestNG names parameterised tests as methodName[row-index]'
           ]
         },
         quiz: [
@@ -1061,8 +926,6 @@ Run all tests with mvn test and screenshot showing the parameterised test names 
         content: `
 ## 📊 Allure Reporting for REST Assured
 
-Running tests in the terminal is fine for you. But when a test fails and you need to share what happened with your team or a developer, you need a proper report.
-
 **Allure Report** turns raw TestNG output into a beautiful, shareable HTML dashboard.
 
 ---
@@ -1084,7 +947,6 @@ Running tests in the terminal is fine for you. But when a test fails and you nee
     <scope>test</scope>
 </dependency>
 
-<!-- In the build > plugins section: -->
 <plugin>
     <groupId>io.qameta.allure</groupId>
     <artifactId>allure-maven</artifactId>
@@ -1100,8 +962,6 @@ Running tests in the terminal is fine for you. But when a test fails and you nee
 ### 🏷️ Allure Annotations
 
 \`\`\`java
-import io.qameta.allure.*;
-
 @Epic("Booking API")
 @Feature("Create Booking")
 public class CreateBookingTest extends BaseTest {
@@ -1110,49 +970,26 @@ public class CreateBookingTest extends BaseTest {
     @Story("Valid booking creation")
     @Description("Creates a booking and verifies all fields are returned correctly")
     @Severity(SeverityLevel.CRITICAL)
-    public void createBookingWithValidData() {
-        // test code...
-    }
+    public void createBookingWithValidData() { }
 }
 \`\`\`
-
-| Annotation | What it adds to the report |
-|---|---|
-| @Epic | Top-level grouping |
-| @Feature | Sub-grouping |
-| @Story | Test story |
-| @Description | Full description shown in the report |
-| @Severity | BLOCKER, CRITICAL, NORMAL, MINOR, TRIVIAL |
-| @Step | Label for individual steps within a test |
 
 ---
 
 ### 📡 Logging Requests/Responses to Allure
 
 \`\`\`java
-import io.qameta.allure.restassured.AllureRestAssured;
-
 // In your BaseTest @BeforeClass — add this once:
 RestAssured.filters(new AllureRestAssured());
 \`\`\`
 
-That single line automatically attaches every request and response to each test in the Allure report.
+That single line automatically attaches every request and response to each test.
 
 ---
 
-### 📝 @Step Annotations for Readable Steps
+### 📝 @Step Annotations
 
 \`\`\`java
-@Test
-@Story("Full CRUD lifecycle")
-public void fullBookingLifecycle() {
-    int id = createBooking("Alice", "Smith", 100);
-    verifyBookingExists(id, "Alice");
-    updateBooking(id, "Alice Updated", 200);
-    deleteBooking(id);
-    verifyBookingDeleted(id);
-}
-
 @Step("Create booking for {firstName} {lastName}")
 private int createBooking(String firstName, String lastName, int price) {
     // ... REST Assured POST ...
@@ -1179,16 +1016,16 @@ mvn allure:serve
           title: 'Add Allure Reporting to Your Test Suite',
           task: `Add Allure to your existing REST Assured project:
 
-1. Add the allure-testng and allure-rest-assured dependencies to pom.xml
-2. Add RestAssured.filters(new AllureRestAssured()) to your BaseTest @BeforeClass
-3. Add @Epic, @Feature, @Story and @Severity annotations to each of your test classes
-4. Add at least 3 @Step methods to your BookingCRUDTest to break it into named steps
+1. Add allure-testng and allure-rest-assured to pom.xml
+2. Add RestAssured.filters(new AllureRestAssured()) to BaseTest
+3. Add @Epic, @Feature, @Story and @Severity to each test class
+4. Add at least 3 @Step methods to BookingCRUDTest
 5. Run mvn clean test && mvn allure:serve
-6. Screenshot the Allure Overview page and one test's step-by-step detail page`,
+6. Screenshot the Overview page and one test's step-by-step detail`,
           hints: [
-            'The allure-results/ folder is created after "mvn test" — the report is built from these raw files',
-            'If allure:serve doesn\'t open automatically, the terminal shows the URL — usually http://localhost:port',
-            'Attach a custom note with Allure.addAttachment("Note", "text/plain", "What went wrong here", "txt")'
+            'allure-results/ is created after mvn test — the report is built from these raw files',
+            'If allure:serve does not open automatically, look for the URL in the terminal output',
+            'Attach notes with Allure.addAttachment("Note", "text/plain", "message", "txt")'
           ]
         },
         quiz: [
@@ -1238,35 +1075,6 @@ mvn allure:serve
         content: `
 ## 🚀 REST Assured in GitHub Actions
 
-Your test suite runs locally. The final step is making it run automatically every time your code changes — without you having to do anything.
-
----
-
-### 📁 Repository Structure
-
-\`\`\`
-restful-booker-rest-assured/
-├── .github/
-│   └── workflows/
-│       └── api-tests.yml
-├── src/
-│   ├── main/java/
-│   └── test/
-│       ├── java/
-│       │   ├── base/BaseTest.java
-│       │   ├── tests/
-│       │   │   ├── HealthCheckTest.java
-│       │   │   ├── BookingCRUDTest.java
-│       │   │   ├── AuthTests.java
-│       │   │   └── BookingDataDrivenTest.java
-│       │   └── utils/TestDataBuilder.java
-│       └── resources/
-│           ├── testng.xml
-│           └── booking-test-data.csv
-├── pom.xml
-└── README.md
-\`\`\`
-
 ---
 
 ### 📝 testng.xml
@@ -1274,32 +1082,28 @@ restful-booker-rest-assured/
 \`\`\`xml
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Restful-Booker API Test Suite" parallel="none">
-
     <test name="Health &amp; Auth">
         <classes>
             <class name="tests.HealthCheckTest"/>
             <class name="tests.AuthTests"/>
         </classes>
     </test>
-
     <test name="CRUD Operations">
         <classes>
             <class name="tests.BookingCRUDTest"/>
         </classes>
     </test>
-
     <test name="Data-Driven Tests">
         <classes>
             <class name="tests.BookingDataDrivenTest"/>
         </classes>
     </test>
-
 </suite>
 \`\`\`
 
 ---
 
-### 📝 The GitHub Actions Workflow
+### 📝 GitHub Actions Workflow
 
 \`\`\`yaml
 name: REST Assured API Tests
@@ -1314,10 +1118,8 @@ on:
 jobs:
   api-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -1326,7 +1128,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run API tests with Maven
+      - name: Run API tests
         run: |
           mvn clean test \\
             -Dapi.username=\${{ secrets.API_USERNAME }} \\
@@ -1344,28 +1146,19 @@ jobs:
           name: allure-report-\${{ github.run_number }}
           path: target/site/allure-maven-plugin/
           retention-days: 30
-
-      - name: Upload Surefire XML Results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: surefire-results
-          path: target/surefire-reports/
 \`\`\`
 
 ---
 
-### 🔐 Using Secrets in REST Assured Tests
+### 🔐 Read Credentials from System Properties
 
 \`\`\`java
 @BeforeClass
 public void setUp() {
     RestAssured.baseURI = System.getProperty("base.url",
         "https://restful-booker.herokuapp.com");
-
     String username = System.getProperty("api.username", "admin");
     String password = System.getProperty("api.password", "password123");
-
     token = given()
                 .contentType("application/json")
                 .body("{ \\"username\\": \\"" + username + "\\", \\"password\\": \\"" + password + "\\" }")
@@ -1390,25 +1183,23 @@ You can:
 - Use DataProviders for efficient test coverage
 - Generate beautiful Allure reports
 - Run everything automatically in GitHub Actions
-
-**This is the complete professional API testing skill set.**
 `,
         exercise: {
           title: 'Deploy Your Full API Test Suite to GitHub Actions',
-          task: `Set up the complete CI pipeline for your REST Assured project:
+          task: `Set up the complete CI pipeline:
 
 1. Push your project to a GitHub repository
-2. Create testng.xml that runs all your test classes in the correct order
-3. Create .github/workflows/api-tests.yml with JDK setup, mvn test, allure:report, and artifact upload
+2. Create testng.xml running all test classes in order
+3. Create .github/workflows/api-tests.yml
 4. Add API_USERNAME and API_PASSWORD as GitHub Secrets
 5. Update BaseTest to read credentials from System.getProperty()
 6. Push to main and watch the Actions tab
-7. Download the Allure report artifact when the run completes
-8. Screenshot: (a) green workflow run in Actions tab, (b) downloaded Allure report open in browser`,
+7. Download the Allure report artifact
+8. Screenshot: green workflow run + Allure report open in browser`,
           hints: [
-            'The "cache: maven" option in setup-java dramatically speeds up subsequent runs by caching downloaded JARs',
-            'Use "if: always()" on the allure:report and upload steps so reports are available even for failed runs',
-            'If mvn test fails on CI but passes locally, use getClass().getClassLoader().getResourceAsStream() for reliable CI resource paths'
+            '"cache: maven" in setup-java dramatically speeds up subsequent runs',
+            '"if: always()" ensures reports upload even when tests fail',
+            'If tests fail on CI but pass locally, use getClass().getClassLoader().getResourceAsStream() for resource files'
           ]
         },
         quiz: [
@@ -1436,18 +1227,17 @@ You can:
           },
           {
             type: 'truefalse',
-            q: 'The "if: always()" condition on the Allure report upload step is important because it ensures reports are available even when tests fail.',
+            q: 'The "if: always()" condition on the Allure report upload step ensures reports are available even when tests fail.',
             answer: true
           },
           {
             type: 'fillin',
-            q: 'In Maven, you pass a system property to tests using the _______ syntax on the command line (e.g. -Dapi.username=admin).',
+            q: 'In Maven, you pass a system property to tests using the _______ syntax on the command line.',
             answer: '-D'
           }
         ]
       }
     ]
   }
-
 
 ); // end API_CURRICULUM (Modules 3-4)
