@@ -1,4 +1,4 @@
-// ── State ──────────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────
 let state = {
   progress: { completedLessons: [], lastVisited: null, notes: {} },
   currentLesson: null,
@@ -12,7 +12,7 @@ let state = {
   agentMode: false,    // multi-step chain: Refine → Answer → Review
   skillMode: 'explain', // AI persona: explain | debug | generate | quiz
   projectFolder: '',   // saved code destination
-  activeCourse: 'selenium'  // 'selenium' | 'playwright'
+  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api'
 };
 
 // ── Skill Prompts (AI Persona Modes) ───────────────────────────
@@ -87,15 +87,19 @@ const QUICK_PROMPTS_BY_SKILL = {
 
 // ── Active curriculum helpers ───────────────────────────────────
 function getActiveCurriculum() {
-  return state.activeCourse === 'playwright' ? PLAYWRIGHT_CURRICULUM : CURRICULUM;
+  if (state.activeCourse === 'playwright') return PLAYWRIGHT_CURRICULUM;
+  if (state.activeCourse === 'api') return API_CURRICULUM;
+  return CURRICULUM;
 }
 function getActiveLabs() {
-  return state.activeCourse === 'playwright' ? PLAYWRIGHT_LABS : CURRICULUM_LABS;
+  if (state.activeCourse === 'playwright') return PLAYWRIGHT_LABS;
+  if (state.activeCourse === 'api') return API_CURRICULUM_LABS;
+  return CURRICULUM_LABS;
 }
 function getProgressKey() {
-  return state.activeCourse === 'playwright'
-    ? 'playwright-training-progress'
-    : 'selenium-training-progress';
+  if (state.activeCourse === 'playwright') return 'playwright-training-progress';
+  if (state.activeCourse === 'api') return 'api-training-progress';
+  return 'selenium-training-progress';
 }
 
 // ── Course Switcher ─────────────────────────────────────────────
@@ -112,32 +116,46 @@ function switchCourse(course) {
   // Update button states
   document.getElementById('btn-selenium').classList.toggle('active', course === 'selenium');
   document.getElementById('btn-playwright').classList.toggle('active', course === 'playwright');
+  document.getElementById('btn-api').classList.toggle('active', course === 'api');
 
   // Update welcome screen content
   const isPlaywright = course === 'playwright';
-  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : '🚀';
+  const isApi = course === 'api';
+  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : '🚀';
   document.getElementById('welcome-title').innerHTML = isPlaywright
     ? 'Playwright —<br><em>From Zero to Expert</em>'
+    : isApi
+    ? 'API Test Execution —<br><em>From Zero to Expert</em>'
     : 'Selenium with Java —<br><em>From Zero to Expert</em>';
   document.getElementById('welcome-desc').textContent = isPlaywright
     ? 'Modern, fast, and built-in API testing. Learn Playwright from scratch with hands-on exercises, the Request Builder pattern, and CI/CD. The AI assistant is here to help.'
+    : isApi
+    ? 'Master API testing from scratch — Postman, REST Assured, Newman, and GitHub Actions CI/CD. Build a full Java automation suite against a real REST API. The AI assistant is here at every step.'
     : 'Hands-on, practical training with real exercises. Pick a lesson from the sidebar to begin. The AI assistant on the right can explain concepts, debug your code, and generate examples.';
 
   // Update certificate content
   document.getElementById('cert-course-title').innerHTML = isPlaywright
     ? 'Playwright<br><span>Test Automation Training</span>'
+    : isApi
+    ? 'API Test Execution<br><span>Test Automation Training</span>'
     : 'Selenium with Java<br><span>Test Automation Training</span>';
   document.getElementById('cert-lessons').textContent = isPlaywright
     ? '18 Lessons · ~9 Hours'
+    : isApi
+    ? '13 Lessons · ~7 Hours'
     : '17 Lessons · ~8 Hours';
   document.getElementById('cert-topics').textContent = isPlaywright
     ? 'JavaScript · Node.js · POM · Fixtures · API Testing · Hybrid Tests · CI/CD · GitHub Actions'
+    : isApi
+    ? 'REST & HTTP · Postman · Newman · REST Assured · Java · TestNG · Authentication · Allure · CI/CD'
     : 'Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD';
 
   // Update chat placeholder
   const chatInput = document.getElementById('chat-input');
   if (chatInput) chatInput.placeholder = isPlaywright
     ? 'Ask anything about Playwright or JavaScript…'
+    : isApi
+    ? 'Ask anything about API testing, REST Assured or Postman…'
     : 'Ask anything about Selenium or Java…';
 
   // Update first chat message
@@ -148,6 +166,13 @@ function switchCourse(course) {
       • <strong>Generate</strong> test code and fixtures<br>
       • <strong>Debug</strong> your errors — paste them here<br>
       • <strong>Review</strong> your POM and request builders<br><br>
+      Pick a model above and start asking!`
+    : isApi
+    ? `👋 Hi! I'm your AI assistant for API Testing. I can:<br><br>
+      • <strong>Explain</strong> REST concepts, HTTP methods and JSON<br>
+      • <strong>Generate</strong> REST Assured test code and Postman collections<br>
+      • <strong>Debug</strong> your API test failures — paste errors here<br>
+      • <strong>Review</strong> your test structure and assertions<br><br>
       Pick a model above and start asking!`
     : `👋 Hi! I'm your AI coding assistant. I can:<br><br>
       • <strong>Explain</strong> any Selenium/Java concept<br>
@@ -160,7 +185,7 @@ function switchCourse(course) {
       <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)`;
 
   // Load progress for the new course
-  const key = isPlaywright ? 'playwright-training-progress' : 'selenium-training-progress';
+  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : 'selenium-training-progress';
   try { state.progress = JSON.parse(localStorage.getItem(key)) || { completedLessons: [], lastVisited: null, notes: {} }; }
   catch { state.progress = { completedLessons: [], lastVisited: null, notes: {} }; }
 
@@ -196,7 +221,7 @@ function lsSave(p, key) {
   try { localStorage.setItem(k, JSON.stringify(p)); } catch {}
 }
 
-// ── Init ──────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────
 async function init() {
   // Load persisted settings
   state.smartMode    = localStorage.getItem('smartMode') === 'true';
@@ -216,12 +241,13 @@ async function init() {
   state.activeCourse = localStorage.getItem('activeCourse') || 'selenium';
   document.getElementById('btn-selenium').classList.toggle('active', state.activeCourse === 'selenium');
   document.getElementById('btn-playwright').classList.toggle('active', state.activeCourse === 'playwright');
+  document.getElementById('btn-api').classList.toggle('active', state.activeCourse === 'api');
 
   // Flatten all lessons for active course
   state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
 
   // Load progress — try server first, fall back to localStorage
-  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : LS_KEY;
+  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : LS_KEY;
   try {
     const res = await fetch('api/progress', { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -259,7 +285,7 @@ async function init() {
   wireEvents();
 }
 
-// ── Sidebar ──────────────────────────────────────────────────────
+// ── Sidebar ────────────────────────────────────────────────────
 function buildSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
@@ -691,7 +717,7 @@ function renderAffiliatePanel(lesson, module) {
       <span class="affiliate-sub">Curated tools &amp; courses to accelerate your learning</span>
     </div>
     <div class="affiliate-grid">
-      <a class="affiliate-card" href="https://trk.udemy.com/PzBXKM" target="_blank" rel="noopener">
+      <a class="affiliate-card" href="https://www.udemy.com/course/selenium-webdriver-with-java-testng-and-log4j/?couponCode=LEARNNOWPLANS" target="_blank" rel="noopener">
         <div class="aff-icon">🎓</div>
         <div class="aff-body">
           <div class="aff-name">Selenium WebDriver + Java</div>
@@ -729,7 +755,7 @@ function renderAffiliatePanel(lesson, module) {
   document.getElementById('tab-lesson').appendChild(panel);
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────
+// ── Tabs ───────────────────────────────────────────────────────
 function switchTab(tabId) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
   document.querySelectorAll('.tab-content').forEach(c => {
@@ -738,7 +764,7 @@ function switchTab(tabId) {
   });
 }
 
-// ── Progress ─────────────────────────────────────────────────────────
+// ── Progress ───────────────────────────────────────────────────
 function updateCompleteButtons(lessonId) {
   const done = state.progress.completedLessons.includes(lessonId);
   ['complete-btn', 'complete-btn-ex'].forEach(id => {
@@ -825,7 +851,7 @@ async function saveProgress(payload) {
   }
 }
 
-// ── Navigation ────────────────────────────────────────────────────
+// ── Navigation ─────────────────────────────────────────────────
 function navigateRelative(delta) {
   if (!state.currentLesson) return;
   const idx = state.allLessons.findIndex(l => l.id === state.currentLesson.id);
@@ -835,7 +861,7 @@ function navigateRelative(delta) {
   showLesson(next, mod);
 }
 
-// ── AI Chat ────────────────────────────────────────────────────────
+// ── AI Chat ────────────────────────────────────────────────────
 let chatHistory = [];
 let isChatting  = false;
 
@@ -878,6 +904,8 @@ async function sendMessage(userText) {
   // Build system prompt using active skill persona
   const course = state.activeCourse === 'playwright'
     ? 'Playwright (TypeScript/JavaScript)'
+    : state.activeCourse === 'api'
+    ? 'API Test Execution (REST Assured / Postman / Java)'
     : 'Selenium with Java';
   const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
   const systemPrompt = skillFn(state.currentLessonContext, course);
@@ -890,6 +918,8 @@ async function sendMessage(userText) {
   if (state.agentMode) {
     const course = state.activeCourse === 'playwright'
       ? 'Playwright (TypeScript/JavaScript)'
+      : state.activeCourse === 'api'
+      ? 'API Test Execution (REST Assured / Postman / Java)'
       : 'Selenium with Java';
     try {
       await runAgentChain(userText, state.currentLessonContext, course);
@@ -1053,7 +1083,7 @@ async function checkHealth() {
   }
 }
 
-// ── Auto-resize textarea ─────────────────────────────────────────
+// ── Auto-resize textarea ───────────────────────────────────────
 function autoResizeTextarea(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -1562,7 +1592,7 @@ function wireEvents() {
   });
 }
 
-// ── Java Syntax Highlighter ────────────────────────────────────────
+// ── Java Syntax Highlighter ────────────────────────────────────
 // Works on raw text → HTML-escape → apply spans → set innerHTML
 // This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
