@@ -12,7 +12,7 @@ let state = {
   agentMode: false,    // multi-step chain: Refine → Answer → Review
   skillMode: 'explain', // AI persona: explain | debug | generate | quiz
   projectFolder: '',   // saved code destination
-  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api' | 'e2e'
+  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api' | 'e2e' | 'jmeter'
 };
 
 // ── Skill Prompts (AI Persona Modes) ───────────────────────────
@@ -90,18 +90,21 @@ function getActiveCurriculum() {
   if (state.activeCourse === 'playwright') return PLAYWRIGHT_CURRICULUM;
   if (state.activeCourse === 'api') return API_CURRICULUM;
   if (state.activeCourse === 'e2e') return E2E_CURRICULUM;
+  if (state.activeCourse === 'jmeter') return JMETER_CURRICULUM;
   return CURRICULUM;
 }
 function getActiveLabs() {
   if (state.activeCourse === 'playwright') return PLAYWRIGHT_LABS;
   if (state.activeCourse === 'api') return API_CURRICULUM_LABS;
   if (state.activeCourse === 'e2e') return E2E_CURRICULUM_LABS;
+  if (state.activeCourse === 'jmeter') return JMETER_CURRICULUM_LABS;
   return CURRICULUM_LABS;
 }
 function getProgressKey() {
   if (state.activeCourse === 'playwright') return 'playwright-training-progress';
   if (state.activeCourse === 'api') return 'api-training-progress';
   if (state.activeCourse === 'e2e') return 'e2e-training-progress';
+  if (state.activeCourse === 'jmeter') return 'jmeter-training-progress';
   return 'selenium-training-progress';
 }
 
@@ -120,18 +123,22 @@ function switchCourse(course) {
   document.getElementById('btn-playwright').classList.toggle('active', course === 'playwright');
   document.getElementById('btn-api').classList.toggle('active', course === 'api');
   document.getElementById('btn-e2e').classList.toggle('active', course === 'e2e');
+  document.getElementById('btn-jmeter').classList.toggle('active', course === 'jmeter');
 
   // Update welcome screen content
   const isPlaywright = course === 'playwright';
   const isApi = course === 'api';
   const isE2E = course === 'e2e';
-  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : isE2E ? '🔗' : '🚀';
+  const isJMeter = course === 'jmeter';
+  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : isE2E ? '🔗' : isJMeter ? '⚡' : '🚀';
   document.getElementById('welcome-title').innerHTML = isPlaywright
     ? 'Playwright —<br><em>From Zero to Expert</em>'
     : isApi
     ? 'API Test Execution —<br><em>From Zero to Expert</em>'
     : isE2E
     ? 'E2E Integration —<br><em>The Full Test Pyramid</em>'
+    : isJMeter
+    ? 'JMeter Performance Testing —<br><em>From Zero to Expert</em>'
     : 'Selenium with Java —<br><em>From Zero to Expert</em>';
   document.getElementById('welcome-desc').textContent = isPlaywright
     ? 'Modern, fast, and built-in API testing. Learn Playwright from scratch with hands-on exercises, the Request Builder pattern, and CI/CD. The AI assistant is here to help.'
@@ -139,6 +146,8 @@ function switchCourse(course) {
     ? 'Master API testing from scratch — Postman, REST Assured, Newman, and GitHub Actions CI/CD. Build a full Java automation suite against a real REST API. The AI assistant is here at every step.'
     : isE2E
     ? 'Combine Selenium + REST Assured into a unified test pyramid. Learn ThreadLocal WebDriver, hybrid API/UI patterns, Selenium Grid with Docker, and a full GitHub Actions CI pipeline.'
+    : isJMeter
+    ? 'Learn performance testing from scratch — Thread Groups, HTTP Samplers, Assertions, CSV Data Sets, Correlation, HTML Reports, and a full GitHub Actions CI pipeline. Catch regressions before production.'
     : 'Hands-on, practical training with real exercises. Pick a lesson from the sidebar to begin. The AI assistant on the right can explain concepts, debug your code, and generate examples.';
 
   // Update certificate content
@@ -148,6 +157,8 @@ function switchCourse(course) {
     ? 'API Test Execution<br><span>Test Automation Training</span>'
     : isE2E
     ? 'E2E Integration<br><span>Full Test Pyramid Training</span>'
+    : isJMeter
+    ? 'JMeter Performance Testing<br><span>Performance Engineering Training</span>'
     : 'Selenium with Java<br><span>Test Automation Training</span>';
   document.getElementById('cert-lessons').textContent = isPlaywright
     ? '18 Lessons · ~9 Hours'
@@ -155,6 +166,8 @@ function switchCourse(course) {
     ? '13 Lessons · ~7 Hours'
     : isE2E
     ? '11 Lessons · ~6 Hours'
+    : isJMeter
+    ? '11 Lessons · ~5 Hours'
     : '17 Lessons · ~8 Hours';
   document.getElementById('cert-topics').textContent = isPlaywright
     ? 'JavaScript · Node.js · POM · Fixtures · API Testing · Hybrid Tests · CI/CD · GitHub Actions'
@@ -162,6 +175,8 @@ function switchCourse(course) {
     ? 'REST & HTTP · Postman · Newman · REST Assured · Java · TestNG · Authentication · Allure · CI/CD'
     : isE2E
     ? 'Test Pyramid · Multi-Module Maven · ThreadLocal WebDriver · Hybrid Patterns · Docker · Selenium Grid · Allure · GitHub Actions'
+    : isJMeter
+    ? 'Thread Groups · HTTP Samplers · Assertions · CSV Data Sets · Correlation · HTML Reports · CLI Mode · GitHub Actions'
     : 'Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD';
 
   // Update chat placeholder
@@ -172,6 +187,8 @@ function switchCourse(course) {
     ? 'Ask anything about API testing, REST Assured or Postman…'
     : isE2E
     ? 'Ask anything about E2E integration, Docker, or the test pyramid…'
+    : isJMeter
+    ? 'Ask anything about JMeter, performance testing, or load analysis…'
     : 'Ask anything about Selenium or Java…';
 
   // Update first chat message
@@ -197,6 +214,13 @@ function switchCourse(course) {
       • <strong>Debug</strong> race conditions, Grid issues, and Docker problems<br>
       • <strong>Review</strong> your multi-module Maven project structure<br><br>
       Pick a model above and start asking!`
+    : isJMeter
+    ? `👋 Hi! I'm your AI assistant for JMeter Performance Testing. I can:<br><br>
+      • <strong>Explain</strong> Thread Groups, Samplers, and Listeners<br>
+      • <strong>Generate</strong> JMeter test plans and GitHub Actions workflows<br>
+      • <strong>Debug</strong> failed assertions, extractor issues, and correlation problems<br>
+      • <strong>Analyse</strong> HTML reports — p95, APDEX, throughput, error rates<br><br>
+      Pick a model above and start asking!`
     : `👋 Hi! I'm your AI coding assistant. I can:<br><br>
       • <strong>Explain</strong> any Selenium/Java concept<br>
       • <strong>Generate</strong> test code for your scenarios<br>
@@ -208,7 +232,7 @@ function switchCourse(course) {
       <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)`;
 
   // Load progress for the new course
-  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : isE2E ? 'e2e-training-progress' : 'selenium-training-progress';
+  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : isE2E ? 'e2e-training-progress' : isJMeter ? 'jmeter-training-progress' : 'selenium-training-progress';
   try { state.progress = JSON.parse(localStorage.getItem(key)) || { completedLessons: [], lastVisited: null, notes: {} }; }
   catch { state.progress = { completedLessons: [], lastVisited: null, notes: {} }; }
 
@@ -266,12 +290,13 @@ async function init() {
   document.getElementById('btn-playwright').classList.toggle('active', state.activeCourse === 'playwright');
   document.getElementById('btn-api').classList.toggle('active', state.activeCourse === 'api');
   document.getElementById('btn-e2e').classList.toggle('active', state.activeCourse === 'e2e');
+  document.getElementById('btn-jmeter').classList.toggle('active', state.activeCourse === 'jmeter');
 
   // Flatten all lessons for active course
   state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
 
   // Load progress — try server first, fall back to localStorage
-  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : state.activeCourse === 'e2e' ? 'e2e-training-progress' : LS_KEY;
+  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : state.activeCourse === 'e2e' ? 'e2e-training-progress' : state.activeCourse === 'jmeter' ? 'jmeter-training-progress' : LS_KEY;
   try {
     const res = await fetch('api/progress', { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -930,6 +955,8 @@ async function sendMessage(userText) {
     ? 'Playwright (TypeScript/JavaScript)'
     : state.activeCourse === 'api'
     ? 'API Test Execution (REST Assured / Postman / Java)'
+    : state.activeCourse === 'jmeter'
+    ? 'JMeter Performance Testing'
     : 'Selenium with Java';
   const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
   const systemPrompt = skillFn(state.currentLessonContext, course);
@@ -944,6 +971,8 @@ async function sendMessage(userText) {
       ? 'Playwright (TypeScript/JavaScript)'
       : state.activeCourse === 'api'
       ? 'API Test Execution (REST Assured / Postman / Java)'
+      : state.activeCourse === 'jmeter'
+      ? 'JMeter Performance Testing'
       : 'Selenium with Java';
     try {
       await runAgentChain(userText, state.currentLessonContext, course);
@@ -1617,6 +1646,8 @@ function wireEvents() {
 }
 
 // ── Java Syntax Highlighter ────────────────────────────────────
+// Works on raw text → HTML-escape → apply spans → set innerHTML
+// This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
   document.querySelectorAll(
     '.lesson-body pre code, .solution-box, .msg.assistant pre code, .msg.assistant pre'
@@ -1624,21 +1655,26 @@ function highlightJava() {
     if (block.dataset.highlighted) return;
     block.dataset.highlighted = '1';
 
+    // 1. Get raw text (no HTML)
     const raw = block.tagName === 'PRE'
       ? block.textContent
       : block.textContent;
 
+    // 2. HTML-escape the raw text first
     function esc(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    // 3. Tokenise line by line to keep comments safe
     const lines = raw.split('\n');
     const highlighted = lines.map(line => {
+      // Whole-line comment (// or #)
       const lineCommentMatch = line.match(/^(\s*)(\/\/.*|#.*)$/);
       if (lineCommentMatch) {
         return esc(lineCommentMatch[1]) + `<span class="cmt">${esc(lineCommentMatch[2])}</span>`;
       }
 
+      // Split by string literals first to protect them
       const parts = [];
       let remaining = line;
       const strRe = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
@@ -1655,11 +1691,14 @@ function highlightJava() {
 
         let s = esc(p.val);
 
+        // Inline comment after code
         const inlineCmt = s.indexOf('//');
         let cmt = '';
         if (inlineCmt !== -1) { cmt = s.slice(inlineCmt); s = s.slice(0, inlineCmt); }
 
+        // Annotations
         s = s.replace(/(@\w+)/g, '<span class="ann">$1</span>');
+        // Keywords
         const kws = ['public','private','protected','static','final','abstract','class',
           'interface','extends','implements','new','return','void','this','super',
           'null','true','false','if','else','for','while','do','switch','case',
@@ -1667,8 +1706,11 @@ function highlightJava() {
           'import','package','var','instanceof','synchronized','volatile',
           'transient','native','enum','record','sealed','permits'];
         s = s.replace(new RegExp(`\\b(${kws.join('|')})\\b`, 'g'), '<span class="kw">$1</span>');
+        // Class names (PascalCase)
         s = s.replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="cls">$1</span>');
+        // Method calls
         s = s.replace(/\b([a-z]\w*)(\s*\()/g, '<span class="met">$1</span>$2');
+        // Numbers
         s = s.replace(/\b(\d+\.?\d*[LlFfDd]?)\b/g, '<span class="num">$1</span>');
 
         if (cmt) s += `<span class="cmt">${cmt}</span>`;
@@ -1678,10 +1720,12 @@ function highlightJava() {
 
     block.innerHTML = highlighted;
 
+    // Add Copy + Save buttons to code blocks (lesson body, chat, solution boxes)
     const pre = block.closest('.lesson-body pre, .solution-box, .msg.assistant pre');
     if (pre && !pre.querySelector('.copy-code-btn')) {
       const codeText = () => block.textContent || pre.textContent;
 
+      // Copy button
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-code-btn';
       copyBtn.textContent = 'Copy';
@@ -1698,6 +1742,7 @@ function highlightJava() {
       });
       pre.appendChild(copyBtn);
 
+      // Save to Project button
       const saveBtn = document.createElement('button');
       saveBtn.className = 'save-code-btn';
       saveBtn.textContent = '💾 Save';
