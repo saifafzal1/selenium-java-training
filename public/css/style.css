@@ -35,7 +35,7 @@
   /* Layout */
   --sidebar-w: 268px;
   --chat-w:    440px;
-  --header-h:  60px;
+  --header-h:  92px;
   --radius:    12px;
   --radius-sm: 8px;
   --radius-pill: 100px;
@@ -69,11 +69,23 @@ html, body {
 /* ── Header ─────────────────────────────────────────────────── */
 #header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: var(--header-h);
   background: #ffffff;
   border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+
+/* Row 1: logo + progress + utility buttons */
+.header-row-1 {
   display: flex; align-items: center; gap: 16px;
-  padding: 0 24px;
+  padding: 0 24px; height: 52px;
+}
+
+/* Row 2: course tabs */
+.header-row-2 {
+  display: flex; align-items: stretch;
+  padding: 0 16px; height: 40px;
+  border-top: 1px solid var(--border);
+  background: #f8faff;
 }
 
 .logo {
@@ -1476,15 +1488,25 @@ pre:hover .save-code-btn,
 
 /* ── Course Switcher ─────────────────────────────────────────── */
 .course-switcher {
-  display: flex; gap: 4px; background: #0C1018; border-radius: 8px; padding: 3px;
-  margin: 0 8px;
+  display: flex; gap: 0; background: none; border-radius: 0; padding: 0; margin: 0;
 }
 .course-switch-btn {
-  background: none; border: none; color: #9BA8BB; font-size: 12px; font-weight: 600;
-  padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all .2s; white-space: nowrap;
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  color: #6B7A99; font-size: 12px; font-weight: 600;
+  padding: 0 16px; height: 100%;
+  cursor: pointer; transition: all .18s; white-space: nowrap;
 }
-.course-switch-btn:hover { color: #E8EDF5; background: #1C2A3A; }
-.course-switch-btn.active { background: #1a3a5c; color: #4FA3FF; }
+.course-switch-btn:hover {
+  color: var(--lime);
+  background: rgba(67,97,238,.04);
+  border-bottom-color: rgba(67,97,238,.3);
+}
+.course-switch-btn.active {
+  color: var(--lime);
+  border-bottom-color: var(--lime);
+  background: none;
+}
 
 /* ── Feedback Header Button ──────────────────────────────────── */
 .feedback-header-btn {
@@ -1557,4 +1579,4 @@ pre:hover .save-code-btn,
   padding: 12px 16px; border-top: 1px solid var(--border);
   background: var(--bg2);
 }
-@media (max-width: 900px) { .course-switcher { display: none; } }
+@media (max-width: 900px) { .header-row-2 { display: none; } }
