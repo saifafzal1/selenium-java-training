@@ -1,4 +1,4 @@
-// ── Security Vulnerability Testing — Labs ─────────────────────────
+// ── Security Vulnerability Testing — Labs ───────────────────────────
 // Standalone lab exercises and capstone project
 
 const SECURITY_CURRICULUM_LABS = [
@@ -573,3 +573,38 @@ ps.setString(1, sanitizedInput);
   }
 
 ];
+
+// ── Convert flat labs into curriculum module and push ─────────
+(function() {
+  const lessons = SECURITY_CURRICULUM_LABS.map(lab => {
+    const stepsMarkdown = (lab.steps || []).map(s =>
+      `### Step ${s.step}: ${s.title}\n\n${s.instruction}`
+    ).join('\n\n---\n\n');
+
+    const content = `## 🎯 Objective\n\n${lab.objective}\n\n` +
+      (lab.prerequisites ? `## 📋 Prerequisites\n\n${lab.prerequisites.map(p => `- ${p}`).join('\n')}\n\n` : '') +
+      `## 📝 Lab Steps\n\n${stepsMarkdown}` +
+      (lab.deliverable ? `\n\n## 📦 Deliverable\n\n${lab.deliverable}` : '') +
+      (lab.solution ? `\n\n## ✅ Solution Overview\n\n${lab.solution}` : '');
+
+    return {
+      id: lab.id,
+      title: lab.title,
+      icon: lab.icon || '🔐',
+      duration: lab.duration,
+      difficulty: lab.difficulty,
+      type: 'lab',
+      objective: lab.objective,
+      content: content,
+      exercise: `## Your Task\n\nComplete the lab steps above in your local environment.\n\n**Deliverable:** ${lab.deliverable || 'Working security test achieving the stated objective.'}\n\n**Difficulty:** ${lab.difficulty}`,
+      evaluate: `## ✅ Evaluation Criteria\n\n${lab.solution || 'Review your tests against the lab objectives and verify expected results.'}`
+    };
+  });
+
+  SECURITY_CURRICULUM.push({
+    id: 'security-labs-module',
+    title: '🔐 Hands-On Security Labs',
+    icon: '🔐',
+    lessons: lessons
+  });
+})();

@@ -398,3 +398,39 @@ a database write. Consider connection pool tuning for higher loads.
   }
 
 ];
+
+// ── Convert flat labs into curriculum module and push ─────────
+(function() {
+  const lessons = JMETER_CURRICULUM_LABS.map(lab => {
+    // Build markdown content from steps
+    const stepsMarkdown = (lab.steps || []).map(s =>
+      `### Step ${s.step}: ${s.title}\n\n${s.instruction}`
+    ).join('\n\n---\n\n');
+
+    const content = `## 🎯 Objective\n\n${lab.objective}\n\n` +
+      (lab.prerequisites ? `## 📋 Prerequisites\n\n${lab.prerequisites.map(p => `- ${p}`).join('\n')}\n\n` : '') +
+      `## 📝 Lab Steps\n\n${stepsMarkdown}` +
+      (lab.deliverable ? `\n\n## 📦 Deliverable\n\n${lab.deliverable}` : '') +
+      (lab.solution ? `\n\n## ✅ Solution Overview\n\n${lab.solution}` : '');
+
+    return {
+      id: lab.id,
+      title: lab.title,
+      icon: lab.icon || '🧪',
+      duration: lab.duration,
+      difficulty: lab.difficulty,
+      type: 'lab',
+      objective: lab.objective,
+      content: content,
+      exercise: `## Your Task\n\nComplete the lab steps above in your local JMeter environment.\n\n**Deliverable:** ${lab.deliverable || 'Working JMeter test plan achieving the stated objective.'}\n\n**Difficulty:** ${lab.difficulty}`,
+      evaluate: `## ✅ Evaluation Criteria\n\n${lab.solution || 'Review your test plan against the lab objectives and verify expected results.'}` 
+    };
+  });
+
+  JMETER_CURRICULUM.push({
+    id: 'jmeter-labs-module',
+    title: '🧪 Hands-On JMeter Labs',
+    icon: '🧪',
+    lessons: lessons
+  });
+})();
