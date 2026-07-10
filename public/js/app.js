@@ -12,7 +12,7 @@ let state = {
   agentMode: false,    // multi-step chain: Refine → Answer → Review
   skillMode: 'explain', // AI persona: explain | debug | generate | quiz
   projectFolder: '',   // saved code destination
-  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api' | 'e2e' | 'jmeter'
+  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api' | 'e2e' | 'jmeter' | 'security' | 'database'
 };
 
 // ── Skill Prompts (AI Persona Modes) ───────────────────────────
@@ -91,6 +91,8 @@ function getActiveCurriculum() {
   if (state.activeCourse === 'api') return API_CURRICULUM;
   if (state.activeCourse === 'e2e') return E2E_CURRICULUM;
   if (state.activeCourse === 'jmeter') return JMETER_CURRICULUM;
+  if (state.activeCourse === 'security') return SECURITY_CURRICULUM;
+  if (state.activeCourse === 'database') return DATABASE_CURRICULUM;
   return CURRICULUM;
 }
 function getActiveLabs() {
@@ -98,6 +100,8 @@ function getActiveLabs() {
   if (state.activeCourse === 'api') return API_CURRICULUM_LABS;
   if (state.activeCourse === 'e2e') return E2E_CURRICULUM_LABS;
   if (state.activeCourse === 'jmeter') return JMETER_CURRICULUM_LABS;
+  if (state.activeCourse === 'security') return SECURITY_CURRICULUM_LABS;
+  if (state.activeCourse === 'database') return DATABASE_CURRICULUM_LABS;
   return CURRICULUM_LABS;
 }
 function getProgressKey() {
@@ -105,6 +109,8 @@ function getProgressKey() {
   if (state.activeCourse === 'api') return 'api-training-progress';
   if (state.activeCourse === 'e2e') return 'e2e-training-progress';
   if (state.activeCourse === 'jmeter') return 'jmeter-training-progress';
+  if (state.activeCourse === 'security') return 'security-training-progress';
+  if (state.activeCourse === 'database') return 'database-training-progress';
   return 'selenium-training-progress';
 }
 
@@ -124,13 +130,17 @@ function switchCourse(course) {
   document.getElementById('btn-api').classList.toggle('active', course === 'api');
   document.getElementById('btn-e2e').classList.toggle('active', course === 'e2e');
   document.getElementById('btn-jmeter').classList.toggle('active', course === 'jmeter');
+  document.getElementById('btn-security').classList.toggle('active', course === 'security');
+  document.getElementById('btn-database').classList.toggle('active', course === 'database');
 
   // Update welcome screen content
   const isPlaywright = course === 'playwright';
   const isApi = course === 'api';
   const isE2E = course === 'e2e';
   const isJMeter = course === 'jmeter';
-  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : isE2E ? '🔗' : isJMeter ? '⚡' : '🚀';
+  const isSecurity = course === 'security';
+  const isDatabase = course === 'database';
+  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : isE2E ? '🔗' : isJMeter ? '⚡' : isSecurity ? '🔒' : isDatabase ? '🗄️' : '🚀';
   document.getElementById('welcome-title').innerHTML = isPlaywright
     ? 'Playwright —<br><em>From Zero to Expert</em>'
     : isApi
@@ -139,6 +149,10 @@ function switchCourse(course) {
     ? 'E2E Integration —<br><em>The Full Test Pyramid</em>'
     : isJMeter
     ? 'JMeter Performance Testing —<br><em>From Zero to Expert</em>'
+    : isSecurity
+    ? 'Security Vulnerability Testing —<br><em>From Zero to Expert</em>'
+    : isDatabase
+    ? 'Database Testing with JDBC —<br><em>From Zero to Expert</em>'
     : 'Selenium with Java —<br><em>From Zero to Expert</em>';
   document.getElementById('welcome-desc').textContent = isPlaywright
     ? 'Modern, fast, and built-in API testing. Learn Playwright from scratch with hands-on exercises, the Request Builder pattern, and CI/CD. The AI assistant is here to help.'
@@ -148,6 +162,10 @@ function switchCourse(course) {
     ? 'Combine Selenium + REST Assured into a unified test pyramid. Learn ThreadLocal WebDriver, hybrid API/UI patterns, Selenium Grid with Docker, and a full GitHub Actions CI pipeline.'
     : isJMeter
     ? 'Learn performance testing from scratch — Thread Groups, HTTP Samplers, Assertions, CSV Data Sets, Correlation, HTML Reports, and a full GitHub Actions CI pipeline. Catch regressions before production.'
+    : isSecurity
+    ? 'Learn security testing hands-on — OWASP Top 10, SQL Injection, XSS, Broken Access Control, JWT attacks, API security, and automated ZAP scanning in CI/CD. Use ZAP and Burp Suite like a professional pentester.'
+    : isDatabase
+    ? 'Master database testing with JDBC — CRUD assertions, transaction management, DBUnit fixtures, Flyway migrations, Selenium+JDBC hybrid tests, and performance regression suites. Test every layer of your application.'
     : 'Hands-on, practical training with real exercises. Pick a lesson from the sidebar to begin. The AI assistant on the right can explain concepts, debug your code, and generate examples.';
 
   // Update certificate content
@@ -159,6 +177,10 @@ function switchCourse(course) {
     ? 'E2E Integration<br><span>Full Test Pyramid Training</span>'
     : isJMeter
     ? 'JMeter Performance Testing<br><span>Performance Engineering Training</span>'
+    : isSecurity
+    ? 'Security Vulnerability Testing<br><span>Application Security Training</span>'
+    : isDatabase
+    ? 'Database Testing with JDBC<br><span>Data Layer Testing Training</span>'
     : 'Selenium with Java<br><span>Test Automation Training</span>';
   document.getElementById('cert-lessons').textContent = isPlaywright
     ? '18 Lessons · ~9 Hours'
@@ -168,6 +190,10 @@ function switchCourse(course) {
     ? '11 Lessons · ~6 Hours'
     : isJMeter
     ? '11 Lessons · ~5 Hours'
+    : isSecurity
+    ? '11 Lessons · ~6 Hours'
+    : isDatabase
+    ? '12 Lessons · ~6 Hours'
     : '17 Lessons · ~8 Hours';
   document.getElementById('cert-topics').textContent = isPlaywright
     ? 'JavaScript · Node.js · POM · Fixtures · API Testing · Hybrid Tests · CI/CD · GitHub Actions'
@@ -177,6 +203,10 @@ function switchCourse(course) {
     ? 'Test Pyramid · Multi-Module Maven · ThreadLocal WebDriver · Hybrid Patterns · Docker · Selenium Grid · Allure · GitHub Actions'
     : isJMeter
     ? 'Thread Groups · HTTP Samplers · Assertions · CSV Data Sets · Correlation · HTML Reports · CLI Mode · GitHub Actions'
+    : isSecurity
+    ? 'OWASP Top 10 · ZAP · Burp Suite · SQL Injection · XSS · IDOR · JWT · API Security · GitHub Actions CI/CD'
+    : isDatabase
+    ? 'JDBC · H2 · MySQL · CRUD Tests · Transactions · DBUnit · Flyway Migrations · Selenium+JDBC Hybrid · Performance'
     : 'Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD';
 
   // Update chat placeholder
@@ -189,6 +219,10 @@ function switchCourse(course) {
     ? 'Ask anything about E2E integration, Docker, or the test pyramid…'
     : isJMeter
     ? 'Ask anything about JMeter, performance testing, or load analysis…'
+    : isSecurity
+    ? 'Ask anything about security testing, ZAP, Burp Suite, or OWASP…'
+    : isDatabase
+    ? 'Ask anything about JDBC, SQL, DBUnit, Flyway, or database testing…'
     : 'Ask anything about Selenium or Java…';
 
   // Update first chat message
@@ -221,6 +255,20 @@ function switchCourse(course) {
       • <strong>Debug</strong> failed assertions, extractor issues, and correlation problems<br>
       • <strong>Analyse</strong> HTML reports — p95, APDEX, throughput, error rates<br><br>
       Pick a model above and start asking!`
+    : isSecurity
+    ? `👋 Hi! I'm your AI assistant for Security Vulnerability Testing. I can:<br><br>
+      • <strong>Explain</strong> OWASP Top 10, attack techniques, and defensive patterns<br>
+      • <strong>Generate</strong> ZAP scan configs, GitHub Actions security pipelines, and Java fixes<br>
+      • <strong>Debug</strong> injection payloads, Burp Suite configs, and false positives<br>
+      • <strong>Review</strong> your pentest findings and help write security reports<br><br>
+      Pick a model above and start asking!`
+    : isDatabase
+    ? `👋 Hi! I'm your AI assistant for Database Testing with JDBC. I can:<br><br>
+      • <strong>Explain</strong> JDBC concepts, SQL queries, and transaction management<br>
+      • <strong>Generate</strong> JDBC test code, DBUnit fixtures, and Flyway migration scripts<br>
+      • <strong>Debug</strong> SQLExceptions, constraint violations, and connection leaks<br>
+      • <strong>Review</strong> your test data builders, DAOs, and hybrid Selenium+JDBC patterns<br><br>
+      Pick a model above and start asking!`
     : `👋 Hi! I'm your AI coding assistant. I can:<br><br>
       • <strong>Explain</strong> any Selenium/Java concept<br>
       • <strong>Generate</strong> test code for your scenarios<br>
@@ -232,7 +280,7 @@ function switchCourse(course) {
       <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)`;
 
   // Load progress for the new course
-  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : isE2E ? 'e2e-training-progress' : isJMeter ? 'jmeter-training-progress' : 'selenium-training-progress';
+  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : isE2E ? 'e2e-training-progress' : isJMeter ? 'jmeter-training-progress' : isSecurity ? 'security-training-progress' : isDatabase ? 'database-training-progress' : 'selenium-training-progress';
   try { state.progress = JSON.parse(localStorage.getItem(key)) || { completedLessons: [], lastVisited: null, notes: {} }; }
   catch { state.progress = { completedLessons: [], lastVisited: null, notes: {} }; }
 
@@ -291,12 +339,14 @@ async function init() {
   document.getElementById('btn-api').classList.toggle('active', state.activeCourse === 'api');
   document.getElementById('btn-e2e').classList.toggle('active', state.activeCourse === 'e2e');
   document.getElementById('btn-jmeter').classList.toggle('active', state.activeCourse === 'jmeter');
+  document.getElementById('btn-security').classList.toggle('active', state.activeCourse === 'security');
+  document.getElementById('btn-database').classList.toggle('active', state.activeCourse === 'database');
 
   // Flatten all lessons for active course
   state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
 
   // Load progress — try server first, fall back to localStorage
-  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : state.activeCourse === 'e2e' ? 'e2e-training-progress' : state.activeCourse === 'jmeter' ? 'jmeter-training-progress' : LS_KEY;
+  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : state.activeCourse === 'e2e' ? 'e2e-training-progress' : state.activeCourse === 'jmeter' ? 'jmeter-training-progress' : state.activeCourse === 'security' ? 'security-training-progress' : state.activeCourse === 'database' ? 'database-training-progress' : LS_KEY;
   try {
     const res = await fetch('api/progress', { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -455,7 +505,7 @@ function showLesson(lesson, module) {
   switchTab('lesson');
 
   // Context for AI
-  state.currentLessonContext = `Current lesson: "${lesson.title}" (Module: ${module.title}). Topics covered: ${lesson.content.substring(0, 300)}...`;
+  state.currentLessonContext = `Current lesson: "${lesson.title}" (Module: ${module.title}). Topics covered: ${(lesson.content || lesson.objective || lesson.title).substring(0, 300)}...`;
   document.getElementById('context-pill').textContent = `📍 ${lesson.title}`;
 
   // Save last visited
@@ -610,6 +660,18 @@ function renderExercise(lesson) {
     container.innerHTML = '<p style="color:var(--text2)">This lesson has no dedicated exercise. Practice the code examples in the Lesson tab.</p>';
     return;
   }
+  // Handle string exercises (markdown format used by some lab courses)
+  if (typeof lesson.exercise === 'string') {
+    container.innerHTML = `
+      <div class="exercise-panel">
+        <h3>🏋️ Exercise</h3>
+        <div class="lesson-content">${marked.parse(lesson.exercise)}</div>
+      </div>
+      <p style="font-size:13px;color:var(--text3);margin-top:12px">
+        💡 Paste your code or errors into the AI chat for help →
+      </p>`;
+    return;
+  }
   const ex = lesson.exercise;
   let hintsHtml = '';
   if (ex.hints) {
@@ -636,6 +698,21 @@ function renderExercise(lesson) {
 // ── Lab Evaluation / Rubric ───────────────────────────────────
 function renderLabEvaluation(lesson) {
   const container = document.getElementById('evaluate-content');
+  // Handle string evaluate fields (markdown format used by some lab courses)
+  if (!lesson.rubric && lesson.evaluate) {
+    container.innerHTML = `
+      <div class="eval-wrap">
+        <div class="eval-header">
+          <div class="eval-title">✅ Lab Evaluation</div>
+          <div class="eval-sub">${lesson.title}</div>
+        </div>
+        <div class="lesson-content" style="padding:16px 0">${marked.parse(lesson.evaluate)}</div>
+        <p style="font-size:13px;color:var(--text3);margin-top:12px">
+          💡 Share your results in the AI chat for feedback →
+        </p>
+      </div>`;
+    return;
+  }
   if (!lesson.rubric) { container.innerHTML = ''; return; }
 
   const rubric = lesson.rubric;
@@ -914,10 +991,10 @@ function navigateRelative(delta) {
 let chatHistory = [];
 let isChatting  = false;
 
-// ── Client-side guards (fixes #4 + #5) ───────────────────────
-const CHAT_MAX_CHARS    = 3000;   // max chars per message
-const CHAT_SESSION_WARN = 20;     // warn after this many messages
-const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString(); // resets daily
+// ── Client-side guards ────────────────────────────────────────
+const CHAT_MAX_CHARS    = 3000;
+const CHAT_SESSION_WARN = 20;
+const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString();
 
 function getChatCount()  { return parseInt(localStorage.getItem(CHAT_SESSION_KEY) || '0', 10); }
 function incChatCount()  { localStorage.setItem(CHAT_SESSION_KEY, getChatCount() + 1); }
@@ -925,7 +1002,6 @@ function incChatCount()  { localStorage.setItem(CHAT_SESSION_KEY, getChatCount()
 async function sendMessage(userText) {
   if (!userText.trim() || isChatting) return;
 
-  // Fix #4 — hard cap on message length
   if (userText.length > CHAT_MAX_CHARS) {
     appendMessage('assistant',
       `⚠️ Your message is **${userText.length} characters** — the limit is ${CHAT_MAX_CHARS}.\n\nPlease shorten your message. For large code pastes, paste only the relevant section and describe the rest.`
@@ -933,7 +1009,6 @@ async function sendMessage(userText) {
     return;
   }
 
-  // Fix #5 — per-session counter with warning
   const count = getChatCount();
   if (count >= CHAT_SESSION_WARN && count % 10 === 0) {
     appendMessage('assistant',
@@ -957,6 +1032,10 @@ async function sendMessage(userText) {
     ? 'API Test Execution (REST Assured / Postman / Java)'
     : state.activeCourse === 'jmeter'
     ? 'JMeter Performance Testing'
+    : state.activeCourse === 'security'
+    ? 'Security Vulnerability Testing (OWASP, ZAP, Burp Suite)'
+    : state.activeCourse === 'database'
+    ? 'Database Testing with JDBC (H2, MySQL, DBUnit, Flyway)'
     : 'Selenium with Java';
   const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
   const systemPrompt = skillFn(state.currentLessonContext, course);
@@ -965,7 +1044,7 @@ async function sendMessage(userText) {
 
   const model = document.getElementById('model-select').value;
 
-  // ── Agent Mode: run 3-step chain instead of normal chat ─────
+  // ── Agent Mode ──────────────────────────────────────────────
   if (state.agentMode) {
     const course = state.activeCourse === 'playwright'
       ? 'Playwright (TypeScript/JavaScript)'
@@ -1049,7 +1128,7 @@ async function sendMessage(userText) {
       msgEl.className = 'msg error';
       msgEl.innerHTML = '⚠️ ' + escHtml(data.error);
     } else {
-      incChatCount(); // fix #5 — only count successful responses
+      incChatCount();
       const assistantText = data.content || '';
       chatHistory.push({ role: 'assistant', content: assistantText });
       const msgEl = appendMessage('assistant', '');
@@ -1086,7 +1165,6 @@ function scrollChat() {
 }
 
 function renderMarkdown(text) {
-  // Use marked if available
   try { return marked.parse(text); } catch { return escHtml(text); }
 }
 
@@ -1105,7 +1183,6 @@ async function checkHealth() {
     const res  = await fetch('api/health', { signal: AbortSignal.timeout(3000) });
     const data = await res.json();
 
-    // Update Ollama optgroup with discovered local models
     const ollamaGroup = document.getElementById('ollama-optgroup');
     if (ollamaGroup && data.ollama === 'ok' && data.ollamaModels?.length > 0) {
       ollamaGroup.innerHTML = data.ollamaModels.map(m =>
@@ -1113,7 +1190,6 @@ async function checkHealth() {
       ).join('');
     }
 
-    // Status dot: green = at least one provider ready
     const groqOk  = data.groq  === 'key_set';
     const claudeOk = data.claude === 'key_set';
     const ollamaOk = data.ollama === 'ok';
@@ -1161,7 +1237,6 @@ function showToast(message, type = 'success', action = null) {
   closeBtn.addEventListener('click', () => toast.remove());
   toast.appendChild(closeBtn);
   container.appendChild(toast);
-  // Auto-remove after 5s
   setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 5000);
 }
 
@@ -1169,12 +1244,10 @@ function showToast(message, type = 'success', action = null) {
 async function saveToProject(code) {
   const folder = state.projectFolder;
 
-  // Auto-detect filename from public class name
   const match = code.match(/public\s+class\s+(\w+)/);
   const filename = match ? `${match[1]}.java` : `SeleniumCode_${Date.now()}.java`;
 
   if (state.serverMode && folder) {
-    // Write directly to disk via local server
     try {
       const res = await fetch('api/save-file', {
         method: 'POST',
@@ -1194,13 +1267,11 @@ async function saveToProject(code) {
       showToast(`❌ Save failed: ${e.message}`, 'error');
     }
   } else if (state.serverMode && !folder) {
-    // Server running but no folder set — prompt to set it
     showToast('⚠️ Set your Project Folder in Settings first (⚙️)', 'warning', {
       label: 'Open Settings',
       fn: openSettings
     });
   } else {
-    // Vercel / no server — trigger browser download
     const blob = new Blob([code], { type: 'text/plain' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
@@ -1272,7 +1343,6 @@ function toggleSmartMode(on) {
   state.smartMode = on;
   localStorage.setItem('smartMode', on);
   document.getElementById('smart-mode-status-text').textContent = on ? 'On' : 'Off';
-  // Sync the header button
   const btn = document.getElementById('smart-mode-btn');
   if (btn) btn.classList.toggle('active', on);
 }
@@ -1285,7 +1355,6 @@ const SKILL_DESCRIPTIONS = {
   quiz:     '🧩 Quiz master — tests your knowledge with 3 questions'
 };
 
-// Help anchors for each skill mode in help.html
 const SKILL_HELP_ANCHORS = {
   explain:  '#skill-explain',
   debug:    '#skill-debug',
@@ -1293,7 +1362,6 @@ const SKILL_HELP_ANCHORS = {
   quiz:     '#skill-quiz'
 };
 
-// Intro messages shown in chat when a skill is activated
 const SKILL_INTRO_MESSAGES = {
   explain: `🎓 **Explain Mode** activated!
 
@@ -1362,7 +1430,6 @@ function setAgentMode(on) {
   }
 }
 
-// Agent step helper: call /api/chat with a specific model + system prompt
 async function agentStep(model, systemPrompt, userMessage) {
   const res = await fetch('/api/chat', {
     method: 'POST',
@@ -1381,7 +1448,6 @@ async function agentStep(model, systemPrompt, userMessage) {
   return data.choices?.[0]?.message?.content || data.content || '';
 }
 
-// Run 3-step agent chain and stream steps into chat
 async function runAgentChain(userText, lessonCtx, course) {
   const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
   const skillPrompt = skillFn(lessonCtx, course);
@@ -1465,7 +1531,6 @@ function setSkillMode(skill) {
   };
   showToast(labels[skill] || 'Skill mode changed', 'success');
 
-  // Show contextual intro message in chat with help link
   const intro = SKILL_INTRO_MESSAGES[skill];
   if (intro) appendMessage('assistant', intro);
 }
@@ -1554,7 +1619,6 @@ function wireEvents() {
 
   document.getElementById('chat-input').addEventListener('input', e => {
     autoResizeTextarea(e.target);
-    // Fix #4 — live character counter
     const len     = e.target.value.length;
     const counter = document.getElementById('chat-char-counter');
     if (counter) {
@@ -1578,12 +1642,11 @@ function wireEvents() {
     });
   });
 
-  // Skill mode buttons (inside tray-skills panel)
+  // Skill mode buttons
   document.querySelectorAll('.skill-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.skill === state.skillMode);
     btn.addEventListener('click', () => setSkillMode(btn.dataset.skill));
   });
-  // Set initial skill description and quick prompts (no toast on load)
   const descEl = document.getElementById('skill-desc');
   if (descEl) descEl.textContent = SKILL_DESCRIPTIONS[state.skillMode] || '';
   updateQuickPrompts(state.skillMode);
@@ -1596,7 +1659,7 @@ function wireEvents() {
   // Settings gear button
   document.getElementById('settings-btn').addEventListener('click', openSettings);
 
-  // Smart Mode header button (syncs with settings checkbox)
+  // Smart Mode header button
   const smartBtn = document.getElementById('smart-mode-btn');
   if (smartBtn) {
     smartBtn.classList.toggle('active', state.smartMode);
@@ -1646,8 +1709,6 @@ function wireEvents() {
 }
 
 // ── Java Syntax Highlighter ────────────────────────────────────
-// Works on raw text → HTML-escape → apply spans → set innerHTML
-// This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
   document.querySelectorAll(
     '.lesson-body pre code, .solution-box, .msg.assistant pre code, .msg.assistant pre'
@@ -1655,26 +1716,21 @@ function highlightJava() {
     if (block.dataset.highlighted) return;
     block.dataset.highlighted = '1';
 
-    // 1. Get raw text (no HTML)
     const raw = block.tagName === 'PRE'
       ? block.textContent
       : block.textContent;
 
-    // 2. HTML-escape the raw text first
     function esc(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // 3. Tokenise line by line to keep comments safe
     const lines = raw.split('\n');
     const highlighted = lines.map(line => {
-      // Whole-line comment (// or #)
       const lineCommentMatch = line.match(/^(\s*)(\/\/.*|#.*)$/);
       if (lineCommentMatch) {
         return esc(lineCommentMatch[1]) + `<span class="cmt">${esc(lineCommentMatch[2])}</span>`;
       }
 
-      // Split by string literals first to protect them
       const parts = [];
       let remaining = line;
       const strRe = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
@@ -1691,14 +1747,11 @@ function highlightJava() {
 
         let s = esc(p.val);
 
-        // Inline comment after code
         const inlineCmt = s.indexOf('//');
         let cmt = '';
         if (inlineCmt !== -1) { cmt = s.slice(inlineCmt); s = s.slice(0, inlineCmt); }
 
-        // Annotations
         s = s.replace(/(@\w+)/g, '<span class="ann">$1</span>');
-        // Keywords
         const kws = ['public','private','protected','static','final','abstract','class',
           'interface','extends','implements','new','return','void','this','super',
           'null','true','false','if','else','for','while','do','switch','case',
@@ -1706,11 +1759,8 @@ function highlightJava() {
           'import','package','var','instanceof','synchronized','volatile',
           'transient','native','enum','record','sealed','permits'];
         s = s.replace(new RegExp(`\\b(${kws.join('|')})\\b`, 'g'), '<span class="kw">$1</span>');
-        // Class names (PascalCase)
         s = s.replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="cls">$1</span>');
-        // Method calls
         s = s.replace(/\b([a-z]\w*)(\s*\()/g, '<span class="met">$1</span>$2');
-        // Numbers
         s = s.replace(/\b(\d+\.?\d*[LlFfDd]?)\b/g, '<span class="num">$1</span>');
 
         if (cmt) s += `<span class="cmt">${cmt}</span>`;
@@ -1720,12 +1770,10 @@ function highlightJava() {
 
     block.innerHTML = highlighted;
 
-    // Add Copy + Save buttons to code blocks (lesson body, chat, solution boxes)
     const pre = block.closest('.lesson-body pre, .solution-box, .msg.assistant pre');
     if (pre && !pre.querySelector('.copy-code-btn')) {
       const codeText = () => block.textContent || pre.textContent;
 
-      // Copy button
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-code-btn';
       copyBtn.textContent = 'Copy';
@@ -1742,7 +1790,6 @@ function highlightJava() {
       });
       pre.appendChild(copyBtn);
 
-      // Save to Project button
       const saveBtn = document.createElement('button');
       saveBtn.className = 'save-code-btn';
       saveBtn.textContent = '💾 Save';
