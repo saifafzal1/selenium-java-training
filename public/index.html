@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- ── Google Analytics (GA4) ────────────────────────────────── -->
+  <!-- ── Google Analytics (GA4) ──────────────────────────────── -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MC384WRQZ"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -13,7 +13,7 @@
     gtag('config', 'G-5MC384WRQZ');
   </script>
 
-  <!-- ── SEO ─────────────────────────────────────────────────── -->
+  <!-- ── SEO ─────────────────────────────────────────────── -->
   <title>Automation AI Labs | Free Test Automation Training</title>
   <meta name="description" content="Free Selenium WebDriver with Java course. Learn test automation from scratch — WebDriver setup, Page Object Model, TestNG, Maven, and CI/CD. AI assistant included."/>
   <meta name="keywords" content="selenium with java, selenium webdriver tutorial, selenium java tutorial, test automation java, page object model selenium, testng tutorial, automation testing course free, selenium interview questions"/>
@@ -21,7 +21,7 @@
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://automation-labs-training-ai.vercel.app/"/>
 
-  <!-- ── Open Graph ──────────────────────────────────────────── -->
+  <!-- ── Open Graph ────────────────────────────────────────── -->
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Selenium with Java — Free Test Automation Course"/>
   <meta property="og:description" content="Go from zero to Selenium expert. Free hands-on course with AI assistant, real exercises, and 17 lessons. No experience needed."/>
@@ -32,7 +32,7 @@
   <meta name="twitter:title" content="Selenium with Java — Free Test Automation Course"/>
   <meta name="twitter:description" content="Free Selenium WebDriver with Java training. Hands-on exercises, AI assistant, from beginner to expert."/>
 
-  <!-- ── Structured Data ────────────────────────────────────── -->
+  <!-- ── Structured Data ──────────────────────────────────────── -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -48,13 +48,13 @@
   <link rel="stylesheet" href="css/style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
-  <!-- ── Google AdSense ─────────────────────────────────────── -->
+  <!-- ── Google AdSense ───────────────────────────────────────── -->
   <!-- Uncomment after AdSense approval and replace ca-pub-XXXXXXXXXXXXXXXX -->
   <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 </head>
 <body>
 
-<!-- ── Header ──────────────────────────────────────────────── -->
+<!-- ── Header ────────────────────────────────────────────── -->
 <header id="header">
   <!-- Row 1: Logo + progress + utility buttons -->
   <div class="header-row-1">
@@ -82,6 +82,8 @@
       <button class="course-switch-btn" id="btn-api" onclick="switchCourse('api')">🔌 API Testing</button>
       <button class="course-switch-btn" id="btn-e2e" onclick="switchCourse('e2e')">🔗 E2E Integration</button>
       <button class="course-switch-btn" id="btn-jmeter" onclick="switchCourse('jmeter')">⚡ JMeter Performance</button>
+      <button class="course-switch-btn" id="btn-security" onclick="switchCourse('security')">🔒 Security Testing</button>
+      <button class="course-switch-btn" id="btn-database" onclick="switchCourse('database')">🗄️ Database Testing</button>
     </div>
   </div>
 </header>
@@ -91,7 +93,7 @@
   ⚠️ Running in file:// mode — progress saved to browser only. For full features: <code>cd selenium-training &amp;&amp; npm install &amp;&amp; npm start</code> → open <strong>http://localhost:3000</strong>
 </div>
 
-<!-- ── App Layout ───────────────────────────────────────────── -->
+<!-- ── App Layout ─────────────────────────────────────────────── -->
 <div id="app">
 
   <!-- Sidebar -->
@@ -154,7 +156,7 @@
                data-ad-slot="XXXXXXXXXX"
                data-ad-format="auto"
                data-full-width-responsive="true"></ins>
-          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
           -->
         </div>
       </div>
@@ -248,7 +250,7 @@
       </div>
     </div>
 
-    <!-- ── Feature Tray ──────────────────────────────────────── -->
+    <!-- ── Feature Tray ─────────────────────────────────────────── -->
     <div id="feature-tray">
       <div class="tray-tabs" role="tablist">
         <button class="tray-tab active" data-tray="skills"  role="tab" aria-selected="true">✨ Skills</button>
@@ -409,7 +411,7 @@
   </div>
 </div>
 
-<!-- ── Feedback Modal ─────────────────────────────────────── -->
+<!-- ── Feedback Modal ─────────────────────────────────────────── -->
 <div id="feedback-overlay" style="display:none" onclick="closeFeedback()"></div>
 <div id="feedback-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
   <div class="feedback-header">
@@ -450,6 +452,12 @@
 <script src="js/jmeter-curriculum.js"></script>
 <script src="js/jmeter-curriculum-advanced.js"></script>
 <script src="js/jmeter-curriculum-labs.js"></script>
+<script src="js/security-curriculum.js"></script>
+<script src="js/security-curriculum-advanced.js"></script>
+<script src="js/security-curriculum-labs.js"></script>
+<script src="js/database-curriculum.js"></script>
+<script src="js/database-curriculum-advanced.js"></script>
+<script src="js/database-curriculum-labs.js"></script>
 <script src="js/app.js"></script>
 
 <!-- ── Footer ──────────────────────────────────────────────── -->
@@ -464,7 +472,7 @@
     <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Course</div>
     <div style="line-height:2"><a href="/" style="color:#9BA8BB;text-decoration:none">All Lessons</a></div>
     <div style="line-height:2"><a href="/blog/" style="color:#9BA8BB;text-decoration:none">Blog</a></div>
-    <div style="line-height:2"><a href="/help.html" style="color:#9BA8BB;text-decoration:none">Help & Guide</a></div>
+    <div style="line-height:2"><a href="/help.html" style="color:#9BA8BB;text-decoration:none">Help &amp; Guide</a></div>
     <div style="line-height:2"><a href="/blog/selenium-interview-questions-answers" style="color:#9BA8BB;text-decoration:none">Interview Prep</a></div>
   </div>
   <div>
