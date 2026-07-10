@@ -172,17 +172,34 @@ mvn allure:serve -pl e2e-module
 \`\`\`
 
 2. In the Allure report, find and screenshot:
-   a. **Overview** — total passed/failed/skipped, duration, trend
-   b. **Suites** tab — expand a test class and show the @Step chain
-   c. **Behaviors** tab — Epic → Feature → Story hierarchy
-   d. **Categories** tab — product bugs vs test defects
-   e. A **failing test** with attached screenshot and REST Assured log
+   a. **Overview** — total passed/failed/skipped, duration, trend (if you have history)
+   b. **Suites** tab — expand a test class and show the @Step chain for one passing test
+   c. **Behaviors** tab — show the Epic → Feature → Story hierarchy you built
+   d. **Categories** tab — shows test failure categories (product bugs vs test defects)
+   e. A **failing test** with attached screenshot and REST Assured request/response log
 
-3. Deliberately break one test, run again, confirm failure evidence in Allure, then fix.
+3. Deliberately break one test:
+   - Change an assertion from \`equalTo("Alice")\` to \`equalTo("WRONG")\`
+   - Run again
+   - In the Allure report, find the failure and confirm:
+     - Screenshot is attached
+     - The @Step chain shows exactly which step failed
+     - The REST Assured request/response is attached
+   - Fix the test back to passing
+
+### What to Look For in the Report
+
+| Report Section | What to verify |
+|---|---|
+| Overview | Pass rate > 90% for a healthy suite |
+| Suites | Each test shows a clean @Step chain — no steps = poor instrumentation |
+| Behaviors | Tests organised by Epic/Feature/Story — easier for PMs to read |
+| Categories | "Product defects" = app is broken; "Test defects" = test code needs fixing |
+| Timeline | Shows parallel execution — threads running simultaneously |
 
 ### Acceptance Criteria
 
-- [ ] Screenshots of all 5 report sections
+- [ ] Screenshots of all 5 report sections listed above
 - [ ] Failing test shows screenshot + REST Assured log attached
 - [ ] @Step chain shows the full API + UI flow
 - [ ] Fixed test passes again
@@ -209,33 +226,71 @@ mvn allure:serve -pl e2e-module
 
 **This is your final project.** Ship a production-ready multi-module test pyramid to GitHub with a full CI pipeline.
 
+---
+
 ### What to Build
 
 A GitHub repository named \`restful-booker-e2e\` containing:
 
+**Source Code:**
 - \`common/\` — DriverManager, ScreenshotListener, ConfigReader, JsonDataReader
-- \`api-module/\` — all REST Assured tests
-- \`ui-module/\` — UiBaseTest, Page Objects, UI tests
-- \`e2e-module/\` — E2EBaseTest, APIClient, all hybrid tests
-- \`.github/workflows/test-pyramid.yml\` — full CI pipeline
-- \`docker-compose.yml\` — Selenium Grid
+- \`api-module/\` — HealthCheckTest, BookingCRUDTest, AuthTests, BookingDataDrivenTest
+- \`ui-module/\` — UiBaseTest, Page Objects, 3+ UI tests
+- \`e2e-module/\` — E2EBaseTest, APIClient, ApiSetupUiVerifyTest, UiActionApiAssertTest, DataDrivenE2ETest, HybridCRUDTest
+
+**CI/CD:**
+- \`.github/workflows/test-pyramid.yml\` — 3 jobs: api-tests, e2e-tests (Chrome + Firefox matrix), publish-report
+- \`docker-compose.yml\` — Selenium Grid with Chrome + Firefox nodes
+
+**Documentation:**
+- \`README.md\` explaining:
+  - How to run locally: \`mvn test\` vs \`mvn test -pl api-module\` vs Docker Grid
+  - How to read the Allure report
+  - Test architecture diagram (API layer → UI layer → E2E layer)
+
+---
 
 ### Acceptance Criteria
 
-- [ ] mvn clean install -DskipTests succeeds
-- [ ] API tests pass: mvn test -pl api-module
-- [ ] E2E tests pass locally: mvn test -pl e2e-module
-- [ ] GitHub Actions: all jobs green on push to main
-- [ ] Allure report on GitHub Pages is accessible
+**Code:**
+- [ ] All modules compile: \`mvn clean install -DskipTests\` succeeds
+- [ ] API tests pass: \`mvn test -pl api-module\` — all green
+- [ ] E2E tests pass locally: \`mvn test -pl e2e-module\`
+- [ ] No static WebDriver fields — ThreadLocal used throughout
+- [ ] All tests create and clean up their own data (no test pollution)
 
-### Final Screenshots
+**CI Pipeline:**
+- [ ] GitHub Actions workflow runs on push to main
+- [ ] api-tests job completes before e2e-tests starts
+- [ ] e2e-tests matrix runs Chrome AND Firefox in parallel
+- [ ] Allure report publishes to GitHub Pages
+- [ ] GitHub Pages report is publicly accessible at your GitHub Pages URL
 
-1. GitHub Actions — all jobs green
-2. Allure Overview on GitHub Pages
-3. Allure Behaviors tab (Epic → Feature → Story)
-4. Allure Timeline (parallel execution)
-5. Grid UI with 2+ active sessions
-6. IntelliJ Maven panel — all 4 modules
+**Report Quality:**
+- [ ] @Epic, @Feature, @Story on every test class and method
+- [ ] @Step on every helper method
+- [ ] Screenshots attached on failure (ScreenshotListener)
+- [ ] REST Assured logs attached (AllureRestAssured filter)
+
+---
+
+### Final Screenshots Required
+
+1. GitHub Actions — all 3 jobs green (api-tests, e2e-tests-chrome, e2e-tests-firefox, publish-report)
+2. Allure Overview page on GitHub Pages — showing tests from all 3 layers
+3. Allure Behaviors tab — showing Epic → Feature → Story hierarchy
+4. Allure timeline showing parallel execution
+5. Grid UI (http://localhost:4444) — showing 2+ active sessions during local run
+6. IntelliJ Maven panel — all 4 modules visible (common, api-module, ui-module, e2e-module)
+
+---
+
+### Sharing Your Work
+
+Once your pipeline is green, share:
+- The GitHub repo URL (public)
+- The GitHub Pages Allure report URL
+- Screenshots of the 6 items above
 
 **Congratulations — you have built a production-grade test pyramid framework.** 🎉
 `,
@@ -253,3 +308,6 @@ A GitHub repository named \`restful-booker-e2e\` containing:
     ]
   }
 ];
+
+// Push labs as a module into E2E_CURRICULUM
+E2E_CURRICULUM.push(...E2E_CURRICULUM_LABS);
