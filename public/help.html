@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Help & User Guide — Automation AI Lab</title>
   <meta name="description" content="Complete guide to using Automation AI Lab — AI chat, VSCode integration, local RAG, and submitting your project for review."/>
-  <link rel="canonical" href="https://automation-ai-labs-training.vercel.app/help.html"/>
-  <meta name="robots" content="index, follow"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
@@ -116,7 +114,7 @@
       background: var(--bg3); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 20px 24px; overflow-x: auto;
       font-family: var(--mono); font-size: 13px; line-height: 1.7;
-      color: #a8d4ff; margin: 16px 0;
+      color: #2d3748; margin: 16px 0;
     }
     code { font-family: var(--mono); font-size: 13px; }
     p code, li code {
@@ -271,7 +269,7 @@
             <div class="step-num">B</div>
             <div class="step-body">
               <h3>Local Mode <span class="badge badge-green">Fully offline</span></h3>
-              <p>Clone the repo, run <code>npm install && node server.js</code>, then open <code>http://localhost:3000</code>. Install <a href="https://ollama.com" target="_blank" style="color:var(--accent)">Ollama</a> for local AI models. No internet required after setup.</p>
+              <p>Clone the repo, run <code>npm install &amp;&amp; node server.js</code>, then open <code>http://localhost:3000</code>. Install <a href="https://ollama.com" target="_blank" style="color:var(--accent)">Ollama</a> for local AI models. No internet required after setup.</p>
               <pre>git clone https://github.com/saifafzal1/selenium-java-training
 cd selenium-training
 npm install
@@ -323,7 +321,7 @@ node server.js
           </div>
           <div class="card">
             <div class="card-icon">🚀</div>
-            <h3>Module 5 — CI/CD & Real Projects</h3>
+            <h3>Module 5 — CI/CD &amp; Real Projects</h3>
             <p>Maven, Jenkins, GitHub Actions, cross-browser testing, a complete framework from scratch.</p>
           </div>
         </div>
@@ -379,7 +377,7 @@ node server.js
         <div class="callout info" style="margin-top:20px">
           <div class="callout-icon">💬</div>
           <div class="callout-body">
-            <p><strong>Pro tip:</strong> Paste your code into the chat and say <em>"review this"</em> or <em>"why doesn't this work?"</em>. The AI will debug it and suggest fixes. You can also ask it to rewrite with better practices after each lesson.</p>
+            <p><strong>Pro tip:</strong> Paste your code into the chat and say <em>"review this"</em> or <em>"why doesn't this work?"</em>. The AI will debug it and suggest fixes.</p>
           </div>
         </div>
       </section>
@@ -388,7 +386,7 @@ node server.js
       <section class="section" id="skill-modes">
         <div class="section-label">Section 3.5</div>
         <h2>✨ AI Skill Modes</h2>
-        <p class="section-intro">Skill Modes let you switch the AI's persona to match exactly what you need — a patient tutor, an expert debugger, a code generator, or a quiz master. Select a skill in the <strong>Skills</strong> tray below the chat.</p>
+        <p class="section-intro">Skill Modes let you switch the AI's persona to match exactly what you need. Select a skill in the <strong>Skills</strong> tray below the chat.</p>
 
         <div class="cards" style="margin-bottom:32px">
           <div class="card" style="border-left:3px solid var(--accent)">
@@ -416,39 +414,18 @@ node server.js
         <div class="callout tip">
           <div class="callout-icon">💡</div>
           <div class="callout-body">
-            <p><strong>How to switch:</strong> Open the AI Chat panel → click the <strong>Skills</strong> tab → click any skill button. A message appears in chat with example prompts and a direct link back to this guide.</p>
+            <p><strong>How to switch:</strong> Open the AI Chat panel → click the <strong>Skills</strong> tab → click any skill button.</p>
           </div>
         </div>
 
-        <!-- ── Explain ── -->
-        <h3 id="skill-explain" style="margin:40px 0 16px;font-size:20px;scroll-margin-top:80px">🎓 Explain Mode — Step-by-Step Examples</h3>
-        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: understanding a new concept, getting a plain-English definition, seeing how something works with analogies.</p>
-
+        <h3 id="skill-explain" style="margin:40px 0 16px;font-size:20px;scroll-margin-top:80px">🎓 Explain Mode</h3>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Activate Explain Mode</h3>
-              <p>Open the chat panel → <strong>Skills</strong> tab → click <strong>🎓 Explain</strong>. A welcome message appears with suggested prompts.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Ask about any concept</h3>
-              <p>Type naturally — no special syntax needed. Examples:</p>
-              <pre>"Explain WebDriver implicit vs explicit waits with examples"
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Activate Explain Mode</h3><p>Open the chat panel → <strong>Skills</strong> tab → click <strong>🎓 Explain</strong>.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Ask about any concept</h3><pre>"Explain WebDriver implicit vs explicit waits with examples"
 "What is Page Object Model and why should I use it?"
 "Walk me through how XPath locators work"
-"Explain TestNG annotations — @Test, @BeforeMethod, @AfterMethod"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Read the explanation + code</h3>
-              <p>The AI responds with a numbered explanation, a real-world analogy, and a short runnable Java code block. For example, asking about waits returns something like:</p>
-              <pre>// ❌ Implicit wait — applies globally, fragile
+"Explain TestNG annotations — @Test, @BeforeMethod, @AfterMethod"</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Read the explanation + code</h3><pre>// ❌ Implicit wait — applies globally, fragile
 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
 // ✅ Explicit wait — waits for a specific condition
@@ -456,101 +433,36 @@ WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 WebElement btn = wait.until(
     ExpectedConditions.elementToBeClickable(By.id("submit"))
 );
-btn.click();</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Follow up or go deeper</h3>
-              <p>Ask follow-up questions in the same chat — the AI remembers context. Try: <em>"Can you show me a more complex example?"</em> or <em>"What happens if the element never appears?"</em></p>
-            </div>
-          </div>
+btn.click();</pre></div></div>
         </div>
 
-        <!-- ── Debug ── -->
-        <h3 id="skill-debug" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🐛 Debug Mode — Step-by-Step Examples</h3>
-        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: fixing errors, understanding why a test fails, getting corrected code with explanations.</p>
-
+        <h3 id="skill-debug" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🐛 Debug Mode</h3>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Activate Debug Mode</h3>
-              <p>Skills tab → click <strong>🐛 Debug</strong>. The AI now acts as an expert debugger focused on root cause analysis.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Paste your error or broken code</h3>
-              <p>Copy the full stack trace from your terminal or IDE and paste it into the chat:</p>
-              <pre>Fix this error:
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Activate Debug Mode</h3><p>Skills tab → click <strong>🐛 Debug</strong>.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Paste your error</h3><pre>Fix this error:
 
 org.openqa.selenium.NoSuchElementException: no such element:
 Unable to locate element: {"method":"id","selector":"submit-btn"}
-  at LoginTest.testLogin(LoginTest.java:34)</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Get root cause + corrected code</h3>
-              <p>Debug Mode always gives you 4 things:</p>
-              <ul style="margin-top:8px">
-                <li><strong>Root Cause</strong> — exactly what went wrong</li>
-                <li><strong>Why it happened</strong> — in plain English</li>
-                <li><strong>Corrected code</strong> — with inline comments on every fix</li>
-                <li><strong>Pro Tip</strong> — how to prevent this class of error in future</li>
-              </ul>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Paste code for review</h3>
-              <p>You can also paste working code and ask: <em>"Review this for bugs or bad practices"</em> — Debug Mode will flag issues before they become failures:</p>
-              <pre>"Review this code and flag any potential issues:
+  at LoginTest.testLogin(LoginTest.java:34)</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Get root cause + corrected code</h3><p>Debug Mode gives you: Root Cause, Why it happened, Corrected code, and a Pro Tip.</p></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Paste code for review</h3><pre>"Review this code and flag any potential issues:
 
 public void clickLogin() {
     driver.findElement(By.id("login")).click();
-    Thread.sleep(3000); // waiting for page
-}"</pre>
-            </div>
-          </div>
+    Thread.sleep(3000);
+}"</pre></div></div>
         </div>
 
-        <!-- ── Generate ── -->
-        <h3 id="skill-generate" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">⚙️ Generate Mode — Step-by-Step Examples</h3>
-        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: creating new Java files, scaffolding framework components, writing POM classes and TestNG tests.</p>
-
+        <h3 id="skill-generate" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">⚙️ Generate Mode</h3>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Activate Generate Mode</h3>
-              <p>Skills tab → click <strong>⚙️ Generate</strong>. The AI now acts as a senior automation engineer focused on production-quality code.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Describe what you want to build</h3>
-              <p>Be specific — mention the page, actions, and pattern you want:</p>
-              <pre>"Generate a LoginPage class using Page Object Model.
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Activate Generate Mode</h3><p>Skills tab → click <strong>⚙️ Generate</strong>.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Describe what you want to build</h3><pre>"Generate a LoginPage class using Page Object Model.
 The page at https://example.com/login has:
 - Username field (id: 'username')
 - Password field (id: 'password')
 - Submit button (id: 'login-btn')
-- Error message (class: 'error-msg')"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Get a complete, ready-to-use Java file</h3>
-              <p>Generate Mode returns a full class — proper package declaration, imports, WebDriverWait, and all methods:</p>
-              <pre>package com.selenium.pages;
+- Error message (class: 'error-msg')"</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Get a complete Java file</h3><pre>package com.selenium.pages;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.*;
@@ -583,131 +495,20 @@ public class LoginPage {
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
         return errorMessage.getText();
     }
-}</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Save to your project folder</h3>
-              <p>Click <strong>💾 Save to Project</strong> below the code block. The file is written directly to your Maven project's <code>src/test/java</code> folder. Click the toast to open it in VS Code instantly.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">5</div>
-            <div class="step-body">
-              <h3>More things you can generate</h3>
-              <ul style="margin-top:4px">
-                <li>"Generate a <code>DriverFactory</code> with Chrome and Firefox support"</li>
-                <li>"Write a <code>BasePage</code> class with common wait utilities"</li>
-                <li>"Create a TestNG data provider test for the login page"</li>
-                <li>"Generate a <code>testng.xml</code> suite for parallel execution"</li>
-                <li>"Write a <code>ConfigReader</code> to read <code>config.properties</code>"</li>
-              </ul>
-            </div>
-          </div>
+}</pre></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Save to your project folder</h3><p>Click <strong>💾 Save to Project</strong> below the code block to write the file to your Maven project.</p></div></div>
         </div>
 
-        <!-- ── Quiz ── -->
-        <h3 id="skill-quiz" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🧩 Quiz Mode — Step-by-Step Examples</h3>
-        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Best for: testing your knowledge before moving to the next lesson, interview prep, reinforcing concepts you just read.</p>
-
+        <h3 id="skill-quiz" style="margin:48px 0 16px;font-size:20px;scroll-margin-top:80px">🧩 Quiz Mode</h3>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Activate Quiz Mode</h3>
-              <p>Skills tab → click <strong>🧩 Quiz</strong>. The AI switches into quiz master mode — focused on testing your understanding.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Request a quiz on any topic</h3>
-              <pre>"Quiz me on WebDriver locators"
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Activate Quiz Mode</h3><p>Skills tab → click <strong>🧩 Quiz</strong>.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Request a quiz on any topic</h3><pre>"Quiz me on WebDriver locators"
 "Test my understanding of explicit waits"
 "Give me 3 questions on Page Object Model"
-"Quiz me on what I just read" (uses the current lesson as context)</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Answer the questions</h3>
-              <p>The AI gives you 3 questions — a mix of multiple-choice and short-answer. Type your answers directly in the chat. Example exchange:</p>
-              <pre>AI: Q1. What is the difference between findElement() and findElements()?
-
-You: findElement returns one element, findElements returns a list.
-     findElement throws an exception if not found.
-
-AI: ✅ Correct! findElement() returns a single WebElement and throws
-    NoSuchElementException if not found. findElements() returns a
-    List&lt;WebElement&gt; — an empty list if nothing matches (no exception).
-    Score: 1/3...</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Get your score and explanations</h3>
-              <p>After all 3 questions, the AI gives a final score and a detailed explanation for any answer you got wrong — so you learn from mistakes, not just which answer was right.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">5</div>
-            <div class="step-body">
-              <h3>Use it for interview prep</h3>
-              <p>Quiz Mode is perfect for interview preparation:</p>
-              <pre>"Give me 3 Selenium interview questions at a mid-level difficulty"
+"Quiz me on what I just read"</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Use it for interview prep</h3><pre>"Give me 3 Selenium interview questions at a mid-level difficulty"
 "Quiz me on common TestNG interview questions"
-"Ask me advanced questions on WebDriver architecture"</pre>
-            </div>
-          </div>
-        </div>
-
-        <div class="callout tip" style="margin-top:24px">
-          <div class="callout-icon">💡</div>
-          <div class="callout-body">
-            <p><strong>Best workflow:</strong> Read the lesson → switch to <strong>Explain</strong> to clarify anything → switch to <strong>Quiz</strong> to test yourself → do the exercise → switch to <strong>Generate</strong> to scaffold your solution → switch to <strong>Debug</strong> if anything breaks. Rinse and repeat!</p>
-          </div>
-        </div>
-
-        <h3 style="margin:40px 0 16px;font-size:20px">When to use Skills</h3>
-        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Skills change <em>how</em> the AI responds — same model, different persona. Use them when you know exactly what type of help you need and want a fast answer.</p>
-
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Learning a new concept</h3>
-              <p>You're on the <strong>OOP: Classes &amp; Inheritance</strong> lesson and want it explained clearly. Pick <strong>🎓 Explain</strong> — the AI gives you a numbered breakdown with a real-world analogy and a Java code example.</p>
-              <pre>"Explain method overriding in Java with a Selenium example"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Fixing a failing test</h3>
-              <p>Your <code>WebDriverWait</code> is throwing <code>TimeoutException</code>. Paste the stack trace and pick <strong>🐛 Debug</strong> — the AI identifies the root cause and returns corrected code with inline comments.</p>
-              <pre>"My test fails with TimeoutException on line 42 — [paste error]"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Scaffolding boilerplate</h3>
-              <p>You understand Page Object Model and just need the code. Pick <strong>⚙️ Generate</strong> — the AI writes a production-ready POM class with WebDriverWait and meaningful method names, ready to paste into your project.</p>
-              <pre>"Generate a LoginPage POM class for a site with email, password and submit fields"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Checking your understanding</h3>
-              <p>You've just finished the <strong>TestNG Annotations</strong> lesson. Pick <strong>🧩 Quiz</strong> — the AI asks you 3 targeted questions and gives detailed feedback on your answers before moving on.</p>
-              <pre>"Quiz me on @BeforeMethod, @AfterMethod and @DataProvider"</pre>
-            </div>
-          </div>
+"Ask me advanced questions on WebDriver architecture"</pre></div></div>
         </div>
       </section>
 
@@ -715,199 +516,25 @@ AI: ✅ Correct! findElement() returns a single WebElement and throws
       <section class="section" id="agent-mode">
         <div class="section-label">Section 3.6</div>
         <h2>🤖 Agent Mode — 3-Step AI Chain</h2>
-        <p class="section-intro">Agent Mode upgrades every question you ask into a multi-step reasoning pipeline. Instead of one model answering directly, three specialised models work in sequence — refining your question, answering it, then reviewing and improving the result.</p>
+        <p class="section-intro">Agent Mode upgrades every question into a multi-step reasoning pipeline — three specialised models work in sequence to refine, answer, and review.</p>
 
         <div class="cards" style="margin-bottom:32px">
-          <div class="card" style="border-left:3px solid #7c3aed">
-            <div class="card-icon">🔍</div>
-            <h3>Step 1 — Refine</h3>
-            <p><strong>Qwen 3 32B</strong> rewrites and sharpens your question, adding technical context so the next model gets the best possible input.</p>
-          </div>
-          <div class="card" style="border-left:3px solid #0891b2">
-            <div class="card-icon">💬</div>
-            <h3>Step 2 — Answer</h3>
-            <p><strong>Llama 3.3 70B</strong> generates a detailed, expert answer with code examples based on the refined question.</p>
-          </div>
-          <div class="card" style="border-left:3px solid #059669">
-            <div class="card-icon">✅</div>
-            <h3>Step 3 — Review</h3>
-            <p><strong>Llama 4 Scout</strong> reads the answer and either validates it or improves it — catching gaps, fixing code, and adding clarity.</p>
-          </div>
+          <div class="card" style="border-left:3px solid #7c3aed"><div class="card-icon">🔍</div><h3>Step 1 — Refine</h3><p><strong>Qwen 3 32B</strong> rewrites and sharpens your question.</p></div>
+          <div class="card" style="border-left:3px solid #0891b2"><div class="card-icon">💬</div><h3>Step 2 — Answer</h3><p><strong>Llama 3.3 70B</strong> generates a detailed expert answer.</p></div>
+          <div class="card" style="border-left:3px solid #059669"><div class="card-icon">✅</div><h3>Step 3 — Review</h3><p><strong>Llama 4 Scout</strong> validates and improves the answer.</p></div>
         </div>
 
         <div class="callout tip">
           <div class="callout-icon">💡</div>
           <div class="callout-body">
-            <p><strong>How to enable:</strong> Open the AI Chat panel → click the <strong>🤖 Agent</strong> tab → toggle <em>Agent Mode</em> ON. The toggle turns blue and the status line shows the active chain. Each response streams in three colour-coded messages — purple for Refine, teal for Answer, green for Review.</p>
+            <p><strong>How to enable:</strong> Open the AI Chat panel → click the <strong>🤖 Agent</strong> tab → toggle <em>Agent Mode</em> ON.</p>
           </div>
         </div>
 
-        <h3 style="margin:40px 0 16px;font-size:20px">Step-by-Step Example</h3>
-
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Enable Agent Mode</h3>
-              <p>Open the chat panel → click the <strong>🤖 Agent</strong> tab → click the toggle. Status changes to <em>"On — 🔍 Qwen refines → 💬 Llama answers → ✅ Scout reviews"</em>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Ask your question normally</h3>
-              <p>No special syntax — just ask as you normally would. For example:</p>
-              <pre>"How do I implement the Page Object Model in Selenium with Java?"
-"My test throws StaleElementReferenceException — how do I fix it?"
-"Write a reusable wait utility for my Selenium framework"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Watch the chain run</h3>
-              <p>Three messages appear in sequence, each with a coloured left border and a step label chip:</p>
-              <pre>🔍 REFINING  — "Sharpening your question..."  (purple)
-💬 ANSWERING — full answer with code           (teal)
-✅ REVIEWING — critique + final improvements   (green)</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Use the final reviewed answer</h3>
-              <p>The Review step is the one to act on — it has been validated or improved by a second model. You can still ask follow-up questions; each one runs the full chain again.</p>
-            </div>
-          </div>
-        </div>
-
-        <h3 style="margin:40px 0 16px;font-size:20px">When to use Agent Mode</h3>
-        <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Agent Mode changes <em>who</em> processes your question — three models in sequence. Use it when quality matters more than speed, or when your question is vague and you need help sharpening it first.</p>
-
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>You can't quite articulate the question</h3>
-              <p>You're stuck on Selenium Fluent Wait but don't know how to ask. Agent's <strong>🔍 Refine step</strong> rewrites your vague prompt into a precise, contextual question before it's answered — so you get a better answer even with a rough starting point.</p>
-              <pre>"something wrong with my wait, page loads but element not found"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Generating framework code you'll actually run</h3>
-              <p>You need a full reusable <code>DriverFactory</code> class for your project submission. Agent's <strong>✅ Review step</strong> acts as a senior engineer second opinion — catching missing thread safety, unclosed drivers, or non-best-practice patterns before the answer reaches you.</p>
-              <pre>"Write a thread-safe DriverFactory using ThreadLocal for parallel test execution"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Critical concepts you need to get right</h3>
-              <p>You're learning Page Object Model for the first time and want confidence the explanation is accurate. The Scout review model validates the answer and flags anything incomplete or misleading — you get a quality score and a bonus tip.</p>
-              <pre>"Explain the Page Object Model pattern and show a complete real-world example"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">→</div>
-            <div class="step-body">
-              <h3>Pre-submission framework review</h3>
-              <p>Before submitting your Selenium framework for review, paste your code and ask Agent Mode to assess it. The three-model chain catches more issues than a single model — covering architecture, naming, waits strategy, and TestNG setup.</p>
-              <pre>"Review my Selenium framework for best practices before I submit — [paste code]"</pre>
-            </div>
-          </div>
-        </div>
-
-        <div class="callout tip" style="margin-top:24px">
-          <div class="callout-icon">💡</div>
-          <div class="callout-body">
-            <p><strong>Rule of thumb:</strong> Use <strong>Skills</strong> during active learning as you move through lessons — fast and focused. Switch to <strong>Agent Mode</strong> when you're stuck, generating code you'll run, or when getting the answer right matters more than getting it fast.</p>
-          </div>
-        </div>
-
-        <div class="callout warning" style="margin-top:24px">
+        <div class="callout warning" style="margin-top:16px">
           <div class="callout-icon">⚠️</div>
           <div class="callout-body">
-            <p><strong>Agent Mode takes longer</strong> — three sequential API calls means roughly 3× the response time of a single model. Use it when answer quality matters more than speed, such as generating framework code or debugging complex issues.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Agent Mode ───────────────────────────────────── -->
-      <section class="section" id="agent-mode">
-        <div class="section-label">Section 3.6</div>
-        <h2>🤖 Agent Mode — 3-Step AI Chain</h2>
-        <p class="section-intro">Agent Mode upgrades every question you ask into a multi-step reasoning pipeline. Instead of one model answering directly, three specialised models work in sequence — refining your question, answering it, then reviewing and improving the result.</p>
-
-        <div class="cards" style="margin-bottom:32px">
-          <div class="card" style="border-left:3px solid #7c3aed">
-            <div class="card-icon">🔍</div>
-            <h3>Step 1 — Refine</h3>
-            <p><strong>Qwen 3 32B</strong> rewrites and sharpens your question, adding technical context so the next model gets the best possible input.</p>
-          </div>
-          <div class="card" style="border-left:3px solid #0891b2">
-            <div class="card-icon">💬</div>
-            <h3>Step 2 — Answer</h3>
-            <p><strong>Llama 3.3 70B</strong> generates a detailed, expert answer with code examples based on the refined question.</p>
-          </div>
-          <div class="card" style="border-left:3px solid #059669">
-            <div class="card-icon">✅</div>
-            <h3>Step 3 — Review</h3>
-            <p><strong>Llama 4 Scout</strong> reads the answer and either validates it or improves it — catching gaps, fixing code, and adding clarity.</p>
-          </div>
-        </div>
-
-        <div class="callout tip">
-          <div class="callout-icon">💡</div>
-          <div class="callout-body">
-            <p><strong>How to enable:</strong> Open the AI Chat panel → click the <strong>🤖 Agent</strong> tab → toggle <em>Agent Mode</em> ON. The toggle turns blue and the status line shows the active chain. Each response streams in three colour-coded messages — purple for Refine, teal for Answer, green for Review.</p>
-          </div>
-        </div>
-
-        <h3 style="margin:40px 0 16px;font-size:20px">Step-by-Step Example</h3>
-
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Enable Agent Mode</h3>
-              <p>Open the chat panel → click the <strong>🤖 Agent</strong> tab → click the toggle. Status changes to <em>"On — 🔍 Qwen refines → 💬 Llama answers → ✅ Scout reviews"</em>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Ask your question normally</h3>
-              <p>No special syntax — just ask as you normally would. For example:</p>
-              <pre>"How do I implement the Page Object Model in Selenium with Java?"
-"My test throws StaleElementReferenceException — how do I fix it?"
-"Write a reusable wait utility for my Selenium framework"</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Watch the chain run</h3>
-              <p>Three messages appear in sequence, each with a coloured left border and a step label chip:</p>
-              <pre>🔍 REFINING  — "Sharpening your question..."  (purple)
-💬 ANSWERING — full answer with code           (teal)
-✅ REVIEWING — critique + final improvements   (green)</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Use the final reviewed answer</h3>
-              <p>The Review step is the one to act on — it has been validated or improved by a second model. You can still ask follow-up questions; each one runs the full chain again.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="callout warning" style="margin-top:24px">
-          <div class="callout-icon">⚠️</div>
-          <div class="callout-body">
-            <p><strong>Agent Mode takes longer</strong> — three sequential API calls means roughly 3× the response time of a single model. Use it when answer quality matters more than speed, such as generating framework code or debugging complex issues.</p>
+            <p><strong>Agent Mode takes longer</strong> — three sequential API calls means roughly 3× the response time. Use it when answer quality matters more than speed.</p>
           </div>
         </div>
       </section>
@@ -921,89 +548,28 @@ AI: ✅ Correct! findElement() returns a single WebElement and throws
         <div class="callout warn">
           <div class="callout-icon">⚠️</div>
           <div class="callout-body">
-            <p><strong>Requires local mode.</strong> VSCode file integration only works when the app is running via <code>node server.js</code> on localhost — not on the hosted Vercel URL.</p>
+            <p><strong>Requires local mode.</strong> VSCode file integration only works when the app is running via <code>node server.js</code> on localhost.</p>
           </div>
         </div>
 
-        <h3 style="margin:24px 0 12px;font-size:17px">Step-by-step workflow</h3>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Create your Maven project in VS Code</h3>
-              <p>Open VS Code's terminal and scaffold a Maven project:</p>
-              <pre>mvn archetype:generate \
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Create your Maven project in VS Code</h3><pre>mvn archetype:generate \
   -DgroupId=com.selenium.training \
   -DartifactId=my-selenium-framework \
   -DarchetypeArtifactId=maven-archetype-quickstart \
   -DinteractiveMode=false
 
 cd my-selenium-framework
-code .   # opens in VS Code</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Set the Project Folder in Automation AI Lab</h3>
-              <p>Click ⚙️ (Settings gear) in the bottom-left of the app. Under <strong>Project Folder</strong>, paste the path to your Java sources:</p>
-              <pre>/Users/yourname/my-selenium-framework/src/test/java</pre>
-              <p>Click <strong>Save Path</strong> then <strong>Test Connection</strong> — you should see a green confirmation.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Ask the AI to generate code</h3>
-              <p>In the chat panel, ask for a Java file — for example:</p>
-              <pre>"Generate a LoginPage class using Page Object Model
-for a login form at https://example.com/login"</pre>
-              <p>The AI responds with a complete Java class. A <strong>💾 Save to Project</strong> button appears below the code block.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Save → VS Code opens the file</h3>
-              <p>Click Save. The file is written to your project folder. A toast notification appears — click it to jump directly to the file in VS Code (uses the <code>vscode://file/</code> URL scheme).</p>
-              <div class="callout tip" style="margin-top:12px">
-                <div class="callout-icon">💡</div>
-                <div class="callout-body"><p>Enable <strong>Open in VS Code</strong> in Settings to make the toast clickable. Requires VS Code installed with the default URL handler.</p></div>
-              </div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">5</div>
-            <div class="step-body">
-              <h3>Run & debug in VS Code</h3>
-              <p>Back in VS Code, run your test with:</p>
-              <pre>mvn test -Dtest=LoginTest</pre>
-              <p>If you see errors, copy the stack trace and paste it back into the Automation AI Lab chat: <em>"Fix this error:"</em> — the AI will diagnose and provide corrected code.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">6</div>
-            <div class="step-body">
-              <h3>Push to GitHub after each module</h3>
-              <p>Commit your working code after each module. This builds your portfolio and is required for the AI code review at the end.</p>
-              <pre>git add .
+code .   # opens in VS Code</pre></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Set the Project Folder in Automation AI Lab</h3><p>Click ⚙️ Settings → paste the path to your Java sources:</p><pre>/Users/yourname/my-selenium-framework/src/test/java</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Ask the AI to generate code</h3><pre>"Generate a LoginPage class using Page Object Model
+for a login form at https://example.com/login"</pre></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Save → VS Code opens the file</h3><p>Click Save. The file is written to your project folder. A toast notification appears — click it to open in VS Code.</p></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-body"><h3>Run &amp; debug in VS Code</h3><pre>mvn test -Dtest=LoginTest</pre><p>If you see errors, paste the stack trace back into the chat: <em>"Fix this error:"</em></p></div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-body"><h3>Push to GitHub after each module</h3><pre>git add .
 git commit -m "Module 3: Page Object Model complete"
-git push origin main</pre>
-            </div>
-          </div>
+git push origin main</pre></div></div>
         </div>
-
-        <h3 style="margin:32px 0 16px;font-size:17px">Recommended VS Code extensions</h3>
-        <table>
-          <thead><tr><th>Extension</th><th>What it does</th><th>Why you need it</th></tr></thead>
-          <tbody>
-            <tr><td>Extension Pack for Java</td><td>Java language support, Maven, debugger</td><td>Required — core Java development</td></tr>
-            <tr><td>Test Runner for Java</td><td>Run TestNG tests with green/red icons</td><td>See test results inline</td></tr>
-            <tr><td>GitLens</td><td>Git blame, history, diff tools</td><td>Track your progress per file</td></tr>
-            <tr><td>Prettier / Checkstyle</td><td>Auto-format Java code</td><td>Keeps your code clean</td></tr>
-            <tr><td>Thunder Client</td><td>HTTP client (like Postman)</td><td>Test REST APIs you'll automate later</td></tr>
-          </tbody>
-        </table>
 
         <h3 style="margin:28px 0 12px;font-size:17px">Recommended project structure</h3>
         <pre>my-selenium-framework/
@@ -1011,90 +577,28 @@ git push origin main</pre>
 │   ├── main/java/com/selenium/
 │   │   └── utils/          ← DriverFactory, ConfigReader
 │   └── test/java/com/selenium/
-│       ├── pages/          ← Page Object classes (LoginPage, HomePage…)
+│       ├── pages/          ← Page Object classes
 │       ├── tests/          ← TestNG test classes
-│       └── listeners/      ← TestNG listeners for reporting
+│       └── listeners/      ← TestNG listeners
 ├── resources/
-│   └── config.properties   ← Base URL, browser, credentials
-├── pom.xml                 ← Maven dependencies
-└── testng.xml             ← Test suite configuration</pre>
+│   └── config.properties
+├── pom.xml
+└── testng.xml</pre>
       </section>
 
       <!-- ── 5. Local RAG ────────────────────────────────── -->
       <section class="section" id="rag">
         <div class="section-label">Section 5</div>
         <h2>📚 Local RAG — Offline AI with Real Docs</h2>
-        <p class="section-intro">RAG (Retrieval-Augmented Generation) syncs real Selenium documentation to your machine so the AI gives accurate answers even when fully offline.</p>
+        <p class="section-intro">RAG syncs real Selenium documentation to your machine so the AI gives accurate answers even when fully offline.</p>
 
-        <div class="cards" style="margin-bottom:24px">
-          <div class="card">
-            <div class="card-icon">🔒</div>
-            <h3>Fully Private</h3>
-            <p>Your questions and documentation never leave your machine. Everything runs through Ollama locally.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon">✈️</div>
-            <h3>Works Offline</h3>
-            <p>Sync once when you have internet. After that, the AI answers from local embeddings — no connection needed.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon">🎯</div>
-            <h3>More Accurate</h3>
-            <p>Answers grounded in real Selenium, TestNG, and Java docs — not just model training data.</p>
-          </div>
-        </div>
-
-        <h3 style="margin-bottom:16px;font-size:17px">Setup (one-time)</h3>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Install Ollama</h3>
-              <p>Download from <a href="https://ollama.com" target="_blank" style="color:var(--accent)">ollama.com</a> and run:</p>
-              <pre>ollama serve</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Pull the embedding model</h3>
-              <pre>ollama pull nomic-embed-text:latest</pre>
-              <p>This is a 274MB model used to convert text into vectors. It's not a chat model — it runs silently in the background.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Pull a chat model</h3>
-              <pre>ollama pull qwen2.5-coder:14b    # best for code (8GB)
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Install Ollama</h3><pre>ollama serve</pre></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Pull the embedding model</h3><pre>ollama pull nomic-embed-text:latest</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Pull a chat model</h3><pre>ollama pull qwen2.5-coder:14b
 # or
-ollama pull llama3.2:3b           # lighter option (2GB)</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Sync documentation</h3>
-              <p>Open ⚙️ Settings → click <strong>📥 Sync Docs</strong>. A progress bar shows each of the 7 documentation sources being fetched and embedded:</p>
-              <ul style="margin-top:8px">
-                <li>Selenium WebDriver API</li>
-                <li>Element interactions &amp; locators</li>
-                <li>Explicit &amp; implicit waits</li>
-                <li>User interactions (Actions API)</li>
-                <li>Best practices guide</li>
-                <li>TestNG documentation</li>
-                <li>Selenium Grid</li>
-              </ul>
-              <p style="margin-top:8px">The RAG badge turns <span class="badge badge-green">● Synced</span> when done.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="callout tip" style="margin-top:20px">
-          <div class="callout-icon">💡</div>
-          <div class="callout-body">
-            <p><strong>How it works:</strong> Every message you send to a local Ollama model is first converted to a vector. The app finds the 3 most relevant documentation chunks (cosine similarity), and injects them into the AI's context window. The AI then answers using real docs — not just memorized training data.</p>
-          </div>
+ollama pull llama3.2:3b</pre></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Sync documentation</h3><p>Open ⚙️ Settings → click <strong>📥 Sync Docs</strong>. The RAG badge turns <span class="badge badge-green">● Synced</span> when done.</p></div></div>
         </div>
       </section>
 
@@ -1102,52 +606,16 @@ ollama pull llama3.2:3b           # lighter option (2GB)</pre>
       <section class="section" id="models">
         <div class="section-label">Section 6</div>
         <h2>⚙️ Choosing an AI Model</h2>
-        <p class="section-intro">The app supports three AI providers. Pick based on your setup and needs.</p>
-
         <table>
-          <thead>
-            <tr><th>Model</th><th>Provider</th><th>Best For</th><th>Requires</th></tr>
-          </thead>
+          <thead><tr><th>Model</th><th>Provider</th><th>Best For</th><th>Requires</th></tr></thead>
           <tbody>
-            <tr>
-              <td>llama-3.3-70b-versatile</td>
-              <td><span class="badge badge-blue">Groq Cloud</span></td>
-              <td>General questions, fast responses</td>
-              <td>GROQ_API_KEY (free)</td>
-            </tr>
-            <tr>
-              <td>qwen2.5-coder:14b</td>
-              <td><span class="badge badge-green">Ollama Local</span></td>
-              <td>Code generation, debugging</td>
-              <td>Ollama + 8GB RAM</td>
-            </tr>
-            <tr>
-              <td>qwen2.5:7b</td>
-              <td><span class="badge badge-green">Ollama Local</span></td>
-              <td>Balanced — good code on lighter hardware</td>
-              <td>Ollama + 4GB RAM</td>
-            </tr>
-            <tr>
-              <td>llama3.2:3b</td>
-              <td><span class="badge badge-green">Ollama Local</span></td>
-              <td>Fast answers, minimal resources</td>
-              <td>Ollama + 2GB RAM</td>
-            </tr>
-            <tr>
-              <td>claude-sonnet-4-5</td>
-              <td><span class="badge badge-orange">Anthropic</span></td>
-              <td>Complex code review, architecture</td>
-              <td>ANTHROPIC_API_KEY</td>
-            </tr>
+            <tr><td>llama-3.3-70b-versatile</td><td><span class="badge badge-blue">Groq Cloud</span></td><td>General questions, fast responses</td><td>GROQ_API_KEY (free)</td></tr>
+            <tr><td>qwen2.5-coder:14b</td><td><span class="badge badge-green">Ollama Local</span></td><td>Code generation, debugging</td><td>Ollama + 8GB RAM</td></tr>
+            <tr><td>qwen2.5:7b</td><td><span class="badge badge-green">Ollama Local</span></td><td>Balanced — good code on lighter hardware</td><td>Ollama + 4GB RAM</td></tr>
+            <tr><td>llama3.2:3b</td><td><span class="badge badge-green">Ollama Local</span></td><td>Fast answers, minimal resources</td><td>Ollama + 2GB RAM</td></tr>
+            <tr><td>claude-sonnet-4-5</td><td><span class="badge badge-orange">Anthropic</span></td><td>Complex code review, architecture</td><td>ANTHROPIC_API_KEY</td></tr>
           </tbody>
         </table>
-
-        <div class="callout tip">
-          <div class="callout-icon">💡</div>
-          <div class="callout-body">
-            <p><strong>Recommended setup:</strong> Use <strong>llama-3.3-70b-versatile</strong> (Groq) for lesson questions and <strong>qwen2.5-coder:14b</strong> (local Ollama) for code generation tasks. The coder model with RAG enabled gives the most accurate Selenium code.</p>
-          </div>
-        </div>
       </section>
 
       <!-- ── 7. Smart Mode ───────────────────────────────── -->
@@ -1155,75 +623,17 @@ ollama pull llama3.2:3b           # lighter option (2GB)</pre>
         <div class="section-label">Section 7</div>
         <h2>⚡ Smart Mode</h2>
         <p class="section-intro">Smart Mode chains two AI models — a fast model refines your question first, then the selected model gives a better answer.</p>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-          <div class="card">
-            <h3 style="color:var(--text2);margin-bottom:8px">Smart Mode OFF</h3>
-            <p>Your message → AI model → answer.</p>
-            <p style="margin-top:8px">Fast, direct. Good for simple questions.</p>
-          </div>
-          <div class="card" style="border-color:var(--accent)">
-            <h3 style="color:var(--accent);margin-bottom:8px">Smart Mode ON ⚡</h3>
-            <p>Your message → Qwen refines → selected model answers with improved context.</p>
-            <p style="margin-top:8px">Slower (one extra call) but noticeably better for complex coding tasks.</p>
-          </div>
-        </div>
-
-        <p style="color:var(--text2);font-size:14px">Enable in ⚙️ Settings → Smart Mode toggle. Best used when generating full framework files or debugging complex issues.</p>
       </section>
 
       <!-- ── 8. Submit Project ───────────────────────────── -->
       <section class="section" id="submit">
         <div class="section-label">Section 8</div>
         <h2>🎯 Submit Your Project for AI Review</h2>
-        <p class="section-intro">When you complete all 30 lessons, submit your GitHub repository and get a detailed structured code review from AI.</p>
-
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <h3>Complete all lessons</h3>
-              <p>Finish all 30 lessons (quiz included). Your progress bar reaches 100% and the Submit panel appears on the welcome screen.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <h3>Push your code to GitHub</h3>
-              <p>Your repo must be public and contain <code>.java</code> files. The review works best with a proper Maven project structure.</p>
-              <pre>git push origin main</pre>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <h3>Paste your GitHub URL and click Review</h3>
-              <p>Example: <code>https://github.com/yourname/selenium-framework</code></p>
-              <p>The app fetches up to 8 Java files from your repo and sends them to the AI for review.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <h3>Get your structured review</h3>
-              <p>The AI reviews your code across 6 dimensions:</p>
-              <ul style="margin-top:8px">
-                <li><strong>Overall Assessment</strong> — is it production-ready?</li>
-                <li><strong>What's Done Well</strong> — patterns and practices to keep</li>
-                <li><strong>Structure &amp; Design</strong> — POM, package organisation</li>
-                <li><strong>Selenium Best Practices</strong> — waits, locators, driver management</li>
-                <li><strong>TestNG Usage</strong> — annotations, groups, listeners</li>
-                <li><strong>Scored Rubric</strong> — Structure/10, Selenium/10, Code Quality/10</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="callout warn" style="margin-top:20px">
-          <div class="callout-icon">⚠️</div>
-          <div class="callout-body">
-            <p><strong>Your repo must be public</strong> — the review uses the GitHub public API with no authentication token, so private repos will return a 404 error.</p>
-          </div>
+          <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Complete all lessons</h3><p>Finish all 30 lessons. Your progress bar reaches 100%.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Push your code to GitHub</h3><pre>git push origin main</pre></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Paste your GitHub URL and click Review</h3><p>Example: <code>https://github.com/yourname/selenium-framework</code></p></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Get your structured review</h3><p>The AI reviews across 6 dimensions: Overall Assessment, What's Done Well, Structure &amp; Design, Selenium Best Practices, TestNG Usage, and Scored Rubric.</p></div></div>
         </div>
       </section>
 
@@ -1231,14 +641,12 @@ ollama pull llama3.2:3b           # lighter option (2GB)</pre>
       <section class="section" id="certificate">
         <div class="section-label">Section 9</div>
         <h2>🏅 Certificate of Completion</h2>
-        <p class="section-intro">Earn a shareable certificate when you finish all lessons.</p>
-
         <ol>
           <li>Complete all 30 lessons including quizzes</li>
-          <li>Click the <strong>🏅 Certificate</strong> button that appears on the welcome screen</li>
+          <li>Click the <strong>🏅 Certificate</strong> button on the welcome screen</li>
           <li>Type your name into the certificate</li>
-          <li>Click <strong>Print / Save PDF</strong> to download as a PDF</li>
-          <li>Share the PDF on LinkedIn or with employers as proof of completion</li>
+          <li>Click <strong>Print / Save PDF</strong> to download</li>
+          <li>Share the PDF on LinkedIn as proof of completion</li>
         </ol>
       </section>
 
@@ -1248,62 +656,17 @@ ollama pull llama3.2:3b           # lighter option (2GB)</pre>
         <h2>❓ Frequently Asked Questions</h2>
 
         <div class="steps">
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>I don't have a Groq API key. Can I still use the AI?</h3>
-              <p>Yes — install Ollama locally and use a free local model like <code>qwen2.5:7b</code> or <code>llama3.2:3b</code>. No API key needed. Groq also offers a free tier at <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>My progress disappeared. How do I restore it?</h3>
-              <p>Progress is saved in your browser's <code>localStorage</code>. If you cleared browser data, it will reset. When running in local mode (<code>node server.js</code>), progress is also saved to <code>data/progress.json</code> on disk — this persists across browser clears.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>The Save to Project button isn't working.</h3>
-              <p>This requires local mode (<code>node server.js</code>). Make sure you've set a valid project folder path in Settings → Project Folder, and clicked <strong>Test Connection</strong> to confirm the path exists.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>RAG sync fails with "Cannot reach Ollama".</h3>
-              <p>Make sure Ollama is running: <code>ollama serve</code>. Also ensure you've pulled the embedding model: <code>ollama pull nomic-embed-text:latest</code>. The RAG sync connects to <code>localhost:11434</code>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>How many lessons are there and how long does it take?</h3>
-              <p>30 lessons across 6 modules, approximately 8–12 hours total depending on how much time you spend on exercises. You can pause and resume at any time — progress is saved automatically.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>Can I use IntelliJ IDEA instead of VS Code?</h3>
-              <p>Yes — the Save to Project feature writes files to any folder you specify. The "Open in VS Code" one-click feature uses VS Code's URL scheme, so that part is VS Code only. For IntelliJ, simply point the project folder to your IntelliJ project's <code>src/test/java</code> directory and open the saved files manually.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">Q</div>
-            <div class="step-body">
-              <h3>Is my code sent to the cloud when I use local Ollama models?</h3>
-              <p>No. When using Ollama, all processing happens entirely on your machine. Nothing is sent externally. Only Groq and Anthropic models send data to their respective cloud APIs.</p>
-            </div>
-          </div>
+          <div class="step"><div class="step-num">Q</div><div class="step-body"><h3>I don't have a Groq API key. Can I still use the AI?</h3><p>Yes — install Ollama locally and use a free local model like <code>qwen2.5:7b</code> or <code>llama3.2:3b</code>.</p></div></div>
+          <div class="step"><div class="step-num">Q</div><div class="step-body"><h3>My progress disappeared. How do I restore it?</h3><p>Progress is saved in your browser's <code>localStorage</code>. When running in local mode, progress is also saved to <code>data/progress.json</code> on disk.</p></div></div>
+          <div class="step"><div class="step-num">Q</div><div class="step-body"><h3>The Save to Project button isn't working.</h3><p>This requires local mode (<code>node server.js</code>). Make sure you've set a valid project folder path in Settings.</p></div></div>
+          <div class="step"><div class="step-num">Q</div><div class="step-body"><h3>RAG sync fails with "Cannot reach Ollama".</h3><p>Make sure Ollama is running: <code>ollama serve</code>. Also ensure you've pulled the embedding model: <code>ollama pull nomic-embed-text:latest</code>.</p></div></div>
+          <div class="step"><div class="step-num">Q</div><div class="step-body"><h3>Is my code sent to the cloud when I use local Ollama models?</h3><p>No. When using Ollama, all processing happens entirely on your machine.</p></div></div>
         </div>
       </section>
 
-      <!-- ── Quick reference ─────────────────────────────── -->
       <section class="section">
         <div class="section-label">Reference</div>
-        <h2>⌨️ Keyboard Shortcuts & Tips</h2>
+        <h2>⌨️ Keyboard Shortcuts &amp; Tips</h2>
         <table>
           <thead><tr><th>Action</th><th>How</th></tr></thead>
           <tbody>
@@ -1311,19 +674,17 @@ ollama pull llama3.2:3b           # lighter option (2GB)</pre>
             <tr><td>Open Settings</td><td>Click ⚙️ gear icon bottom-left of lesson panel</td></tr>
             <tr><td>Toggle AI Chat</td><td>Click 💬 AI Chat in header</td></tr>
             <tr><td>Previous / Next lesson</td><td>← Previous / Next → buttons in lesson footer</td></tr>
-            <tr><td>Reset all progress</td><td>↺ Reset button in header (confirms before clearing)</td></tr>
+            <tr><td>Reset all progress</td><td>↺ Reset button in header</td></tr>
             <tr><td>Copy a code block</td><td>Click the Copy button on any code block</td></tr>
             <tr><td>Save AI code to project</td><td>💾 Save to Project button below code in chat</td></tr>
-            <tr><td>Clear RAG store</td><td>Settings → Clear Docs (then re-sync to refresh)</td></tr>
           </tbody>
         </table>
       </section>
 
     </main>
-  </div><!-- /layout -->
-</div><!-- /page -->
+  </div>
+</div>
 
-<!-- ── Footer ─────────────────────────────────────────────── -->
 <div class="site-footer">
   <p style="margin-bottom:8px">
     <a href="/">🎓 Course</a> &nbsp;·&nbsp;
@@ -1335,7 +696,6 @@ ollama pull llama3.2:3b           # lighter option (2GB)</pre>
 </div>
 
 <script>
-  // Highlight active TOC item on scroll
   const sections = document.querySelectorAll('section[id]');
   const tocLinks = document.querySelectorAll('.toc a');
   const observer = new IntersectionObserver(entries => {
