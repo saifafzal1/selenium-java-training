@@ -126,7 +126,7 @@ As a QA engineer, you typically do **grey-box** testing — you know the applica
    - What technology does Juice Shop run on? (hint: check response headers)
    - Can you access another user's basket? (hint: try basket/1, basket/2...)`,
           hints: [
-            'For Docker: run `docker --version` first to confirm Docker is installed. If not, download Docker Desktop from docker.com',
+            'For Docker: run \`docker --version\` first to confirm Docker is installed. If not, download Docker Desktop from docker.com',
             'DVWA default credentials are admin/password — you\'ll need to click "Create/Reset Database" on first launch',
             'Juice Shop admin panel is at a path you might expect an admin area to be at — think common conventions'
           ]
@@ -705,7 +705,7 @@ How many users are in the database? What hashing algorithm are the passwords sto
         quiz: [
           {
             type: 'mcq',
-            q: 'Why does the input `1\' OR \'1\'=\'1` cause a SQL injection vulnerability to return all rows?',
+            q: 'Why does the input \`1\' OR \'1\'=\'1\` cause a SQL injection vulnerability to return all rows?',
             options: [
               'It triggers a database error that dumps all records',
               'The OR condition makes the WHERE clause always evaluate to true, so every row matches',
@@ -732,7 +732,7 @@ How many users are in the database? What hashing algorithm are the passwords sto
           },
           {
             type: 'fillin',
-            q: 'The `information_schema._______ ` table contains metadata about all columns in all tables in the database.',
+            q: 'The \`information_schema._______ \` table contains metadata about all columns in all tables in the database.',
             answer: 'columns'
           }
         ]
@@ -979,7 +979,7 @@ The semicolon ends the ping command and runs \`cat /etc/passwd\`.
 | \`&&\` | Run second ONLY if first succeeds | \`cmd1 && cmd2\` |
 | \`\|\|\` | Run second ONLY if first FAILS | \`cmd1 \|\| cmd2\` |
 | \`\|\` | Pipe output of first to second | \`cmd1 \| cmd2\` |
-| \`\`cmd\`\` | Command substitution (backtick) | \`echo \`id\`\` |
+| \`\`cmd\`\`\` | Command substitution (backtick) | \`echo \`id\`\` |
 | \`$(cmd)\` | Command substitution | \`echo $(whoami)\` |
 
 ---
@@ -1096,7 +1096,7 @@ Answer in AI chat:
         quiz: [
           {
             type: 'mcq',
-            q: 'An attacker inputs `127.0.0.1 && cat /etc/shadow` into a ping form. The `&&` operator means:',
+            q: 'An attacker inputs \`127.0.0.1 && cat /etc/shadow\` into a ping form. The \`&&\` operator means:',
             options: [
               'The cat command runs regardless of whether ping succeeds',
               'The cat command only runs if ping succeeds first',
@@ -1107,12 +1107,12 @@ Answer in AI chat:
           },
           {
             type: 'mcq',
-            q: 'Why is path traversal with `../../../../etc/passwd` more dangerous than just reading `/etc/passwd` directly?',
+            q: 'Why is path traversal with \`../../../../etc/passwd\` more dangerous than just reading \`/etc/passwd\` directly?',
             options: [
               'There is no difference — both do the same thing',
-              'The `../` sequences navigate up from the web directory to the filesystem root, bypassing the web server\'s file access restrictions',
+              'The \`../\` sequences navigate up from the web directory to the filesystem root, bypassing the web server\'s file access restrictions',
               'Path traversal also executes the file content as code',
-              '`../../../../` URL-encodes the path to avoid detection'
+              '\`../../../../\` URL-encodes the path to avoid detection'
             ],
             answer: 1
           },

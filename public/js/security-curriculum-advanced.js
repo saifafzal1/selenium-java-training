@@ -1048,7 +1048,7 @@ Report: How many High/Medium findings did ZAP find? Which are false positives vs
           },
           {
             type: 'fillin',
-            q: 'Setting `fail_action: true` in the ZAP GitHub Action causes the pipeline to _______ if any High-severity alerts are found.',
+            q: 'Setting \`fail_action: true\` in the ZAP GitHub Action causes the pipeline to _______ if any High-severity alerts are found.',
             answer: 'fail'
           }
         ]
