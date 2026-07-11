@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ── Light theme — white + blue accent ────────────────────────
+/* ── Light theme — white + blue accent ──────────────────────
    Clean white background, #4361EE blue, dark navy text
-   ─────────────────────────────────────────────────────────── */
+   ────────────────────────────────────────────────── */
 :root {
   /* Backgrounds — white / light blue-tint */
   --bg:      #ffffff;
@@ -66,7 +66,7 @@ html, body {
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-/* ── Header ─────────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────── */
 #header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   background: #ffffff;
@@ -120,7 +120,7 @@ html, body {
 }
 #header .header-right { margin-left: auto; display: flex; gap: 8px; }
 
-/* ── Buttons ─────────────────────────────────────────────────── */
+/* ── Buttons ─────────────────────────────────────────────── */
 .btn {
   padding: 8px 18px; border-radius: var(--radius-pill); border: none;
   cursor: pointer; font-size: 13px; font-weight: 600;
@@ -145,13 +145,13 @@ html, body {
   transform: translateY(-1px);
 }
 
-/* ── Layout ─────────────────────────────────────────────────── */
+/* ── Layout ────────────────────────────────────────────── */
 #app {
   display: flex; height: 100vh;
   padding-top: var(--header-h);
 }
 
-/* ── Sidebar ─────────────────────────────────────────────────── */
+/* ── Sidebar ────────────────────────────────────────────── */
 #sidebar {
   width: var(--sidebar-w); min-width: var(--sidebar-w);
   background: #ffffff;
@@ -233,7 +233,7 @@ html, body {
   border-color: rgba(67,97,238,.2);
 }
 
-/* ── Main content ────────────────────────────────────────────── */
+/* ── Main content ──────────────────────────────────────────── */
 #main {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   background: var(--bg);
@@ -287,7 +287,7 @@ html, body {
 .tab-content { display: none; padding: 36px 40px 52px; }
 .tab-content.active { display: block; }
 
-/* ── Lesson body ─────────────────────────────────────────────── */
+/* ── Lesson body ───────────────────────────────────────────── */
 .lesson-body h2 {
   font-size: 18px; font-weight: 700; margin: 30px 0 14px;
   color: var(--white); letter-spacing: -.3px;
@@ -467,7 +467,7 @@ html, body {
   border-top: 1px solid var(--border);
 }
 
-/* ── Notes ───────────────────────────────────────────────────── */
+/* ── Notes ────────────────────────────────────────────────── */
 #notes-area {
   width: 100%; min-height: 130px; resize: vertical;
   background: var(--bg2); border: 1px solid var(--border2);
@@ -483,7 +483,7 @@ html, body {
 #save-note-btn { margin-top: 10px; }
 .note-saved-msg { font-size: 12px; color: var(--lime); margin-left: 10px; font-weight: 600; }
 
-/* ── Chat Panel ──────────────────────────────────────────────── */
+/* ── Chat Panel ──────────────────────────────────────────── */
 #chat-panel {
   width: var(--chat-w); min-width: var(--chat-w);
   background: var(--bg2); border-left: 1px solid var(--border);
@@ -705,7 +705,7 @@ html, body {
   font-family: var(--font-mono);
 }
 
-/* ── File mode banner ────────────────────────────────────────── */
+/* ── File mode banner ──────────────────────────────────────────── */
 #file-mode-banner {
   background: linear-gradient(90deg, #f59e0b, #fbbf24);
   color: #1a1000; font-size: 12.5px; font-weight: 500;
@@ -718,7 +718,7 @@ html, body {
 }
 #file-mode-banner strong { color: #000; }
 
-/* ── AdSense slot ────────────────────────────────────────────── */
+/* ── AdSense slot ───────────────────────────────────────────────── */
 #ad-slot-top {
   margin: 0 24px 0;
   padding: 8px 0 4px;
@@ -730,12 +730,11 @@ html, body {
   margin-bottom: 6px;
 }
 .ad-placeholder {
-  min-height: 0; /* collapses when empty (no active AdSense code) */
+  min-height: 0;
 }
-/* When AdSense <ins> is active, give it breathing room */
 #ad-slot-top ins { display: block; }
 
-/* ── Affiliate Resources Panel ───────────────────────────────── */
+/* ── Affiliate Resources Panel ──────────────────────────────────────── */
 #affiliate-panel {
   margin: 32px 0 0;
   padding: 24px;
@@ -787,7 +786,7 @@ html, body {
   margin-top: 4px; letter-spacing: .3px;
 }
 
-/* ── What You'll Learn panel ─────────────────────────────────── */
+/* ── What You'll Learn panel ───────────────────────────────────── */
 .wyll-panel {
   background: linear-gradient(135deg, rgba(67,97,238,.06), rgba(67,97,238,.02));
   border: 1px solid rgba(67,97,238,.2);
@@ -814,7 +813,7 @@ html, body {
   color: var(--lime); font-weight: 700; font-size: 12px;
 }
 
-/* ── Quiz ────────────────────────────────────────────────────── */
+/* ── Quiz ───────────────────────────────────────────────────── */
 .quiz-empty {
   text-align: center; padding: 60px 20px; color: var(--text2);
 }
@@ -895,7 +894,7 @@ html, body {
 .quiz-score.good    { background: rgba(255,183,71,.1);  color: #ffb747; border: 1px solid rgba(255,183,71,.3); }
 .quiz-score.retry   { background: rgba(255,77,109,.1);  color: #ff4d6d; border: 1px solid rgba(255,77,109,.3); }
 
-/* ── Copy Code button ────────────────────────────────────────── */
+/* ── Copy Code button ────────────────────────────────────────────── */
 .copy-code-btn {
   position: absolute; top: 10px; right: 12px;
   background: var(--bg4); border: 1px solid var(--border2);
@@ -908,7 +907,7 @@ html, body {
 .copy-code-btn.copied { color: #3cff8f; border-color: rgba(60,255,143,.4); background: rgba(60,255,143,.08); }
 .solution-box .copy-code-btn { top: 8px; right: 8px; }
 
-/* ── Certificate Modal ───────────────────────────────────────── */
+/* ── Certificate Modal ───────────────────────────────────────────── */
 #cert-modal { display: none; }
 #cert-box {
   background: linear-gradient(145deg, #0C1018, #111827);
@@ -980,7 +979,7 @@ html, body {
   .cert-badge { background: #4361EE; }
 }
 
-/* ── Feature Tray ────────────────────────────────────────────── */
+/* ── Feature Tray ───────────────────────────────────────────────── */
 #feature-tray {
   flex-shrink: 0;
   border-top: 1px solid var(--border);
@@ -1054,7 +1053,7 @@ html, body {
   border: 1px solid var(--border2); font-weight: 600;
 }
 
-/* ── Agent panel ─────────────────────────────────────────────── */
+/* ── Agent panel ───────────────────────────────────────────────── */
 .agent-header { margin-bottom: 10px; }
 .agent-toggle-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -1115,7 +1114,7 @@ html, body {
 .agent-answer .agent-step-label  { background: rgba(8,145,178,.12);  color: #0891b2; }
 .agent-review .agent-step-label  { background: rgba(5,150,105,.12);  color: #059669; }
 
-/* ── Chat header action buttons ──────────────────────────────── */
+/* ── Chat header action buttons ──────────────────────────────────── */
 .smart-mode-btn {
   background: var(--bg4);
   border: 1px solid var(--border2);
@@ -1143,7 +1142,7 @@ html, body {
 }
 .settings-gear-btn:hover { border-color: var(--lime); color: var(--lime); background: var(--lime-dim); }
 
-/* ── Chain status message ────────────────────────────────────── */
+/* ── Chain status message ──────────────────────────────────────────── */
 .msg.assistant.chain-status {
   background: var(--bg4);
   border-left: 3px solid var(--lime);
@@ -1155,11 +1154,11 @@ html, body {
 .msg.assistant.chain-status strong { color: var(--lime); }
 .msg.assistant.chain-status em { color: var(--text); }
 
-/* ── Save to Project button (on code blocks) ─────────────────── */
+/* ── Save to Project button (on code blocks) ─────────────────────────── */
 .save-code-btn {
   position: absolute;
   top: 8px;
-  right: 72px; /* to the left of Copy button */
+  right: 72px;
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 600;
@@ -1176,7 +1175,7 @@ pre:hover .save-code-btn,
 .save-code-btn:hover { background: var(--lime); color: #000; border-color: var(--lime); }
 .save-code-btn.saved { background: #22c55e; color: #000; border-color: #22c55e; opacity: 1; }
 
-/* ── Settings panel (slide-in from right) ───────────────────── */
+/* ── Settings panel (slide-in from right) ────────────────────────────── */
 #settings-overlay {
   position: fixed;
   inset: 0;
@@ -1305,7 +1304,7 @@ pre:hover .save-code-btn,
   background: var(--lime);
 }
 
-/* ── Toast notifications ─────────────────────────────────────── */
+/* ── Toast notifications ──────────────────────────────────────────── */
 #toast-container {
   position: fixed;
   bottom: 24px;
@@ -1365,13 +1364,13 @@ pre:hover .save-code-btn,
 .toast-close:hover { color: var(--text); }
 .toast span { flex: 1; }
 
-/* ── Lab meta badges ─────────────────────────────────────────── */
+/* ── Lab meta badges ────────────────────────────────────────────── */
 .meta-tag.lab-badge { background: rgba(124,58,237,.12); color: #7c3aed; border: 1px solid rgba(124,58,237,.3); }
 .meta-tag.diff-intermediate { background: rgba(251,191,36,.12); color: #b45309; border: 1px solid #fbbf24; }
 .meta-tag.diff-advanced     { background: rgba(239,68,68,.12);  color: #dc2626; border: 1px solid #f87171; }
 .meta-tag.diff-expert       { background: rgba(67,97,238,.12);  color: var(--accent); border: 1px solid var(--accent); }
 
-/* ── Lab Evaluation / Rubric ─────────────────────────────────── */
+/* ── Lab Evaluation / Rubric ──────────────────────────────────────────── */
 .lab-tab { position: relative; }
 .lab-tab::after {
   content: 'LAB';
@@ -1474,7 +1473,7 @@ pre:hover .save-code-btn,
 }
 .eval-reset-btn { font-size: 12px; padding: 6px 14px; }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+/* ── Responsive ───────────────────────────────────────────────────── */
 @media (max-width: 1100px) { :root { --chat-w: 300px; } }
 @media (max-width: 900px)  { #chat-panel { display: none; } }
 @media (max-width: 650px) {
@@ -1486,7 +1485,7 @@ pre:hover .save-code-btn,
   #settings-panel { width: 100%; }
 }
 
-/* ── Course Switcher ─────────────────────────────────────────── */
+/* ── Course Switcher ─────────────────────────────────────────────── */
 .course-switcher {
   display: flex; gap: 0; background: none; border-radius: 0; padding: 0; margin: 0;
 }
@@ -1508,7 +1507,7 @@ pre:hover .save-code-btn,
   background: none;
 }
 
-/* ── Feedback Header Button ──────────────────────────────────── */
+/* ── Feedback Header Button ────────────────────────────────────────── */
 .feedback-header-btn {
   background: none; border: 1px solid var(--border2); color: var(--text2);
   font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill);
@@ -1516,7 +1515,7 @@ pre:hover .save-code-btn,
 }
 .feedback-header-btn:hover { background: var(--lime-dim); color: var(--lime); border-color: var(--lime); }
 
-/* ── Feedback Modal ──────────────────────────────────────────── */
+/* ── Feedback Modal ───────────────────────────────────────────── */
 #feedback-overlay {
   position: fixed; inset: 0; z-index: 310;
   background: rgba(10,16,26,.55); backdrop-filter: blur(3px);
