@@ -2,9 +2,9 @@
 // ── IP Rate Limiter (in-memory, per warm instance) ──────────
 // Max 30 requests per IP per hour. Resets automatically.
 const ipWindows    = new Map();
-const RATE_LIMIT   = 30;
-const WINDOW_MS    = 60 * 60 * 1000;
-const MAX_MSG_CHARS = 4000;
+const RATE_LIMIT   = 30;               // max requests per window
+const WINDOW_MS    = 60 * 60 * 1000;  // 1-hour rolling window
+const MAX_MSG_CHARS = 4000;            // truncate any single message longer than this
 
 function getClientIp(req) {
   return (
@@ -30,6 +30,7 @@ function checkRateLimit(ip) {
   return { allowed: true, remaining: RATE_LIMIT - entry.count };
 }
 
+// Purge stale IP entries every 100 requests to prevent memory leak
 let _cleanupTick = 0;
 function maybeCleanup() {
   if (++_cleanupTick % 100 !== 0) return;
@@ -39,13 +40,14 @@ function maybeCleanup() {
   }
 }
 
+// ── Truncate oversized messages (fix #6) ────────────────────
 function truncateMessages(messages) {
   return messages.map(m => {
     if (typeof m.content === 'string' && m.content.length > MAX_MSG_CHARS) {
       return {
         ...m,
         content: m.content.slice(0, MAX_MSG_CHARS) +
-          `\n\n[... truncated at ${MAX_MSG_CHARS} chars ...]`
+          `\n\n[... truncated at ${MAX_MSG_CHARS} chars to protect API quota ...]`
       };
     }
     return m;
@@ -53,17 +55,14 @@ function truncateMessages(messages) {
 }
 
 // ── Provider detection ───────────────────────────────────────
-// Rule: Ollama models always use "name:tag" format (e.g. gemma3:4b, llama3.2:latest)
-//       Groq models NEVER contain ":" — they use plain IDs or "org/model" format
-//       Claude models start with "claude-"
-// This avoids a hardcoded model list that breaks every time Groq adds/removes models.
 function getProvider(model = '') {
   if (!model) return 'groq';
   if (model.startsWith('claude-')) return 'anthropic';
-  if (model.includes(':')) return 'ollama';   // Ollama: always name:tag
-  return 'groq';                               // Everything else → Groq
+  if (model.includes(':')) return 'ollama';
+  return 'groq';
 }
 
+// ── Qwen prompt refinement helper (Smart Mode) ───────────────
 async function refineWithQwen(messages, groqKey) {
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
   if (!lastUserMsg || !groqKey) return null;
@@ -88,6 +87,7 @@ async function refineWithQwen(messages, groqKey) {
   } catch { return null; }
 }
 
+// ── Main handler ─────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
@@ -117,7 +117,7 @@ module.exports = async function handler(req, res) {
 
   const selectedModel = webMode
     ? 'groq/compound-mini'
-    : (model || 'llama-3.3-70b-versatile');
+    : (model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile');
   const provider = getProvider(selectedModel);
 
   let workingMessages = safeMessages;
@@ -132,7 +132,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Groq ──────────────────────────────────────────────────────────────────
+  // ── Groq ──────────────────────────────────────────────────
   if (provider === 'groq') {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) return res.json({ error: 'GROQ_API_KEY is not set in Vercel Environment Variables.' });
@@ -162,7 +162,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Anthropic / Claude ────────────────────────────────────────────────────
+  // ── Anthropic / Claude ────────────────────────────────────
   if (provider === 'anthropic') {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return res.json({
@@ -170,8 +170,8 @@ module.exports = async function handler(req, res) {
     });
 
     try {
-      const systemMsg = workingMessages.find(m => m.role === 'system');
-      const convoMsgs = workingMessages.filter(m => m.role !== 'system');
+      const systemMsg    = workingMessages.find(m => m.role === 'system');
+      const convoMsgs    = workingMessages.filter(m => m.role !== 'system');
       const body = { model: selectedModel, max_tokens: 2048, messages: convoMsgs };
       if (systemMsg) body.system = systemMsg.content;
 
@@ -202,8 +202,8 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // ── Ollama / Local only ───────────────────────────────────────────────────
+  // ── Ollama (local only) ───────────────────────────────────
   return res.json({
-    error: `"${selectedModel}" is a local Ollama model.\n\nThis only works when running locally with npm start.\nFor the cloud version, choose a Groq or Claude model from the dropdown.`
+    error: `"${selectedModel}" is a local Ollama model and only works when running locally with npm start.\n\nFor the cloud version, choose a Groq or Claude model from the dropdown.`
   });
 };

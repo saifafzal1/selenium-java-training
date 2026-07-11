@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- ── Google Analytics (GA4) ────────────────────────────────── -->
+  <!-- ── Google Analytics (GA4) ────────────────────────────────────── -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MC384WRQZ"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -13,38 +13,34 @@
     gtag('config', 'G-5MC384WRQZ');
   </script>
 
-  <!-- ── SEO ─────────────────────────────────────────────────── -->
-  <title>Selenium with Java — Free Test Automation Training | Automation AI Lab</title>
+  <!-- ── SEO ────────────────────────────────────────────────── -->
+  <title>Automation AI Labs | Free Test Automation Training</title>
   <meta name="description" content="Free Selenium WebDriver with Java course. Learn test automation from scratch — WebDriver setup, Page Object Model, TestNG, Maven, and CI/CD. AI assistant included."/>
   <meta name="keywords" content="selenium with java, selenium webdriver tutorial, selenium java tutorial, test automation java, page object model selenium, testng tutorial, automation testing course free, selenium interview questions"/>
   <meta name="author" content="Automation AI Lab"/>
   <meta name="robots" content="index, follow"/>
-  <link rel="canonical" href="https://automation-ai-labs-training.vercel.app/"/>
+  <link rel="canonical" href="https://automation-labs-training-ai.vercel.app/"/>
 
   <!-- ── Open Graph ──────────────────────────────────────────── -->
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Selenium with Java — Free Test Automation Course"/>
   <meta property="og:description" content="Go from zero to Selenium expert. Free hands-on course with AI assistant, real exercises, and 17 lessons. No experience needed."/>
-  <meta property="og:url" content="https://automation-ai-labs-training.vercel.app/"/>
-
-  <!-- ── Affiliate verification (Impact/Udemy) ──────────────── -->
-  <meta name='impact-site-verification' value='0755cc8c-deb4-4ff9-9fa7-1b815e83347c'>
-  <script type="text/javascript">(function(i,m,p,a,c,t){c.ire_o=p;c[p]=c[p]||function(){(c[p].a=c[p].a||[]).push(arguments)};t=a.createElement(m);var z=a.getElementsByTagName(m)[0];t.async=1;t.src=i;z.parentNode.insertBefore(t,z)})('https://utt.impactcdn.com/P-A7397710-1bad-41da-8418-a75508862ba01.js','script','impactStat',document,window);impactStat('transformLinks');impactStat('trackImpression');</script>
+  <meta property="og:url" content="https://automation-labs-training-ai.vercel.app/"/>
 
   <!-- ── Twitter Card ────────────────────────────────────────── -->
   <meta name="twitter:card" content="summary"/>
   <meta name="twitter:title" content="Selenium with Java — Free Test Automation Course"/>
   <meta name="twitter:description" content="Free Selenium WebDriver with Java training. Hands-on exercises, AI assistant, from beginner to expert."/>
 
-  <!-- ── Structured Data ────────────────────────────────────── -->
+  <!-- ── Structured Data ──────────────────────────────────────── -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Course",
     "name": "Selenium with Java — Test Automation Training",
     "description": "Free hands-on Selenium WebDriver with Java course. Covers WebDriver setup, Page Object Model, TestNG, Maven, CI/CD pipelines.",
-    "provider": { "@type": "Organization", "name": "Automation AI Lab", "url": "https://automation-ai-labs-training.vercel.app" },
-    "url": "https://automation-ai-labs-training.vercel.app",
+    "provider": { "@type": "Organization", "name": "Automation AI Lab", "url": "https://automation-labs-training-ai.vercel.app" },
+    "url": "https://automation-labs-training-ai.vercel.app",
     "hasCourseInstance": { "@type": "CourseInstance", "courseMode": "online", "price": "0", "priceCurrency": "USD" }
   }
   </script>
@@ -52,42 +48,52 @@
   <link rel="stylesheet" href="css/style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
-  <!-- ── Google AdSense ─────────────────────────────────────── -->
+  <!-- ── Google AdSense ───────────────────────────────────────── -->
   <!-- Uncomment after AdSense approval and replace ca-pub-XXXXXXXXXXXXXXXX -->
   <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 </head>
 <body>
 
-<!-- ── Header ──────────────────────────────────────────────── -->
+<!-- ── Header ──────────────────────────────────────────── -->
 <header id="header">
-  <div class="logo">
-    <div class="logo-icon">▶</div>
-    Automation <span>AI-Lab</span>
+  <!-- Row 1: Logo + progress + utility buttons -->
+  <div class="header-row-1">
+    <div class="logo">
+      <div class="logo-icon">▶</div>
+      Automation <span>AI-Lab</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0 / 0 lessons</div>
+    <div class="header-right">
+      <a href="/blog/" class="btn btn-ghost" style="text-decoration:none">📝 Blog</a>
+      <a href="/help.html" class="btn btn-ghost" style="text-decoration:none">❓ Help</a>
+      <button class="btn btn-ghost" id="toggle-chat-btn">💬 AI Chat</button>
+      <button class="btn btn-ghost" id="feedback-btn" title="Rate this lesson">⭐ Feedback</button>
+      <button class="btn btn-ghost" id="reset-btn" title="Reset progress">↺ Reset</button>
+    </div>
   </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-  </div>
-  <div class="progress-text" id="progress-text">0 / 0 lessons</div>
-  <!-- Course Switcher -->
-  <div class="course-switcher" id="course-switcher">
-    <button class="course-switch-btn active" id="btn-selenium" onclick="switchCourse('selenium')">☕ Selenium/Java</button>
-    <button class="course-switch-btn" id="btn-playwright" onclick="switchCourse('playwright')">🎭 Playwright</button>
-  </div>
-  <div class="header-right">
-    <a href="/blog/" class="btn btn-ghost" style="text-decoration:none">📝 Blog</a>
-    <a href="/help.html" class="btn btn-ghost" style="text-decoration:none">❓ Help</a>
-    <button class="btn btn-ghost" id="toggle-chat-btn">💬 AI Chat</button>
-    <button class="btn btn-ghost" id="feedback-btn" title="Rate this lesson">⭐ Feedback</button>
-    <button class="btn btn-ghost" id="reset-btn" title="Reset progress">↺ Reset</button>
+  <!-- Row 2: Course tabs -->
+  <div class="header-row-2">
+    <div class="course-switcher" id="course-switcher">
+      <button class="course-switch-btn active" id="btn-selenium" onclick="switchCourse('selenium')">☕ Selenium/Java</button>
+      <button class="course-switch-btn" id="btn-playwright" onclick="switchCourse('playwright')">🎭 Playwright</button>
+      <button class="course-switch-btn" id="btn-api" onclick="switchCourse('api')">🔌 API Testing</button>
+      <button class="course-switch-btn" id="btn-e2e" onclick="switchCourse('e2e')">🔗 E2E Integration</button>
+      <button class="course-switch-btn" id="btn-jmeter" onclick="switchCourse('jmeter')">⚡ JMeter Performance</button>
+      <button class="course-switch-btn" id="btn-security" onclick="switchCourse('security')">🔒 Security Testing</button>
+      <button class="course-switch-btn" id="btn-database" onclick="switchCourse('database')">🗄️ Database Testing</button>
+    </div>
   </div>
 </header>
 
 <!-- Server-mode banner (hidden by default; shown if running via Node) -->
-<div id="file-mode-banner" style="display:none;background:#f59e0b;color:#000;font-size:13px;padding:8px 16px;text-align:center;position:fixed;top:56px;left:0;right:0;z-index:99">
+<div id="file-mode-banner" style="display:none">
   ⚠️ Running in file:// mode — progress saved to browser only. For full features: <code>cd selenium-training &amp;&amp; npm install &amp;&amp; npm start</code> → open <strong>http://localhost:3000</strong>
 </div>
 
-<!-- ── App Layout ───────────────────────────────────────────── -->
+<!-- ── App Layout ─────────────────────────────────────────── -->
 <div id="app">
 
   <!-- Sidebar -->
@@ -131,7 +137,7 @@
         <div id="lesson-meta"></div>
         <div class="tabs">
           <div class="tab active" data-tab="lesson">📖 Lesson</div>
-          <div class="tab" data-tab="exercise">🏋️ Exercise</div>
+          <div class="tab" data-tab="exercise">🏗️ Exercise</div>
           <div class="tab" data-tab="quiz">🧩 Quiz</div>
           <div class="tab" data-tab="notes">📝 Notes</div>
           <div class="tab lab-tab" data-tab="evaluate" style="display:none">🏆 Evaluate</div>
@@ -150,7 +156,7 @@
                data-ad-slot="XXXXXXXXXX"
                data-ad-format="auto"
                data-full-width-responsive="true"></ins>
-          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
           -->
         </div>
       </div>
@@ -244,7 +250,7 @@
       </div>
     </div>
 
-    <!-- ── Feature Tray ──────────────────────────────────────── -->
+    <!-- ── Feature Tray ──────────────────────────────────────────── -->
     <div id="feature-tray">
       <div class="tray-tabs" role="tablist">
         <button class="tray-tab active" data-tray="skills"  role="tab" aria-selected="true">✨ Skills</button>
@@ -405,7 +411,7 @@
   </div>
 </div>
 
-<!-- ── Feedback Modal ─────────────────────────────────────── -->
+<!-- ── Feedback Modal ───────────────────────────────────────── -->
 <div id="feedback-overlay" style="display:none" onclick="closeFeedback()"></div>
 <div id="feedback-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
   <div class="feedback-header">
@@ -437,27 +443,41 @@
 <script src="js/curriculum-labs.js"></script>
 <script src="js/playwright-curriculum.js"></script>
 <script src="js/playwright-curriculum-labs.js"></script>
+<script src="js/api-curriculum.js"></script>
+    <script src="js/api-curriculum-advanced.js"></script>
+<script src="js/api-curriculum-labs.js"></script>
+<script src="js/e2e-curriculum.js"></script>
+<script src="js/e2e-curriculum-advanced.js"></script>
+<script src="js/e2e-curriculum-labs.js"></script>
+<script src="js/jmeter-curriculum.js"></script>
+<script src="js/jmeter-curriculum-advanced.js"></script>
+<script src="js/jmeter-curriculum-labs.js"></script>
+<script src="js/security-curriculum.js"></script>
+<script src="js/security-curriculum-advanced.js"></script>
+<script src="js/security-curriculum-labs.js"></script>
+<script src="js/database-curriculum.js"></script>
+<script src="js/database-curriculum-advanced.js"></script>
+<script src="js/database-curriculum-labs.js"></script>
 <script src="js/app.js"></script>
 
-<!-- ── Footer ──────────────────────────────────────────────── -->
+<!-- ── Footer ──────────────────────────────────────────── -->
 <footer id="site-footer" style="background:#0C1018;border-top:1px solid #1C2A3A;padding:40px 32px;display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;font-size:13px;color:#9BA8BB">
   <div>
     <div style="font-weight:800;font-size:16px;color:#E8EDF5;margin-bottom:8px">▶ AUTOMATION<span style="color:#FF6B2B">AI LAB</span></div>
     <div>Free Selenium with Java training.</div>
     <div>From beginner to automation expert.</div>
     <div style="margin-top:12px">© 2025 Automation AI Lab</div>
-    <div style="margin-top:8px;font-size:11px;color:#6B7A90;max-width:260px">Some links on this site are affiliate links — we may earn a commission at no extra cost to you.</div>
   </div>
   <div>
     <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Course</div>
     <div style="line-height:2"><a href="/" style="color:#9BA8BB;text-decoration:none">All Lessons</a></div>
     <div style="line-height:2"><a href="/blog/" style="color:#9BA8BB;text-decoration:none">Blog</a></div>
-    <div style="line-height:2"><a href="/help.html" style="color:#9BA8BB;text-decoration:none">Help & Guide</a></div>
+    <div style="line-height:2"><a href="/help.html" style="color:#9BA8BB;text-decoration:none">Help &amp; Guide</a></div>
     <div style="line-height:2"><a href="/blog/selenium-interview-questions-answers" style="color:#9BA8BB;text-decoration:none">Interview Prep</a></div>
   </div>
   <div>
     <div style="font-weight:700;color:#E8EDF5;margin-bottom:10px">Resources</div>
-    <div style="line-height:2"><a href="https://trk.udemy.com/1G20b6" target="_blank" style="color:#9BA8BB;text-decoration:none">Udemy Selenium Course ↗</a></div>
+    <div style="line-height:2"><a href="https://www.udemy.com/course/selenium-real-time-exaples-interview-questions/?couponCode=ST21MT61124" target="_blank" style="color:#9BA8BB;text-decoration:none">Udemy Selenium Course ↗</a></div>
     <div style="line-height:2"><a href="https://www.browserstack.com/" target="_blank" style="color:#9BA8BB;text-decoration:none">BrowserStack ↗</a></div>
     <div style="line-height:2"><a href="https://www.lambdatest.com/" target="_blank" style="color:#9BA8BB;text-decoration:none">LambdaTest ↗</a></div>
     <div style="line-height:2"><a href="https://www.selenium.dev/documentation/" target="_blank" style="color:#9BA8BB;text-decoration:none">Selenium Docs ↗</a></div>
