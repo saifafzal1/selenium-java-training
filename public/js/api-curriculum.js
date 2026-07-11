@@ -939,11 +939,15 @@ pm.test("Human-readable test name", function () {
 
 ### 📊 Asserting Status Codes
 
+The most fundamental assertion — did the API return the right status?
+
 \`\`\`javascript
+// Exact match
 pm.test("Status is 200", function () {
   pm.response.to.have.status(200);
 });
 
+// Accept multiple codes (e.g. 200 or 201)
 pm.test("Status is success", function () {
   pm.expect(pm.response.code).to.be.oneOf([200, 201]);
 });
@@ -952,6 +956,8 @@ pm.test("Status is success", function () {
 ---
 
 ### ⏱️ Asserting Response Time
+
+Slow APIs fail users silently. Always test performance:
 
 \`\`\`javascript
 pm.test("Response time is under 2 seconds", function () {
@@ -963,25 +969,44 @@ pm.test("Response time is under 2 seconds", function () {
 
 ### 📋 Asserting Response Body Fields
 
+First, parse the response:
 \`\`\`javascript
 const body = pm.response.json();
+\`\`\`
 
+Then check specific fields:
+\`\`\`javascript
+// Check exact value
 pm.test("First name is correct", function () {
   pm.expect(body.firstname).to.equal("Sally");
 });
 
+// Check data type
 pm.test("Total price is a number", function () {
   pm.expect(body.totalprice).to.be.a("number");
 });
 
+// Check boolean
+pm.test("Deposit paid is boolean", function () {
+  pm.expect(body.depositpaid).to.be.a("boolean");
+});
+
+// Check nested object
 pm.test("Check-in date is correct", function () {
   pm.expect(body.bookingdates.checkin).to.equal("2026-03-01");
+});
+
+// Check string contains
+pm.test("Additional needs contains Dinner", function () {
+  pm.expect(body.additionalneeds).to.include("Dinner");
 });
 \`\`\`
 
 ---
 
 ### 📦 Asserting Array Responses
+
+When the response is an array (like GET /booking):
 
 \`\`\`javascript
 const body = pm.response.json();
@@ -1004,11 +1029,84 @@ pm.test("Each item has a bookingid field", function () {
 
 ---
 
+### 🔑 Asserting Headers
+
+\`\`\`javascript
+pm.test("Content-Type is JSON", function () {
+  pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+});
+\`\`\`
+
+---
+
+### 🏗️ Complete Test Suite for Create Booking
+
+Here's a professional set of assertions for your POST /booking request:
+
+\`\`\`javascript
+const body = pm.response.json();
+
+// 1. Status
+pm.test("Status 200", function () {
+  pm.response.to.have.status(200);
+});
+
+// 2. Performance
+pm.test("Response time < 3s", function () {
+  pm.expect(pm.response.responseTime).to.be.below(3000);
+});
+
+// 3. Booking ID returned
+pm.test("Booking ID is a number", function () {
+  pm.expect(body.bookingid).to.be.a("number");
+  pm.expect(body.bookingid).to.be.above(0);
+});
+
+// 4. Data matches what we sent
+pm.test("First name matches", function () {
+  pm.expect(body.booking.firstname).to.equal("Sally");
+});
+
+pm.test("Last name matches", function () {
+  pm.expect(body.booking.lastname).to.equal("Smith");
+});
+
+pm.test("Total price matches", function () {
+  pm.expect(body.booking.totalprice).to.equal(250);
+});
+
+pm.test("Check-in date correct", function () {
+  pm.expect(body.booking.bookingdates.checkin).to.equal("2026-03-01");
+});
+
+// 5. Save the ID for later
+pm.environment.set("booking_id", body.bookingid);
+\`\`\`
+
+---
+
 ### 💡 What Makes a Good Assertion?
 
-**Rule:** Status code = the API responded. Data assertions = the API responded *correctly*.
+**Bad assertion:**
+\`\`\`javascript
+pm.test("Response is OK", function () {
+  pm.response.to.have.status(200);
+});
+// ← Only checks the status code. Doesn't verify the data is correct.
+\`\`\`
 
-Always check the actual data returned, not just the status code. A 200 with wrong data is still a bug.
+**Good assertion:**
+\`\`\`javascript
+pm.test("Booking returns correct customer", function () {
+  const body = pm.response.json();
+  pm.expect(body.firstname).to.equal("Sally");
+  pm.expect(body.lastname).to.equal("Smith");
+  pm.expect(body.totalprice).to.equal(250);
+});
+// ← Verifies the ACTUAL DATA returned, not just that something came back
+\`\`\`
+
+**Rule:** Status code = the API responded. Data assertions = the API responded *correctly*.
 `,
         exercise: {
           title: 'Write Assertions for the Full Booking Lifecycle',
@@ -1017,7 +1115,7 @@ Always check the actual data returned, not just the status code. A 200 with wron
 1. GET /ping — assert status 201 and body contains "Created"
 2. GET /booking — assert status 200, response is an array, each item has bookingid
 3. POST /booking — assert status 200, bookingid is a number, firstname matches what you sent
-4. PUT /booking/{{booking_id}} — assert status 200, all fields updated
+4. PUT /booking/{{booking_id}} (update the whole booking) — assert status 200, all fields updated
 5. DELETE /booking/{{booking_id}} — assert status 201 (Restful-Booker quirk)
 
 Run the full collection and screenshot the Test Results tab showing all assertions passing.`,
@@ -1080,10 +1178,19 @@ Postman is a GUI tool — you click Send. But CI/CD pipelines don't have a GUI. 
 
 ### 🔧 Install Newman
 
+Newman is an npm package. Make sure you have Node.js installed first:
+
 \`\`\`bash
+# Check Node.js is installed
 node --version   # Should show v18+ or v20+
+
+# Install Newman globally
 npm install -g newman
+
+# Install the HTML report reporter
 npm install -g newman-reporter-htmlextra
+
+# Verify installation
 newman --version
 \`\`\`
 
@@ -1091,8 +1198,16 @@ newman --version
 
 ### 📤 Export Your Collection and Environment
 
-1. In Postman, right-click your collection → **Export** → Collection v2.1 → save as \`restful-booker-tests.json\`
-2. Environments icon → **...** → **Export** → save as \`restful-booker-env.json\`
+Newman needs the collection and environment as JSON files.
+
+**Export Collection:**
+1. In Postman, right-click your collection → **Export**
+2. Choose **Collection v2.1**
+3. Save as \`restful-booker-tests.json\`
+
+**Export Environment:**
+1. Click the **Environments** icon → hover over your environment → click the **...** menu → **Export**
+2. Save as \`restful-booker-env.json\`
 
 Put both files in a folder: \`api-tests/\`
 
@@ -1101,11 +1216,76 @@ Put both files in a folder: \`api-tests/\`
 ### ▶️ Run with Newman
 
 \`\`\`bash
-# Basic run
+# Basic run — just pass/fail in terminal
 newman run api-tests/restful-booker-tests.json \\
   --environment api-tests/restful-booker-env.json
 
-# With all reporters
+# With HTML report
+newman run api-tests/restful-booker-tests.json \\
+  --environment api-tests/restful-booker-env.json \\
+  --reporters htmlextra \\
+  --reporter-htmlextra-export api-tests/report.html
+
+# With JUnit XML (for CI systems like Jenkins/GitHub Actions)
+newman run api-tests/restful-booker-tests.json \\
+  --environment api-tests/restful-booker-env.json \\
+  --reporters junit \\
+  --reporter-junit-export api-tests/results.xml
+\`\`\`
+
+---
+
+### 📊 Reading Newman Terminal Output
+
+\`\`\`
+→ Health Check
+  GET https://restful-booker.herokuapp.com/ping [201 Created, 243ms]
+  ✓  Status is 201
+  ✓  Body is Created
+
+→ Create Token
+  POST https://restful-booker.herokuapp.com/auth [200 OK, 312ms]
+  ✓  Status is 200
+  ✓  Token received
+
+→ Create Booking
+  POST https://restful-booker.herokuapp.com/booking [200 OK, 198ms]
+  ✓  Status 200
+  ✓  Booking ID is a number
+  ✓  First name matches
+
+┌─────────────────────────┬────────────────────┬───────────────────┐
+│                         │           executed │            failed │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              iterations │                  1 │                 0 │
+│                requests │                  8 │                 0 │
+│            test-scripts │                  8 │                 0 │
+│      prerequest-scripts │                  0 │                 0 │
+│              assertions │                 24 │                 0 │
+├─────────────────────────┴────────────────────┴───────────────────┤
+│ total run duration: 2.4s                                          │
+│ total data received: 2.38kB (approx)                              │
+│ average response time: 299ms [min: 191ms, max: 402ms]            │
+└──────────────────────────────────────────────────────────────────┘
+\`\`\`
+
+**Green ✓** = assertion passed. **Red ✗** = assertion failed, tells you which one.
+
+---
+
+### 🚦 Exit Codes — How CI Knows if Tests Passed
+
+Newman exits with:
+- **Exit code 0** — all tests passed (CI marks build as green)
+- **Exit code 1** — at least one test failed (CI marks build as red/failed)
+
+This is how you "fail the build" on API test failures in GitHub Actions.
+
+---
+
+### 📁 Multiple Reporters at Once
+
+\`\`\`bash
 newman run api-tests/restful-booker-tests.json \\
   --environment api-tests/restful-booker-env.json \\
   --reporters cli,htmlextra,junit \\
@@ -1113,27 +1293,45 @@ newman run api-tests/restful-booker-tests.json \\
   --reporter-junit-export api-tests/results.xml
 \`\`\`
 
+This gives you:
+- **cli** → terminal output (good for immediate feedback)
+- **htmlextra** → beautiful HTML report (good for sharing)
+- **junit** → XML for CI systems (good for pipeline integration)
+
 ---
 
-### 🚦 Exit Codes — How CI Knows if Tests Passed
+### 📦 Package It with npm scripts
 
-- **Exit code 0** — all tests passed (CI marks build as green)
-- **Exit code 1** — at least one test failed (CI marks build as red)
+Create a \`package.json\` in your \`api-tests/\` folder:
 
-This is how you "fail the build" on API test failures in GitHub Actions.
+\`\`\`json
+{
+  "name": "restful-booker-api-tests",
+  "scripts": {
+    "test": "newman run restful-booker-tests.json --environment restful-booker-env.json --reporters cli,htmlextra --reporter-htmlextra-export report.html"
+  },
+  "devDependencies": {
+    "newman": "^6.0.0",
+    "newman-reporter-htmlextra": "^1.22.0"
+  }
+}
+\`\`\`
+
+Now anyone can run your tests with just: \`npm test\`
 `,
         exercise: {
           title: 'Run Your Collection with Newman',
           task: `Export your Postman collection and environment, then run them with Newman:
 
-1. Export your "Restful-Booker Tests" collection and "Restful-Booker" environment as JSON files
-2. Install Newman and newman-reporter-htmlextra globally via npm
-3. Run the collection with all 3 reporters (cli, htmlextra, junit)
-4. Open the generated report.html file in your browser
-5. Screenshot the terminal output showing all requests passing`,
+1. Export your "Restful-Booker Tests" collection as JSON
+2. Export your "Restful-Booker" environment as JSON
+3. Install Newman and newman-reporter-htmlextra globally via npm
+4. Run the collection with all 3 reporters (cli, htmlextra, junit)
+5. Open the generated report.html file in your browser
+6. Screenshot the terminal output showing all requests passing and the HTML report open in browser`,
           hints: [
             'Put both JSON files in the same folder before running Newman from that folder',
-            'If Newman says "collection not found", use the full file path',
+            'If Newman says "collection not found", check the file path — use the full path if needed',
             'The htmlextra report creates a single HTML file you can open in any browser'
           ]
         },
@@ -1190,16 +1388,18 @@ You now have API tests that run locally. Let's make them run automatically every
 
 ### 📁 Repository Structure
 
+Create a GitHub repository with this structure:
+
 \`\`\`
 restful-booker-api-tests/
 ├── .github/
 │   └── workflows/
-│       └── api-tests.yml
+│       └── api-tests.yml       ← The CI pipeline
 ├── collections/
-│   └── restful-booker.json
+│   └── restful-booker.json     ← Exported Postman collection
 ├── environments/
-│   └── restful-booker.json
-├── reports/
+│   └── restful-booker.json     ← Exported Postman environment (WITHOUT secrets)
+├── reports/                    ← Newman creates this at runtime
 └── package.json
 \`\`\`
 
@@ -1207,14 +1407,23 @@ restful-booker-api-tests/
 
 ### 🔑 Handling Credentials Safely
 
-Use **GitHub Secrets** — never commit passwords to Git:
+Your environment JSON file may contain usernames/passwords. **Never commit secrets to Git.**
 
-1. Repo → **Settings** → **Secrets and variables** → **Actions**
-2. Add \`API_USERNAME\` = \`admin\` and \`API_PASSWORD\` = \`password123\`
+Instead, use **GitHub Secrets**:
+
+1. Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add:
+   - Name: \`API_USERNAME\`  Value: \`admin\`
+   - Name: \`API_PASSWORD\`  Value: \`password123\`
+
+In your environment JSON, replace the actual values with placeholder text — GitHub Actions will inject the real values via the workflow.
 
 ---
 
 ### 📝 The GitHub Actions Workflow
+
+Create \`.github/workflows/api-tests.yml\`:
 
 \`\`\`yaml
 name: API Tests — Restful-Booker
@@ -1224,29 +1433,34 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:       # Allow manual trigger from GitHub UI
 
 jobs:
   api-tests:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Check out the code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # 3. Install Newman and reporters
       - name: Install Newman
         run: |
           npm install -g newman
           npm install -g newman-reporter-htmlextra
 
+      # 4. Create reports directory
       - name: Create reports directory
         run: mkdir -p reports
 
+      # 5. Run the tests
       - name: Run API tests with Newman
         run: |
           newman run collections/restful-booker.json \\
@@ -1257,30 +1471,90 @@ jobs:
             --reporter-htmlextra-export reports/api-test-report.html \\
             --reporter-junit-export reports/api-test-results.xml
 
+      # 6. Upload the HTML report as a downloadable artefact
       - name: Upload test report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always()     # Upload even if tests fail — so you can see what went wrong
         with:
           name: api-test-report
           path: reports/
+
+      # 7. Publish JUnit results in the GitHub UI
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Newman API Tests
+          path: reports/api-test-results.xml
+          reporter: java-junit
 \`\`\`
 
-When Newman finds a failing assertion, it exits with code 1 — the step fails, the job fails, and GitHub marks the commit with a red X. This is **continuous API quality**.
+---
+
+### 🎯 What Happens When You Push
+
+\`\`\`
+git add .
+git commit -m "add api tests"
+git push origin main
+\`\`\`
+
+1. GitHub Actions detects the push
+2. Spins up an Ubuntu machine
+3. Installs Node.js + Newman
+4. Runs your entire test collection
+5. If all assertions pass → **green checkmark** on your commit
+6. If any assertion fails → **red X** on your commit
+7. HTML report uploaded → download from the Actions tab
+
+---
+
+### 📊 Viewing Results in GitHub
+
+In your repository, click **Actions** tab:
+
+\`\`\`
+✅ API Tests — Restful-Booker  (pushed 2 minutes ago)
+   Run #4 · main · 1m 23s
+
+   Job: api-tests ✅
+   Steps:
+   ✅ Checkout repository
+   ✅ Set up Node.js
+   ✅ Install Newman
+   ✅ Run API tests with Newman
+      → 8 requests · 24 assertions · 0 failures
+   ✅ Upload test report
+   ✅ Publish test results
+\`\`\`
+
+Click **api-test-report** in the artefacts section to download the HTML report.
+
+---
+
+### 🔴 When Tests Fail
+
+If Newman finds a failing assertion, it exits with code 1 — the step fails, the job fails, and GitHub marks the commit with a red X.
+
+Your team sees immediately that something is broken. The downloaded report shows exactly which request failed and which assertion didn't pass.
+
+This is **continuous API quality** — every push is automatically validated.
 `,
         exercise: {
           title: 'Set Up Your First CI API Pipeline',
           task: `Create a GitHub repository and set up automated API testing:
 
 1. Create a new public GitHub repo called "restful-booker-api-tests"
-2. Add your collection and environment JSON files to the correct folders
-3. Create the .github/workflows/api-tests.yml workflow as shown
+2. Add your exported collection and environment JSON files to the correct folders
+3. Create the .github/workflows/api-tests.yml workflow exactly as shown
 4. Add API_USERNAME and API_PASSWORD as GitHub Secrets
-5. Push everything to main and watch the Actions tab
-6. Screenshot the passing green workflow run AND download the HTML report artifact`,
+5. Push everything to main
+6. Watch the Actions tab — wait for the workflow to complete
+7. Screenshot the passing green workflow run AND download the HTML report artifact`,
           hints: [
-            'Use "workflow_dispatch" in the trigger to manually re-run without pushing',
-            'The "if: always()" on the upload step ensures the report uploads even on failure',
-            'Click on a failed step in Actions to see Newman output and find which assertion broke'
+            'Use "workflow_dispatch" in the trigger to manually re-run if you need to test without pushing',
+            'The "if: always()" on the upload step is critical — without it, a failed run won\'t upload the report',
+            'If the run fails at step 5, click on the failed step to see Newman\'s output and find the failing assertion'
           ]
         },
         quiz: [
