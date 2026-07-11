@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const cors    = require('cors');
 const fs      = require('fs');
@@ -240,7 +241,6 @@ app.post('/api/chat', async (req, res) => {
   }
 
   // ── Ollama (local) with RAG augmentation ─────────────────────────────
-  // When docs are synced, embed user query → find top-3 chunks → prepend as context
   let ragMessages = [...workingMessages];
   if (ragEnabled) {
     try {
@@ -291,7 +291,6 @@ app.post('/api/save-file', (req, res) => {
   const { code, filename, folder } = req.body;
   if (!code) return res.status(400).json({ error: 'No code provided' });
 
-  // Resolve target directory (default: generated-code/ inside project)
   let targetDir;
   try {
     targetDir = path.resolve(folder || path.join(__dirname, 'generated-code'));
@@ -299,14 +298,12 @@ app.post('/api/save-file', (req, res) => {
     return res.status(400).json({ error: 'Invalid folder path' });
   }
 
-  // Create directory if it doesn't exist
   try {
     fs.mkdirSync(targetDir, { recursive: true });
   } catch (e) {
     return res.status(500).json({ error: `Cannot create folder: ${e.message}` });
   }
 
-  // Auto-generate filename from Java class name if not provided
   let fname = filename;
   if (!fname) {
     const match = code.match(/public\s+class\s+(\w+)/);
@@ -383,7 +380,6 @@ app.get('/api/health', async (req, res) => {
     ollamaModels: []
   };
 
-  // Probe Ollama
   try {
     const r = await fetch(`${OLLAMA_BASE}/api/tags`, { signal: AbortSignal.timeout(2000) });
     const data = await r.json();
