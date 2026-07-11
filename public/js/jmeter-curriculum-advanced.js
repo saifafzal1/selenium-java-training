@@ -130,17 +130,7 @@ Each value flows from one response into the next request — the test stays vali
 `,
         exercise: {
           title: 'Extract and Chain Dynamic Values',
-          task: `Practice correlation with the Restful-Booker API:
-
-1. POST /auth — use JSON Extractor to get token → \${authToken}
-2. POST /booking — use JSON Extractor to get bookingid → \${bookingId}
-3. GET /booking/\${bookingId} — verify the correct booking is returned
-4. PUT /booking/\${bookingId} with Cookie: token=\${authToken} — update the firstname to "Updated"
-5. GET /booking/\${bookingId} — add a JSON Assertion: $.firstname = "Updated"
-
-Run with 5 users, 2 loops. Verify all requests pass including the assertion.
-
-Bonus: Add a Regular Expression Extractor to GET /booking/\${bookingId} to extract "lastname" using regex instead of JSON Extractor.`,
+          task: `Practice correlation with the Restful-Booker API:\n\n1. POST /auth — use JSON Extractor to get token → \${authToken}\n2. POST /booking — use JSON Extractor to get bookingid → \${bookingId}\n3. GET /booking/\${bookingId} — verify the correct booking is returned\n4. PUT /booking/\${bookingId} with Cookie: token=\${authToken} — update the firstname to "Updated"\n5. GET /booking/\${bookingId} — add a JSON Assertion: $.firstname = "Updated"\n\nRun with 5 users, 2 loops. Verify all requests pass including the assertion.\n\nBonus: Add a Regular Expression Extractor to GET /booking/\${bookingId} to extract "lastname" using regex instead of JSON Extractor.`,
           hints: [
             'Regex for extracting "lastname" from JSON: "lastname":"([^"]+)" — the capture group grabs everything between the quotes',
             'If PUT /booking returns 403, check that the Cookie header format is: token=\${authToken} (not Bearer)',
@@ -291,18 +281,7 @@ This is the table you share with your tech lead or management after a load test.
 `,
         exercise: {
           title: 'Generate and Analyse an HTML Performance Report',
-          task: `1. Save your CRUD test plan as test-plan.jmx
-2. Run from command line in non-GUI mode:
-   jmeter -n -t test-plan.jmx -l results.jtl -e -o ./html-report
-3. Open html-report/index.html in your browser
-4. Screenshot and analyse:
-   a. The APDEX score and what it means for this app
-   b. The Statistics table — which endpoint is slowest?
-   c. The Response Times Over Time chart — any spikes?
-5. Increase load to 50 users and regenerate the report
-6. Compare the two reports: does p95 increase significantly?
-
-Bonus: Upload the .jmx to BlazeMeter free tier and compare cloud results vs local.`,
+          task: `1. Save your CRUD test plan as test-plan.jmx\n2. Run from command line in non-GUI mode:\n   jmeter -n -t test-plan.jmx -l results.jtl -e -o ./html-report\n3. Open html-report/index.html in your browser\n4. Screenshot and analyse:\n   a. The APDEX score and what it means for this app\n   b. The Statistics table — which endpoint is slowest?\n   c. The Response Times Over Time chart — any spikes?\n5. Increase load to 50 users and regenerate the report\n6. Compare the two reports: does p95 increase significantly?\n\nBonus: Upload the .jmx to BlazeMeter free tier and compare cloud results vs local.`,
           hints: [
             'Delete the html-report/ folder before each new run — JMeter will error if the output folder already exists',
             'The .jtl file is a CSV — open it in Excel to see raw request-level data',
@@ -463,13 +442,7 @@ jmeter -n -t test-plan.jmx -q staging.properties -l results.jtl -e -o html-repor
 `,
         exercise: {
           title: 'Run Your Test Plan from the Command Line',
-          task: `1. Update your test plan to use \${__P(threads,10)}, \${__P(rampup,30)}, \${__P(duration,120)} in the Thread Group
-2. Update the HTTP Request server name to \${__P(host,restful-booker.herokuapp.com)}
-3. Run from CLI with 20 users, 30s ramp, 120s duration:
-   jmeter -n -t test-plan.jmx -Jthreads=20 -Jrampup=30 -Jduration=120 -l results.jtl -e -o html-report
-4. Create staging.properties with those values
-5. Run again using: jmeter -n -t test-plan.jmx -q staging.properties -l results.jtl -e -o html-report
-6. Screenshot the terminal output showing the test running and the final summary line`,
+          task: `1. Update your test plan to use \${__P(threads,10)}, \${__P(rampup,30)}, \${__P(duration,120)} in the Thread Group\n2. Update the HTTP Request server name to \${__P(host,restful-booker.herokuapp.com)}\n3. Run from CLI with 20 users, 30s ramp, 120s duration:\n   jmeter -n -t test-plan.jmx -Jthreads=20 -Jrampup=30 -Jduration=120 -l results.jtl -e -o html-report\n4. Create staging.properties with those values\n5. Run again using: jmeter -n -t test-plan.jmx -q staging.properties -l results.jtl -e -o html-report\n6. Screenshot the terminal output showing the test running and the final summary line`,
           hints: [
             'The __P() function reads a JMeter property — the first argument is the property name, the second is the default if not set',
             'Delete html-report/ before each run to avoid the "directory already exists" error',
@@ -563,7 +536,7 @@ jobs:
         run: |
           wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xzf apache-jmeter-5.6.3.tgz
-          echo "\$PWD/apache-jmeter-5.6.3/bin" >> \$GITHUB_PATH
+          echo "$PWD/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
 
       - name: Run JMeter Performance Tests
         run: |
@@ -583,13 +556,13 @@ jobs:
         run: |
           FAILURES=$(grep -c ",false," results/results.jtl 2>/dev/null || echo 0)
           TOTAL=$(grep -c "," results/results.jtl 2>/dev/null || echo 1)
-          ERROR_PCT=$(awk "BEGIN {printf \"%.1f\", ($FAILURES/$TOTAL)*100}")
-          echo "Failures: $FAILURES / $TOTAL requests (${ERROR_PCT}%)"
+          ERROR_PCT=$(awk "BEGIN {printf \\"%.1f\\", ($FAILURES/$TOTAL)*100}")
+          echo "Failures: $FAILURES / $TOTAL requests (\${ERROR_PCT}%)"
           if (( $(echo "$ERROR_PCT > 1.0" | bc -l) )); then
-            echo "FAIL: Error rate ${ERROR_PCT}% exceeds 1% threshold"
+            echo "FAIL: Error rate \${ERROR_PCT}% exceeds 1% threshold"
             exit 1
           fi
-          echo "PASS: Error rate ${ERROR_PCT}% is within threshold"
+          echo "PASS: Error rate \${ERROR_PCT}% is within threshold"
 
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
@@ -652,24 +625,7 @@ You can now:
 `,
         exercise: {
           title: 'Deploy a GitHub Actions Performance Pipeline',
-          task: `1. Push your test plan to GitHub:
-   - jmeter/test-plan.jmx
-   - jmeter/bookings.csv
-
-2. Create .github/workflows/performance.yml as shown
-
-3. Push to main — watch the Actions tab
-
-4. After the pipeline completes:
-   - Download the HTML report artifact
-   - Enable GitHub Pages in Settings → Pages → gh-pages branch
-   - View your report at https://yourname.github.io/your-repo/perf-reports/latest
-
-5. Intentionally break a test (set Duration Assertion to 1ms) — push and confirm the pipeline goes RED
-
-6. Fix and push — confirm GREEN
-
-Final screenshot: GitHub Actions job green + HTML report open in browser.`,
+          task: `1. Push your test plan to GitHub:\n   - jmeter/test-plan.jmx\n   - jmeter/bookings.csv\n\n2. Create .github/workflows/performance.yml as shown\n\n3. Push to main — watch the Actions tab\n\n4. After the pipeline completes:\n   - Download the HTML report artifact\n   - Enable GitHub Pages in Settings → Pages → gh-pages branch\n   - View your report at https://yourname.github.io/your-repo/perf-reports/latest\n\n5. Intentionally break a test (set Duration Assertion to 1ms) — push and confirm the pipeline goes RED\n\n6. Fix and push — confirm GREEN\n\nFinal screenshot: GitHub Actions job green + HTML report open in browser.`,
           hints: [
             'Add "results/" and "*.jtl" to .gitignore — results files are large and should not be committed',
             'The "Check for failures" step uses grep on the .jtl CSV — the success column is "true" or "false"',
