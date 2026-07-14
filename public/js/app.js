@@ -1384,7 +1384,7 @@ I'll act as your patient tutor — breaking concepts into simple steps, using re
 - *"What is Page Object Model and why use it?"*
 - *"Walk me through how locators work in Selenium"*
 
-📖 [See full examples & tips in the Help Guide →](/help.html#skill-explain)`,
+📖 <a href="/help.html#skill-explain" target="_blank" rel="noopener">See full examples & tips in the Help Guide →</a>`,
 
   debug: `🐛 **Debug Mode** activated!
 
@@ -1395,7 +1395,7 @@ I'll act as your expert debugger — finding the root cause of errors, explainin
 - *"My test passes locally but fails in CI — why?"*
 - Paste any stack trace or broken code and I'll diagnose it
 
-📖 [See full examples & tips in the Help Guide →](/help.html#skill-debug)`,
+📖 <a href="/help.html#skill-debug" target="_blank" rel="noopener">See full examples & tips in the Help Guide →</a>`,
 
   generate: `⚙️ **Generate Mode** activated!
 
@@ -1406,7 +1406,7 @@ I'll act as a senior engineer — writing production-ready, POM-structured Selen
 - *"Write a DriverFactory with ChromeOptions for headless mode"*
 - *"Create a TestNG data provider test for a login form"*
 
-📖 [See full examples & tips in the Help Guide →](/help.html#skill-generate)`,
+📖 <a href="/help.html#skill-generate" target="_blank" rel="noopener">See full examples & tips in the Help Guide →</a>`,
 
   quiz: `🧩 **Quiz Mode** activated!
 
@@ -1417,7 +1417,7 @@ I'll test your knowledge with 3 targeted questions on the current lesson — mul
 - *"Test my understanding of explicit vs implicit waits"*
 - *"Give me 3 questions on Page Object Model"*
 
-📖 [See full examples & tips in the Help Guide →](/help.html#skill-quiz)`
+📖 <a href="/help.html#skill-quiz" target="_blank" rel="noopener">See full examples & tips in the Help Guide →</a>`
 };
 
 // ── Agent Mode ────────────────────────────────────────────────
