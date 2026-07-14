@@ -991,10 +991,10 @@ function navigateRelative(delta) {
 let chatHistory = [];
 let isChatting  = false;
 
-// ── Client-side guards ────────────────────────────────────────
-const CHAT_MAX_CHARS    = 3000;
-const CHAT_SESSION_WARN = 20;
-const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString();
+// ── Client-side guards (fixes #4 + #5) ───────────────────────
+const CHAT_MAX_CHARS    = 3000;   // max chars per message
+const CHAT_SESSION_WARN = 20;     // warn after this many messages
+const CHAT_SESSION_KEY  = 'chat_session_' + new Date().toDateString(); // resets daily
 
 function getChatCount()  { return parseInt(localStorage.getItem(CHAT_SESSION_KEY) || '0', 10); }
 function incChatCount()  { localStorage.setItem(CHAT_SESSION_KEY, getChatCount() + 1); }
@@ -1002,6 +1002,7 @@ function incChatCount()  { localStorage.setItem(CHAT_SESSION_KEY, getChatCount()
 async function sendMessage(userText) {
   if (!userText.trim() || isChatting) return;
 
+  // Fix #4 — hard cap on message length
   if (userText.length > CHAT_MAX_CHARS) {
     appendMessage('assistant',
       `⚠️ Your message is **${userText.length} characters** — the limit is ${CHAT_MAX_CHARS}.\n\nPlease shorten your message. For large code pastes, paste only the relevant section and describe the rest.`
@@ -1009,6 +1010,7 @@ async function sendMessage(userText) {
     return;
   }
 
+  // Fix #5 — per-session counter with warning
   const count = getChatCount();
   if (count >= CHAT_SESSION_WARN && count % 10 === 0) {
     appendMessage('assistant',
@@ -1044,7 +1046,7 @@ async function sendMessage(userText) {
 
   const model = document.getElementById('model-select').value;
 
-  // ── Agent Mode ──────────────────────────────────────────────
+  // ── Agent Mode: run 3-step chain instead of normal chat ─────
   if (state.agentMode) {
     const course = state.activeCourse === 'playwright'
       ? 'Playwright (TypeScript/JavaScript)'
@@ -1128,7 +1130,7 @@ async function sendMessage(userText) {
       msgEl.className = 'msg error';
       msgEl.innerHTML = '⚠️ ' + escHtml(data.error);
     } else {
-      incChatCount();
+      incChatCount(); // fix #5 — only count successful responses
       const assistantText = data.content || '';
       chatHistory.push({ role: 'assistant', content: assistantText });
       const msgEl = appendMessage('assistant', '');
@@ -1165,6 +1167,7 @@ function scrollChat() {
 }
 
 function renderMarkdown(text) {
+  // Use marked if available
   try { return marked.parse(text); } catch { return escHtml(text); }
 }
 
@@ -1183,6 +1186,7 @@ async function checkHealth() {
     const res  = await fetch('api/health', { signal: AbortSignal.timeout(3000) });
     const data = await res.json();
 
+    // Update Ollama optgroup with discovered local models
     const ollamaGroup = document.getElementById('ollama-optgroup');
     if (ollamaGroup && data.ollama === 'ok' && data.ollamaModels?.length > 0) {
       ollamaGroup.innerHTML = data.ollamaModels.map(m =>
@@ -1190,6 +1194,7 @@ async function checkHealth() {
       ).join('');
     }
 
+    // Status dot: green = at least one provider ready
     const groqOk  = data.groq  === 'key_set';
     const claudeOk = data.claude === 'key_set';
     const ollamaOk = data.ollama === 'ok';
@@ -1237,6 +1242,7 @@ function showToast(message, type = 'success', action = null) {
   closeBtn.addEventListener('click', () => toast.remove());
   toast.appendChild(closeBtn);
   container.appendChild(toast);
+  // Auto-remove after 5s
   setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 5000);
 }
 
@@ -1244,10 +1250,12 @@ function showToast(message, type = 'success', action = null) {
 async function saveToProject(code) {
   const folder = state.projectFolder;
 
+  // Auto-detect filename from public class name
   const match = code.match(/public\s+class\s+(\w+)/);
   const filename = match ? `${match[1]}.java` : `SeleniumCode_${Date.now()}.java`;
 
   if (state.serverMode && folder) {
+    // Write directly to disk via local server
     try {
       const res = await fetch('api/save-file', {
         method: 'POST',
@@ -1267,11 +1275,13 @@ async function saveToProject(code) {
       showToast(`❌ Save failed: ${e.message}`, 'error');
     }
   } else if (state.serverMode && !folder) {
+    // Server running but no folder set — prompt to set it
     showToast('⚠️ Set your Project Folder in Settings first (⚙️)', 'warning', {
       label: 'Open Settings',
       fn: openSettings
     });
   } else {
+    // Vercel / no server — trigger browser download
     const blob = new Blob([code], { type: 'text/plain' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
@@ -1316,7 +1326,6 @@ async function testProjectFolder() {
   const statusEl = document.getElementById('folder-status');
   if (!folder) { statusEl.textContent = '⚠️ Enter a path first'; statusEl.className = 'settings-status warn'; return; }
   if (!state.serverMode) { statusEl.textContent = '❌ Server not running locally (npm start required)'; statusEl.className = 'settings-status error'; return; }
-
   statusEl.textContent = 'Testing…';
   try {
     const code = `// Test file — safe to delete\npublic class SeleniumTestConnection { }`;
@@ -1343,6 +1352,7 @@ function toggleSmartMode(on) {
   state.smartMode = on;
   localStorage.setItem('smartMode', on);
   document.getElementById('smart-mode-status-text').textContent = on ? 'On' : 'Off';
+  // Sync the header button
   const btn = document.getElementById('smart-mode-btn');
   if (btn) btn.classList.toggle('active', on);
 }
@@ -1355,6 +1365,7 @@ const SKILL_DESCRIPTIONS = {
   quiz:     '🧩 Quiz master — tests your knowledge with 3 questions'
 };
 
+// Help anchors for each skill mode in help.html
 const SKILL_HELP_ANCHORS = {
   explain:  '#skill-explain',
   debug:    '#skill-debug',
@@ -1362,6 +1373,7 @@ const SKILL_HELP_ANCHORS = {
   quiz:     '#skill-quiz'
 };
 
+// Intro messages shown in chat when a skill is activated
 const SKILL_INTRO_MESSAGES = {
   explain: `🎓 **Explain Mode** activated!
 
@@ -1430,6 +1442,7 @@ function setAgentMode(on) {
   }
 }
 
+// Agent step helper: call /api/chat with a specific model + system prompt
 async function agentStep(model, systemPrompt, userMessage) {
   const res = await fetch('/api/chat', {
     method: 'POST',
@@ -1448,6 +1461,7 @@ async function agentStep(model, systemPrompt, userMessage) {
   return data.choices?.[0]?.message?.content || data.content || '';
 }
 
+// Run 3-step agent chain and stream steps into chat
 async function runAgentChain(userText, lessonCtx, course) {
   const skillFn = SKILL_PROMPTS[state.skillMode] || SKILL_PROMPTS.explain;
   const skillPrompt = skillFn(lessonCtx, course);
@@ -1460,7 +1474,7 @@ async function runAgentChain(userText, lessonCtx, course) {
   let refinedQ;
   try {
     refinedQ = await agentStep(
-      'qwen/qwen3-32b',
+      'qwen/qwen3.6-27b',
       `You are a question refiner for a ${course} automation training platform.
 Rewrite the user's question to be precise, specific, and richly contextual for a Selenium/Java learner.
 Return ONLY the refined question — no preamble, no explanation.`,
@@ -1531,6 +1545,7 @@ function setSkillMode(skill) {
   };
   showToast(labels[skill] || 'Skill mode changed', 'success');
 
+  // Show contextual intro message in chat with help link
   const intro = SKILL_INTRO_MESSAGES[skill];
   if (intro) appendMessage('assistant', intro);
 }
@@ -1619,6 +1634,7 @@ function wireEvents() {
 
   document.getElementById('chat-input').addEventListener('input', e => {
     autoResizeTextarea(e.target);
+    // Fix #4 — live character counter
     const len     = e.target.value.length;
     const counter = document.getElementById('chat-char-counter');
     if (counter) {
@@ -1642,11 +1658,12 @@ function wireEvents() {
     });
   });
 
-  // Skill mode buttons
+  // Skill mode buttons (inside tray-skills panel)
   document.querySelectorAll('.skill-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.skill === state.skillMode);
     btn.addEventListener('click', () => setSkillMode(btn.dataset.skill));
   });
+  // Set initial skill description and quick prompts (no toast on load)
   const descEl = document.getElementById('skill-desc');
   if (descEl) descEl.textContent = SKILL_DESCRIPTIONS[state.skillMode] || '';
   updateQuickPrompts(state.skillMode);
@@ -1659,7 +1676,7 @@ function wireEvents() {
   // Settings gear button
   document.getElementById('settings-btn').addEventListener('click', openSettings);
 
-  // Smart Mode header button
+  // Smart Mode header button (syncs with settings checkbox)
   const smartBtn = document.getElementById('smart-mode-btn');
   if (smartBtn) {
     smartBtn.classList.toggle('active', state.smartMode);
@@ -1709,6 +1726,8 @@ function wireEvents() {
 }
 
 // ── Java Syntax Highlighter ────────────────────────────────────
+// Works on raw text → HTML-escape → apply spans → set innerHTML
+// This avoids the bug of regexes matching inside existing HTML attributes.
 function highlightJava() {
   document.querySelectorAll(
     '.lesson-body pre code, .solution-box, .msg.assistant pre code, .msg.assistant pre'
@@ -1716,21 +1735,26 @@ function highlightJava() {
     if (block.dataset.highlighted) return;
     block.dataset.highlighted = '1';
 
+    // 1. Get raw text (no HTML)
     const raw = block.tagName === 'PRE'
       ? block.textContent
       : block.textContent;
 
+    // 2. HTML-escape the raw text first
     function esc(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    // 3. Tokenise line by line to keep comments safe
     const lines = raw.split('\n');
     const highlighted = lines.map(line => {
+      // Whole-line comment (// or #)
       const lineCommentMatch = line.match(/^(\s*)(\/\/.*|#.*)$/);
       if (lineCommentMatch) {
         return esc(lineCommentMatch[1]) + `<span class="cmt">${esc(lineCommentMatch[2])}</span>`;
       }
 
+      // Split by string literals first to protect them
       const parts = [];
       let remaining = line;
       const strRe = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
@@ -1747,11 +1771,14 @@ function highlightJava() {
 
         let s = esc(p.val);
 
+        // Inline comment after code
         const inlineCmt = s.indexOf('//');
         let cmt = '';
         if (inlineCmt !== -1) { cmt = s.slice(inlineCmt); s = s.slice(0, inlineCmt); }
 
+        // Annotations
         s = s.replace(/(@\w+)/g, '<span class="ann">$1</span>');
+        // Keywords
         const kws = ['public','private','protected','static','final','abstract','class',
           'interface','extends','implements','new','return','void','this','super',
           'null','true','false','if','else','for','while','do','switch','case',
@@ -1759,8 +1786,11 @@ function highlightJava() {
           'import','package','var','instanceof','synchronized','volatile',
           'transient','native','enum','record','sealed','permits'];
         s = s.replace(new RegExp(`\\b(${kws.join('|')})\\b`, 'g'), '<span class="kw">$1</span>');
+        // Class names (PascalCase)
         s = s.replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="cls">$1</span>');
+        // Method calls
         s = s.replace(/\b([a-z]\w*)(\s*\()/g, '<span class="met">$1</span>$2');
+        // Numbers
         s = s.replace(/\b(\d+\.?\d*[LlFfDd]?)\b/g, '<span class="num">$1</span>');
 
         if (cmt) s += `<span class="cmt">${cmt}</span>`;
@@ -1770,10 +1800,12 @@ function highlightJava() {
 
     block.innerHTML = highlighted;
 
+    // Add Copy + Save buttons to code blocks (lesson body, chat, solution boxes)
     const pre = block.closest('.lesson-body pre, .solution-box, .msg.assistant pre');
     if (pre && !pre.querySelector('.copy-code-btn')) {
       const codeText = () => block.textContent || pre.textContent;
 
+      // Copy button
       const copyBtn = document.createElement('button');
       copyBtn.className = 'copy-code-btn';
       copyBtn.textContent = 'Copy';
@@ -1790,6 +1822,7 @@ function highlightJava() {
       });
       pre.appendChild(copyBtn);
 
+      // Save to Project button
       const saveBtn = document.createElement('button');
       saveBtn.className = 'save-code-btn';
       saveBtn.textContent = '💾 Save';
