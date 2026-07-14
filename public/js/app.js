@@ -365,8 +365,8 @@ async function init() {
   if (state.progress.lastVisited) {
     const last = state.allLessons.find(l => l.id === state.progress.lastVisited);
     if (last) {
-      const mod = CURRICULUM.find(m => m.lessons.some(l => l.id === last.id));
-      showLesson(last, mod);
+      const mod = getActiveCurriculum().find(m => m.lessons.some(l => l.id === last.id));
+      if (mod) showLesson(last, mod);
     }
   }
 
@@ -983,8 +983,8 @@ function navigateRelative(delta) {
   const idx = state.allLessons.findIndex(l => l.id === state.currentLesson.id);
   const next = state.allLessons[idx + delta];
   if (!next) return;
-  const mod = CURRICULUM.find(m => m.lessons.some(l => l.id === next.id));
-  showLesson(next, mod);
+  const mod = getActiveCurriculum().find(m => m.lessons.some(l => l.id === next.id));
+  if (mod) showLesson(next, mod);
 }
 
 // ── AI Chat ────────────────────────────────────────────────────
