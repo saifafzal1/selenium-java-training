@@ -94,20 +94,20 @@ By the end of each day you will have produced something concrete:
 ## ✅ Definition of "Ready to Work Independently"
 
 You will self-score yourself on Day 10 against 10 criteria. You need to be honest — this list is exactly what to raise in your next mentor check-in if anything is yellow or red. The full checklist is in the Capstone lesson.`,
-        exercise: {
-          title: 'Set Up Your Environment',
-          description: 'Before Day 1, confirm every tool is ready so you hit the ground running.',
-          steps: [
-            'Install **Postman** (postman.com/downloads)',
-            'Install **Visual Studio** (free Community edition) or VS Code + C# Dev Kit extension',
-            'Install **.NET SDK 8** (dotnet.microsoft.com/download)',
-            'Install **Node.js LTS** (nodejs.org) — needed for Angular and Cypress',
-            'Install **Angular CLI**: `npm install -g @angular/cli`',
-            'Install **Cypress**: `npm install -g cypress`',
-            'Create a free **GitHub account** if you don\'t have one',
-            'Create a free **Jira** or **Trello** board for bug logging'
-          ]
-        }
+        exercise: `## Exercise — Set Up Your Environment
+
+Before Day 1, confirm every tool is ready so you hit the ground running.
+
+1. Install **Postman** (postman.com/downloads)
+2. Install **Visual Studio** (free Community edition) or VS Code + C# Dev Kit extension
+3. Install **.NET SDK 8** (dotnet.microsoft.com/download)
+4. Install **Node.js LTS** (nodejs.org) — needed for Angular and Cypress
+5. Install **Angular CLI**: \`npm install -g @angular/cli\`
+6. Install **Cypress**: \`npm install -g cypress\`
+7. Create a free **GitHub account** if you don't have one
+8. Create a free **Jira** or **Trello** board for bug logging
+
+Once all tools are installed, verify them: run \`dotnet --version\`, \`node --version\`, \`ng version\` — all should return version numbers without errors.`
       }
     ]
   },
@@ -267,19 +267,19 @@ New → Assigned → In Progress → Fixed → Re-test → Closed
 8. **Screenshot or log:** evidence
 
 > **Severity vs Priority:** A typo on the homepage is Low severity (system still works) but High priority (every user sees it). A crash in an admin-only export tool is High severity but possibly Lower priority (small user impact).`,
-        exercise: {
-          title: 'Day 1 Deliverable — 15 Test Cases + 5 Bug Reports',
-          description: 'Apply equivalence partitioning and BVA to a real login feature. Log 5 mock bugs professionally.',
-          steps: [
-            'Open your Jira/Trello board (or a spreadsheet)',
-            'Write **15 test cases** for a login feature covering: valid login, wrong password, wrong email, empty fields, special characters, SQL injection attempt, very long inputs, account locked, remember-me checkbox, forgot password link',
-            'Use EP for email field: valid email format, missing @, missing domain, empty — one test per partition',
-            'Use BVA for password length (min 8, max 64): test 7, 8, 64, 65 characters',
-            'Create a decision table for the "remember me + locked account" combinations',
-            'Log **5 mock bugs** with all required fields: title, steps, expected, actual, severity, priority',
-            'Example bug: "Login button remains active when both fields are empty — expected: disabled until both fields filled"'
-          ]
-        }
+        exercise: `## Day 1 Deliverable — 15 Test Cases + 5 Bug Reports
+
+Apply equivalence partitioning and BVA to a real login feature. Log 5 mock bugs professionally.
+
+1. Open your Jira/Trello board (or a spreadsheet)
+2. Write **15 test cases** for a login feature covering: valid login, wrong password, wrong email, empty fields, special characters, SQL injection attempt, very long inputs, account locked, remember-me checkbox, forgot password link
+3. Use EP for the email field: valid email format, missing @, missing domain, empty — one test per partition
+4. Use BVA for password length (min 8, max 64): test 7, 8, 64, and 65 characters
+5. Create a decision table for the "remember me + locked account" combinations
+6. Log **5 mock bugs** with all required fields: title, steps to reproduce, expected result, actual result, severity, priority
+7. Example bug title: "Login button remains active when both fields are empty — expected: disabled until both fields are filled"
+
+**Deliverable:** Screenshot or export of your test case spreadsheet + 5 filed bug tickets.`
       },
 
       {
@@ -427,19 +427,19 @@ pm.environment.set("todo_id", body.id);
 7. **Non-existent resources** — GET/DELETE unknown ID (404)
 8. **SQL injection** — \`' OR 1=1 --\` in string fields
 9. **XSS** — \`<script>alert(1)</script>\` in string fields`,
-        exercise: {
-          title: 'Day 2 Deliverable — Postman Collection + Test Plan Template',
-          description: 'Build a complete Postman collection against a public API and write a one-page test plan.',
-          steps: [
-            'Open Postman and create a new Collection called "Day 2 Practice"',
-            'Add 5 requests against **reqres.in** (a free practice API): GET /api/users, GET /api/users/2, POST /api/users, PUT /api/users/2, DELETE /api/users/2',
-            'Add at least 2 assertion scripts per request (status code + body shape)',
-            'Chain the POST and PUT requests using an environment variable to pass the created user ID',
-            'Run a 30-minute exploratory testing session on **the-internet.herokuapp.com** — log every bug you find with full reproduction steps',
-            'Write a one-page test plan for "User Registration" feature using the template from theory (scope, approach, entry/exit criteria, risks)',
-            'Export the Postman collection as JSON and save to your test artifacts folder'
-          ]
-        }
+        exercise: `## Day 2 Deliverable — Postman Collection + Test Plan Template
+
+Build a complete Postman collection against a public practice API and write a one-page test plan.
+
+1. Open Postman and create a new Collection called "Day 2 Practice"
+2. Add 5 requests against **reqres.in** (free practice API): GET /api/users, GET /api/users/2, POST /api/users, PUT /api/users/2, DELETE /api/users/2
+3. Add at least 2 assertion scripts per request (status code + body shape)
+4. Chain the POST and PUT requests using a Postman environment variable to pass the created user ID
+5. Run a 30-minute exploratory testing session on **the-internet.herokuapp.com** — log every bug with full reproduction steps
+6. Write a one-page test plan for a "User Registration" feature: scope, approach, entry/exit criteria, risks
+7. Export the Postman collection as JSON and save to your test artifacts folder
+
+**Deliverable:** Exported Postman collection JSON + one-page test plan document.`
       }
     ]
   },
@@ -636,20 +636,20 @@ git push origin test/add-unit-tests-todo-service
 - \`test: add unit tests for X\`
 - \`test: fix flaky assertion in Y\`
 - \`test: increase coverage on Z service\``,
-        exercise: {
-          title: 'Day 3 Deliverable — Sample API on GitHub + Architecture Diagram',
-          description: 'Build a simple To-Do API from scratch and diagram its architecture.',
-          steps: [
-            'Open a terminal and run: `dotnet new webapi -n TodoApi --no-https --use-controllers`',
-            'Open the project in Visual Studio or VS Code',
-            'Add a `Todo` model class with properties: Id (int), Title (string), IsCompleted (bool), CreatedAt (DateTime)',
-            'Create `ITodoService` interface with GetAll, GetById, Create, Update, Delete methods',
-            'Implement `TodoService` with an in-memory `List<Todo>` (no database yet — keep it simple)',
-            'Create `TodosController` that injects `ITodoService` and exposes all 5 CRUD endpoints',
-            'Register services in `Program.cs` and test all endpoints via Swagger',
-            'Create a GitHub repo, push the code, and draw an architecture diagram: Controller → Service → In-Memory Store'
-          ]
-        }
+        exercise: `## Day 3 Deliverable — Sample API on GitHub + Architecture Diagram
+
+Build a simple To-Do API from scratch and diagram its architecture.
+
+1. Open a terminal and run: \`dotnet new webapi -n TodoApi --no-https --use-controllers\`
+2. Open the project in Visual Studio or VS Code
+3. Add a \`Todo\` model class with properties: Id (int), Title (string), IsCompleted (bool), CreatedAt (DateTime)
+4. Create \`ITodoService\` interface with GetAll, GetById, Create, Update, Delete methods
+5. Implement \`TodoService\` with an in-memory \`List<Todo>\` (no database yet — keep it simple)
+6. Create \`TodosController\` that injects \`ITodoService\` and exposes all 5 CRUD endpoints
+7. Register services in \`Program.cs\` and test all endpoints via Swagger at \`/swagger\`
+8. Create a GitHub repo, push the code, and draw a simple architecture diagram: Controller → Service → In-Memory Store
+
+**Deliverable:** GitHub repo link + architecture diagram image saved to your artifacts folder.`
       },
 
       {
@@ -806,22 +806,22 @@ dotnet test
 # Run with verbose output
 dotnet test --logger "console;verbosity=normal"
 \`\`\``,
-        exercise: {
-          title: 'Day 4 Deliverable — xUnit Test Suite for Service Layer',
-          description: 'Write unit tests covering every method in TodoService.',
-          steps: [
-            'Add an xUnit test project: `dotnet new xunit -n TodoApi.Tests` and reference the main project',
-            'Write a test class `TodoServiceTests` with a fresh `TodoService` instance per test (use constructor, not shared field)',
-            'Test **GetAll**: returns empty list initially, returns items after creation',
-            'Test **GetById**: returns correct item for valid ID, throws `NotFoundException` for invalid ID',
-            'Test **Create**: returns created item with ID assigned, throws for null/empty title, throws for title > 200 chars',
-            'Test **Update**: updates correctly for valid input, throws `NotFoundException` for wrong ID',
-            'Test **Delete**: removes item for valid ID, throws `NotFoundException` for wrong ID',
-            'Use `[Theory]` + `[InlineData]` for all invalid title cases in Create',
-            'Run `dotnet test` — all tests must be green before moving on',
-            'Name every test using the `MethodName_Scenario_ExpectedResult` convention'
-          ]
-        }
+        exercise: `## Day 4 Deliverable — xUnit Test Suite for Service Layer
+
+Write unit tests covering every method in TodoService. All tests must be green before you move to Day 5.
+
+1. Add an xUnit test project: \`dotnet new xunit -n TodoApi.Tests\` and reference the main project
+2. Write a test class \`TodoServiceTests\` — create a fresh \`TodoService\` instance in each test's Arrange section
+3. Test **GetAll**: returns empty list initially; returns correct items after one is created
+4. Test **GetById**: returns correct item for valid ID; throws \`NotFoundException\` for non-existent ID
+5. Test **Create**: returns created item with ID assigned; throws for null title; throws for empty title; throws for title > 200 chars
+6. Test **Update**: updates title correctly for valid input; throws \`NotFoundException\` for wrong ID
+7. Test **Delete**: removes item for valid ID; throws \`NotFoundException\` for wrong ID
+8. Use \`[Theory]\` + \`[InlineData]\` for all invalid title variants in the Create tests
+9. Run \`dotnet test\` — every test must pass before continuing
+10. Name every test method using the \`MethodName_Scenario_ExpectedResult\` convention
+
+**Deliverable:** \`dotnet test\` output showing all tests green.`
       },
 
       {
@@ -1018,21 +1018,22 @@ reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coverage-report
 - DTOs/Models: not worth measuring (no logic)
 
 > **Coverage ≠ quality.** You can hit 100% coverage with useless tests. Cover the important paths with meaningful assertions.`,
-        exercise: {
-          title: 'Day 5 Deliverable — Integration Tests + Coverage Report',
-          description: 'Add a real Repository layer, mock it in unit tests, write integration tests, and generate a coverage report.',
-          steps: [
-            'Add `ITodoRepository` interface and `TodoRepository` implementation using EF Core',
-            'Refactor `TodoService` to depend on `ITodoRepository` via constructor injection',
-            'Rewrite Day 4 unit tests to use `Mock<ITodoRepository>` instead of direct in-memory list',
-            'Add `Moq` package: `dotnet add package Moq`',
-            'Write 2–3 integration tests using `WebApplicationFactory` with in-memory EF Core database',
-            'Test: GET /api/todos returns 200, POST creates and returns 201, GET /api/todos/{invalid} returns 404',
-            'Run `dotnet test --collect:"XPlat Code Coverage"` and generate the HTML report',
-            'Write a short gap analysis: list 3 methods not yet covered and why they matter (or don\'t)',
-            'Week 1 milestone: you now have a .NET API with full unit + integration tests and a coverage report'
-          ]
-        }
+        exercise: `## Day 5 Deliverable — Integration Tests + Coverage Report
+
+Add a real Repository layer, mock it in unit tests, write integration tests, and generate a coverage report.
+
+1. Add \`ITodoRepository\` interface and \`TodoRepository\` implementation using EF Core
+2. Refactor \`TodoService\` to depend on \`ITodoRepository\` via constructor injection
+3. Rewrite Day 4 unit tests to use \`Mock<ITodoRepository>\` instead of a direct in-memory list
+4. Add the Moq package: \`dotnet add package Moq\`
+5. Write 2–3 integration tests using \`WebApplicationFactory\` with an in-memory EF Core database
+6. Test: GET /api/todos returns 200; POST creates and returns 201; GET /api/todos/99999 returns 404
+7. Run \`dotnet test --collect:"XPlat Code Coverage"\` and generate the HTML report with \`reportgenerator\`
+8. Write a short gap analysis: list 3 methods not yet covered and whether covering them is worthwhile
+
+**Week 1 milestone:** You now have a fully-tested .NET API — unit tests with mocks + integration tests + HTML coverage report.
+
+**Deliverable:** Link to your GitHub repo + screenshot of the HTML coverage report showing service layer coverage.`
       }
     ]
   },
@@ -1231,21 +1232,21 @@ src/
 - \`.service.ts\` files — all public methods, all HTTP calls
 - \`.component.ts\` files — template rendering, user interactions, input/output bindings
 - **Not worth unit testing:** routing configuration, module declarations, CSS`,
-        exercise: {
-          title: 'Day 6 Deliverable — Angular App + Component Tree Diagram',
-          description: 'Generate a sample Angular app that calls your .NET API and map its architecture.',
-          steps: [
-            'Run: `ng new todo-angular --routing --style=scss` and open in VS Code',
-            'Generate service: `ng generate service todo/todo`',
-            'Generate components: `ng generate component todo/todo-list` and `ng generate component todo/todo-form`',
-            'Implement `TodoService` with `getAll()`, `create()`, and `markComplete()` methods using `HttpClient`',
-            'Implement `TodoListComponent`: load todos on init, display in a list, "Mark Complete" button per item',
-            'Implement `TodoFormComponent`: form with title input, submit creates a new todo via the service',
-            'Add `HttpClientModule` to `AppModule` and connect the Angular app to your .NET API URL',
-            'Run `ng serve` and verify the app loads and talks to your .NET API',
-            'Draw a component tree diagram: AppComponent → TodoListComponent (uses TodoService) + TodoFormComponent (uses TodoService)'
-          ]
-        }
+        exercise: `## Day 6 Deliverable — Angular App + Component Tree Diagram
+
+Generate a sample Angular app that calls your .NET API and map its architecture.
+
+1. Run: \`ng new todo-angular --routing --style=scss\` and open in VS Code
+2. Generate the service: \`ng generate service todo/todo\`
+3. Generate components: \`ng generate component todo/todo-list\` and \`ng generate component todo/todo-form\`
+4. Implement \`TodoService\` with \`getAll()\`, \`create()\`, and \`markComplete()\` methods using \`HttpClient\`
+5. Implement \`TodoListComponent\`: load todos on \`ngOnInit\`, display in a \`<ul>\`, show a "Mark Complete" button per item
+6. Implement \`TodoFormComponent\`: form with a title input, clicking submit calls the service and adds to the list
+7. Add \`HttpClientModule\` to \`AppModule\` and point the service to your .NET API URL (\`http://localhost:5000/api/todos\`)
+8. Run \`ng serve\` and verify the app loads, talks to your .NET API, and the UI updates when you create a todo
+9. Draw a component tree: AppComponent → TodoListComponent (injects TodoService) + TodoFormComponent (injects TodoService)
+
+**Deliverable:** Running Angular app + component tree diagram saved as an image.`
       },
 
       {
@@ -1462,23 +1463,26 @@ ng test --code-coverage
 # Run headless (for CI)
 ng test --watch=false --browsers=ChromeHeadless
 \`\`\``,
-        exercise: {
-          title: 'Day 7 Deliverable — Angular Unit Test Suite with Coverage',
-          description: 'Write unit tests for TodoService and TodoListComponent with meaningful coverage.',
-          steps: [
-            'Open `todo.service.spec.ts` and configure TestBed with `HttpClientTestingModule`',
-            'Write tests for `getAll()`: verify GET request is made, verify returned data shape',
-            'Write tests for `create()`: verify POST is made, verify request body, verify returned object',
-            'Write tests for `markComplete()`: verify PATCH is made with correct ID',
-            'Open `todo-list.component.spec.ts` — create a spy object for `TodoService`',
-            'Test: component initializes and calls `getAll()` in `ngOnInit`',
-            'Test: todo titles are rendered in `<li>` elements after data loads',
-            'Test: clicking "Mark Complete" button calls `markComplete(id)` with the correct ID',
-            'Test: loading spinner shows when `isLoading=true`, hides when `isLoading=false`',
-            'Test: error message renders when `getAll()` throws an error (use `throwError`)',
-            'Run `ng test --code-coverage` and verify Service coverage is above 80%'
-          ]
-        }
+        exercise: `## Day 7 Deliverable — Angular Unit Test Suite with Coverage
+
+Write unit tests for TodoService and TodoListComponent with meaningful coverage. All tests must be green.
+
+**TodoService tests** (\`todo.service.spec.ts\`):
+1. Configure TestBed with \`HttpClientTestingModule\`
+2. Test \`getAll()\`: verify a GET request is made to the correct URL; verify returned data shape
+3. Test \`create()\`: verify a POST is made with the correct body; verify the returned object has an id
+4. Test \`markComplete()\`: verify a PATCH is made with the correct todo ID
+
+**TodoListComponent tests** (\`todo-list.component.spec.ts\`):
+5. Create a \`jasmine.createSpyObj\` for TodoService with \`getAll\` and \`markComplete\` methods
+6. Test: component calls \`getAll()\` in \`ngOnInit\` and stores result in \`todos\`
+7. Test: todo titles are rendered in \`<li>\` elements after data loads (check \`nativeElement\`)
+8. Test: clicking the "Mark Complete" button calls \`markComplete(todo.id)\` with the correct ID
+9. Test: loading spinner \`[isLoading=true]\` is visible while data loads, hidden after
+10. Test: error message is shown when \`getAll()\` throws (use \`throwError(() => new Error('fail'))\`)
+11. Run \`ng test --watch=false --browsers=ChromeHeadless --code-coverage\` — verify service coverage ≥ 80%
+
+**Deliverable:** Screenshot of Karma test runner showing all tests green + coverage report summary.`
       }
     ]
   },
@@ -1685,22 +1689,22 @@ it('creates a todo', () => {
   page.todoList().should('contain.text', 'Build something great');
 });
 \`\`\``,
-        exercise: {
-          title: 'Day 8 Deliverable — Cypress E2E Suite (Page Object Model)',
-          description: 'Write a Cypress test suite for the full todo creation and completion flow using POM.',
-          steps: [
-            'Install Cypress: `npm install --save-dev cypress` in the Angular project',
-            'Add `data-testid` attributes to all interactive elements in your Angular templates',
-            'Create `cypress/pages/todo.page.ts` with the Page Object for your todo app',
-            'Write E2E test: app loads and displays todo list (intercept GET to return mock data)',
-            'Write E2E test: create a new todo — type title, click submit, verify it appears in list',
-            'Write E2E test: empty title — submit button is disabled or shows validation error',
-            'Write E2E test: API error — intercept GET with 500, verify error message is displayed',
-            'Write E2E test: mark complete — click complete button, verify todo is styled as done',
-            'Run `npx cypress run` headless — all 5 tests should pass',
-            'Write a prioritization note: list the next 3 flows you would automate and justify why'
-          ]
-        }
+        exercise: `## Day 8 Deliverable — Cypress E2E Suite (Page Object Model)
+
+Write a 5-scenario Cypress suite for the todo app using POM. Run headless — all 5 must pass.
+
+1. Install Cypress: \`npm install --save-dev cypress\` in the Angular project
+2. Add \`data-testid\` attributes to every interactive element in your Angular templates
+3. Create \`cypress/pages/todo.page.ts\` with a Page Object — all selectors and common actions go here
+4. **Scenario 1:** App loads → \`cy.intercept\` GET to return 2 mock todos → verify both titles visible
+5. **Scenario 2:** Create a new todo → type title → click submit → verify it appears in the list
+6. **Scenario 3:** Empty title → submit button is disabled or validation error is shown
+7. **Scenario 4:** API error → \`cy.intercept\` GET with 500 → verify error message element is visible
+8. **Scenario 5:** Mark complete → click complete button → verify todo element has a "done" CSS class
+9. Run \`npx cypress run\` headless — all 5 tests must be green
+10. Write a short prioritization note: list the next 3 flows you would automate and justify why each matters
+
+**Deliverable:** Cypress run output showing 5 passing tests + your prioritization note.`
       },
 
       {
@@ -1911,20 +1915,20 @@ Remaining open bugs: N (list P1/P2 with owners)
 Coverage: .NET 82%, Angular 76%
 Recommendation: Ready to ship / Not ready (reason)
 \`\`\``,
-        exercise: {
-          title: 'Day 9 Deliverable — GitHub Actions Pipeline Running All Three Suites',
-          description: 'Create a working CI pipeline that runs .NET, Angular, and Cypress tests on every push.',
-          steps: [
-            'Create `.github/workflows/tests.yml` in the root of your GitHub repo',
-            'Add the `dotnet-tests` job: checkout → setup .NET → restore → `dotnet test` with coverage → upload artifact',
-            'Add the `angular-tests` job: checkout → setup Node → `npm ci` → `ng test --watch=false --browsers=ChromeHeadless --code-coverage`',
-            'Add the `e2e-tests` job with `needs: [dotnet-tests, angular-tests]` so it only runs when unit tests pass',
-            'In the E2E job, start both the .NET API and Angular app as background processes, use `wait-on` to wait for them',
-            'Push to GitHub and watch the Actions tab — fix any failures you see',
-            'Introduce a deliberate bug in TodoService, push, verify the pipeline goes red within 2 minutes, then fix and push again',
-            'Write a short test summary report as if you were reporting the sprint results to your lead'
-          ]
-        }
+        exercise: `## Day 9 Deliverable — GitHub Actions Pipeline Running All Three Suites
+
+Create a working CI pipeline. Every push to main or a PR must run all three test suites automatically.
+
+1. Create \`.github/workflows/tests.yml\` in the root of your GitHub repo
+2. Add the \`dotnet-tests\` job: checkout → setup .NET 8 → restore → \`dotnet test --collect:"XPlat Code Coverage"\` → upload artifact
+3. Add the \`angular-tests\` job: checkout → setup Node 20 → \`npm ci\` → \`ng test --watch=false --browsers=ChromeHeadless --code-coverage\`
+4. Add the \`e2e-tests\` job with \`needs: [dotnet-tests, angular-tests]\` — it only runs when both unit test jobs pass
+5. In the E2E job: start the .NET API with \`dotnet run &\`, start Angular with \`ng serve &\`, use \`wait-on\` to wait for both
+6. Push to GitHub and watch the Actions tab — fix every failure until all three jobs are green
+7. **Red/green drill:** Introduce a deliberate bug in TodoService, push, verify the pipeline fails within 2 minutes, then fix and push again
+8. Write a one-page sprint test summary: features tested, pass rate, bugs found, coverage numbers, recommendation
+
+**Deliverable:** GitHub Actions run screenshot showing all three jobs green + your sprint summary report.`
       }
     ]
   },
@@ -2089,22 +2093,29 @@ Rate each item: ✅ Yes, fully | ⚠️ Partially | ❌ Not yet
 - <6 ✅ → **Needs more time** — identify the weakest module and repeat it
 
 > This checklist is exactly what to review in your next mentor check-in. Be honest — the goal isn't to pass the checklist, it's to find real gaps before they cost the team time in production.`,
-        exercise: {
-          title: 'Day 10 Deliverable — Full Test Artifact Set for the Tag Feature',
-          description: 'Produce everything a lead needs to review: test plan, test cases, unit tests, E2E tests, bug log, green CI run, and a scored readiness checklist.',
-          steps: [
-            'Write a one-page test plan for the "Tag Todos" feature (scope, risks, prioritization, exit criteria)',
-            'Write 10+ manual test cases covering valid operations, BVA on tag length, max tags, duplicates',
-            'Implement the TagService and TagRepository in .NET (or ask for a pre-built stub from your mentor)',
-            'Write xUnit tests with Moq for all 6 TagService methods listed in Step 3',
-            'Write Angular unit tests for tag rendering and tag input behaviour listed in Step 4',
-            'Write 3 Cypress E2E tests for the critical tag flows listed in Step 5',
-            'Push everything, verify the GitHub Actions pipeline goes green',
-            'Log any bugs you found with full reproduction steps in Jira/Trello',
-            'Complete the Readiness Checklist above with honest scores',
-            'Write a 5-minute verbal summary: "Here is what I built, here are the gaps I found in myself, here is my plan to close them"'
-          ]
-        }
+        exercise: `## Day 10 Deliverable — Full Test Artifact Set for the Tag Feature
+
+Produce everything a lead needs to review. This is your proof of readiness.
+
+**Part 1 — Test Plan (30 mins)**
+Write a one-page test plan for the "Tag Todos" feature: scope, risks, P1/P2/P3 prioritization, entry/exit criteria.
+
+**Part 2 — Manual Test Cases (45 mins)**
+Write 10+ test cases: valid tag operations, BVA on tag length (29/30/31 chars), max 10 tags, duplicate detection, SQL injection, 404 on unknown todo.
+
+**Part 3 — xUnit Tests (90 mins)**
+Write 9 unit tests with \`Mock<ITagRepository>\` for TagService: AddTag (valid, duplicate, max exceeded, too long), RemoveTag (exists, not found), FilterByTag (matches, no matches).
+
+**Part 4 — Angular Unit Tests (60 mins)**
+Write 8 Jasmine tests: tag chips render, filter on click, remove button calls service, comma-separated input parsed correctly, 10-tag limit enforced, whitespace trimmed.
+
+**Part 5 — Cypress E2E Tests (60 mins)**
+Write 5 scenarios: add a tag, filter by tag, remove a tag, 11th-tag error, empty-state when filter has no results.
+
+**Part 6 — CI + Self-Assessment (30 mins)**
+Push to \`test/tag-feature\` branch. All three GitHub Actions jobs must go green. Score yourself on the 10-point readiness checklist in the Lesson tab. Prepare a 5-minute verbal summary.
+
+**Deliverable:** All of the above + green CI screenshot + completed readiness checklist.`
       }
     ]
   }
