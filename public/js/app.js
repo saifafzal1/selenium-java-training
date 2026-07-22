@@ -12,7 +12,7 @@ let state = {
   agentMode: false,    // multi-step chain: Refine → Answer → Review
   skillMode: 'explain', // AI persona: explain | debug | generate | quiz
   projectFolder: '',   // saved code destination
-  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api' | 'e2e' | 'jmeter' | 'security' | 'database'
+  activeCourse: 'selenium'  // 'selenium' | 'playwright' | 'api' | 'e2e' | 'jmeter' | 'security' | 'database' | 'dotnet'
 };
 
 // ── Skill Prompts (AI Persona Modes) ───────────────────────────
@@ -93,6 +93,7 @@ function getActiveCurriculum() {
   if (state.activeCourse === 'jmeter') return JMETER_CURRICULUM;
   if (state.activeCourse === 'security') return SECURITY_CURRICULUM;
   if (state.activeCourse === 'database') return DATABASE_CURRICULUM;
+  if (state.activeCourse === 'dotnet') return DOTNET_CURRICULUM;
   return CURRICULUM;
 }
 function getActiveLabs() {
@@ -102,6 +103,7 @@ function getActiveLabs() {
   if (state.activeCourse === 'jmeter') return JMETER_CURRICULUM_LABS;
   if (state.activeCourse === 'security') return SECURITY_CURRICULUM_LABS;
   if (state.activeCourse === 'database') return DATABASE_CURRICULUM_LABS;
+  if (state.activeCourse === 'dotnet') return DOTNET_CURRICULUM_LABS;
   return CURRICULUM_LABS;
 }
 function getProgressKey() {
@@ -111,6 +113,7 @@ function getProgressKey() {
   if (state.activeCourse === 'jmeter') return 'jmeter-training-progress';
   if (state.activeCourse === 'security') return 'security-training-progress';
   if (state.activeCourse === 'database') return 'database-training-progress';
+  if (state.activeCourse === 'dotnet') return 'dotnet-training-progress';
   return 'selenium-training-progress';
 }
 
@@ -132,6 +135,7 @@ function switchCourse(course) {
   document.getElementById('btn-jmeter').classList.toggle('active', course === 'jmeter');
   document.getElementById('btn-security').classList.toggle('active', course === 'security');
   document.getElementById('btn-database').classList.toggle('active', course === 'database');
+  document.getElementById('btn-dotnet').classList.toggle('active', course === 'dotnet');
 
   // Update welcome screen content
   const isPlaywright = course === 'playwright';
@@ -140,7 +144,8 @@ function switchCourse(course) {
   const isJMeter = course === 'jmeter';
   const isSecurity = course === 'security';
   const isDatabase = course === 'database';
-  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : isE2E ? '🔗' : isJMeter ? '⚡' : isSecurity ? '🔒' : isDatabase ? '🗄️' : '🚀';
+  const isDotnet = course === 'dotnet';
+  document.getElementById('welcome-icon').textContent = isPlaywright ? '🎭' : isApi ? '🔌' : isE2E ? '🔗' : isJMeter ? '⚡' : isSecurity ? '🔒' : isDatabase ? '🗄️' : isDotnet ? '🔷' : '🚀';
   document.getElementById('welcome-title').innerHTML = isPlaywright
     ? 'Playwright —<br><em>From Zero to Expert</em>'
     : isApi
@@ -153,6 +158,8 @@ function switchCourse(course) {
     ? 'Security Vulnerability Testing —<br><em>From Zero to Expert</em>'
     : isDatabase
     ? 'Database Testing with JDBC —<br><em>From Zero to Expert</em>'
+    : isDotnet
+    ? '.NET &amp; Angular Testing —<br><em>From Zero to Independent Contributor</em>'
     : 'Selenium with Java —<br><em>From Zero to Expert</em>';
   document.getElementById('welcome-desc').textContent = isPlaywright
     ? 'Modern, fast, and built-in API testing. Learn Playwright from scratch with hands-on exercises, the Request Builder pattern, and CI/CD. The AI assistant is here to help.'
@@ -166,6 +173,8 @@ function switchCourse(course) {
     ? 'Learn security testing hands-on — OWASP Top 10, SQL Injection, XSS, Broken Access Control, JWT attacks, API security, and automated ZAP scanning in CI/CD. Use ZAP and Burp Suite like a professional pentester.'
     : isDatabase
     ? 'Master database testing with JDBC — CRUD assertions, transaction management, DBUnit fixtures, Flyway migrations, Selenium+JDBC hybrid tests, and performance regression suites. Test every layer of your application.'
+    : isDotnet
+    ? '2-week ramp-up: zero testing background → independent contributor. Covers manual testing, xUnit unit tests, Moq mocks, Angular Jasmine tests, Cypress E2E, and a GitHub Actions CI pipeline. One concrete deliverable per day.'
     : 'Hands-on, practical training with real exercises. Pick a lesson from the sidebar to begin. The AI assistant on the right can explain concepts, debug your code, and generate examples.';
 
   // Update certificate content
@@ -181,6 +190,8 @@ function switchCourse(course) {
     ? 'Security Vulnerability Testing<br><span>Application Security Training</span>'
     : isDatabase
     ? 'Database Testing with JDBC<br><span>Data Layer Testing Training</span>'
+    : isDotnet
+    ? '.NET & Angular Testing<br><span>2-Week Ramp-Up Training</span>'
     : 'Selenium with Java<br><span>Test Automation Training</span>';
   document.getElementById('cert-lessons').textContent = isPlaywright
     ? '18 Lessons · ~9 Hours'
@@ -194,6 +205,8 @@ function switchCourse(course) {
     ? '11 Lessons · ~6 Hours'
     : isDatabase
     ? '12 Lessons · ~6 Hours'
+    : isDotnet
+    ? '11 Lessons · ~10 Days'
     : '17 Lessons · ~8 Hours';
   document.getElementById('cert-topics').textContent = isPlaywright
     ? 'JavaScript · Node.js · POM · Fixtures · API Testing · Hybrid Tests · CI/CD · GitHub Actions'
@@ -207,6 +220,8 @@ function switchCourse(course) {
     ? 'OWASP Top 10 · ZAP · Burp Suite · SQL Injection · XSS · IDOR · JWT · API Security · GitHub Actions CI/CD'
     : isDatabase
     ? 'JDBC · H2 · MySQL · CRUD Tests · Transactions · DBUnit · Flyway Migrations · Selenium+JDBC Hybrid · Performance'
+    : isDotnet
+    ? 'Manual Testing · Postman · C# · ASP.NET Core · xUnit · Moq · Angular · Jasmine · Cypress · GitHub Actions CI/CD'
     : 'Java for Testers · WebDriver · Locators · Waits · Page Object Model · TestNG · Frameworks · CI/CD';
 
   // Update chat placeholder
@@ -223,6 +238,8 @@ function switchCourse(course) {
     ? 'Ask anything about security testing, ZAP, Burp Suite, or OWASP…'
     : isDatabase
     ? 'Ask anything about JDBC, SQL, DBUnit, Flyway, or database testing…'
+    : isDotnet
+    ? 'Ask anything about C#, xUnit, Moq, Angular, Jasmine, or Cypress…'
     : 'Ask anything about Selenium or Java…';
 
   // Update first chat message
@@ -269,6 +286,13 @@ function switchCourse(course) {
       • <strong>Debug</strong> SQLExceptions, constraint violations, and connection leaks<br>
       • <strong>Review</strong> your test data builders, DAOs, and hybrid Selenium+JDBC patterns<br><br>
       Pick a model above and start asking!`
+    : isDotnet
+    ? `👋 Hi! I'm your AI assistant for .NET &amp; Angular Testing. I can:<br><br>
+      • <strong>Explain</strong> C#, xUnit, Moq, Angular, Jasmine, and Cypress concepts<br>
+      • <strong>Generate</strong> unit tests, integration tests, E2E suites, and CI pipelines<br>
+      • <strong>Debug</strong> failing xUnit tests, Angular spec errors, and Cypress flakiness<br>
+      • <strong>Review</strong> your test plans, coverage reports, and bug reports<br><br>
+      Pick a model above and start asking!`
     : `👋 Hi! I'm your AI coding assistant. I can:<br><br>
       • <strong>Explain</strong> any Selenium/Java concept<br>
       • <strong>Generate</strong> test code for your scenarios<br>
@@ -280,7 +304,7 @@ function switchCourse(course) {
       <strong>🏠 Local</strong> — your Ollama models (needs <code>ollama serve</code>)`;
 
   // Load progress for the new course
-  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : isE2E ? 'e2e-training-progress' : isJMeter ? 'jmeter-training-progress' : isSecurity ? 'security-training-progress' : isDatabase ? 'database-training-progress' : 'selenium-training-progress';
+  const key = isPlaywright ? 'playwright-training-progress' : isApi ? 'api-training-progress' : isE2E ? 'e2e-training-progress' : isJMeter ? 'jmeter-training-progress' : isSecurity ? 'security-training-progress' : isDatabase ? 'database-training-progress' : isDotnet ? 'dotnet-training-progress' : 'selenium-training-progress';
   try { state.progress = JSON.parse(localStorage.getItem(key)) || { completedLessons: [], lastVisited: null, notes: {} }; }
   catch { state.progress = { completedLessons: [], lastVisited: null, notes: {} }; }
 
@@ -341,12 +365,13 @@ async function init() {
   document.getElementById('btn-jmeter').classList.toggle('active', state.activeCourse === 'jmeter');
   document.getElementById('btn-security').classList.toggle('active', state.activeCourse === 'security');
   document.getElementById('btn-database').classList.toggle('active', state.activeCourse === 'database');
+  document.getElementById('btn-dotnet').classList.toggle('active', state.activeCourse === 'dotnet');
 
   // Flatten all lessons for active course
   state.allLessons = getActiveCurriculum().flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id })));
 
   // Load progress — try server first, fall back to localStorage
-  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : state.activeCourse === 'e2e' ? 'e2e-training-progress' : state.activeCourse === 'jmeter' ? 'jmeter-training-progress' : state.activeCourse === 'security' ? 'security-training-progress' : state.activeCourse === 'database' ? 'database-training-progress' : LS_KEY;
+  const progressKey = state.activeCourse === 'playwright' ? 'playwright-training-progress' : state.activeCourse === 'api' ? 'api-training-progress' : state.activeCourse === 'e2e' ? 'e2e-training-progress' : state.activeCourse === 'jmeter' ? 'jmeter-training-progress' : state.activeCourse === 'security' ? 'security-training-progress' : state.activeCourse === 'database' ? 'database-training-progress' : state.activeCourse === 'dotnet' ? 'dotnet-training-progress' : LS_KEY;
   try {
     const res = await fetch('api/progress', { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
